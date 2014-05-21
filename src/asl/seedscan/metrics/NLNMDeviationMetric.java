@@ -340,7 +340,7 @@ extends PowerBandMetric
     	{
     		NLNM = new NoiseModel();
     		try {
-    		readNoiseModel(NLNMFile, NLNM);
+    			readNoiseModel(NLNMFile, NLNM);
     		} catch (MetricException e) {
     			logger.error("NLNMDeviationMetric Exception:", e);
     		}
