@@ -53,9 +53,9 @@ public class EventCompareOrientation extends Metric {
   // length of window to take for p-wave data
   private static final int P_WAVE_MS = 5000;
 
-  // range of degrees over which data will be valid
-  private static final int MIN_DEGREES = 0;
-  private static final int MAX_DEGREES = 360;
+  // range of degrees (arc length) over which data will be valid
+  private static final int MIN_DEGREES = 30;
+  private static final int MAX_DEGREES = 90;
 
   public EventCompareOrientation() {
     super();
@@ -75,7 +75,6 @@ public class EventCompareOrientation extends Metric {
 
   @Override
   public void process() {
-    // TODO Auto-generated method stub
     logger.info("-Enter- [ Station {} ] [ Day {} ]", getStation(), getDay());
 
     // a bunch of this is copy-pasted from eventCompareSynthetic since it's the same thing
@@ -202,14 +201,12 @@ public class EventCompareOrientation extends Metric {
         // now, set window start back by 100 seconds (units in ms here)
         stationEventStartTime -= 100 * 1000; // 100 sec * 1000 ms/sec
 
-        ResponseUnits units = ResponseUnits.DISPLACEMENT;
-
         double[] northData = metricData.getWindowedData(curChannel, stationEventStartTime,
             stationEventEndTime);
         double[] eastData = metricData.getWindowedData(pairChannel, stationEventStartTime,
             stationEventEndTime);
         if (northData.length != eastData.length) {
-          logger.error("Datasets of north & east not the same length!!");
+          logger.error("== {}: {} datasets of north & east not the same length!!", getName(), getStation());
           return;
         }
 
@@ -228,6 +225,10 @@ public class EventCompareOrientation extends Metric {
         
         double sigNoiseN = sigN/noiseN;
         double sigNoiseE = sigE/noiseE;
+        final double SIGNAL_CUTOFF = 5.;
+        if (sigNoiseN < SIGNAL_CUTOFF  || sigNoiseE < SIGNAL_CUTOFF) {
+          logger.error("== {}: Signal to noise ratio under 5 -- [{} - {}], [{} - {}]", getName(), name, sigNoiseN, pairName, sigNoiseE);
+        }
         // TODO: use as point of evaluation of goodness of data
         
         double sumNN = 0., sumEN = 0., sumEE = 0.;
@@ -242,6 +243,9 @@ public class EventCompareOrientation extends Metric {
         RealMatrix eigD = egd.getD();
         double linearity = (eigD.getEntry(2, 2)/eigD.getTrace()) - 
             (eigD.getEntry(1, 1)/eigD.getTrace());
+        if (linearity < 0.95) {
+          logger.error("== {}: Linearity of data less than .95 -- [({} - {}) - {}]", getName(), name, pairName, linearity);
+        }
         // TODO: use this to evaluate the goodness of the given data
         
         // first, we low-pass filter the data
@@ -277,7 +281,7 @@ public class EventCompareOrientation extends Metric {
           double e = eastData[i];
           // scale to (0,2) then subtract 1 to get to (-1,1)
           northData[i] = (2 * (n - minNorth) / northChange) - 1;
-          eastData[i] = (2 * (n - minEast) / eastChange) - 1;
+          eastData[i] = (2 * (e - minEast) / eastChange) - 1;
         }
         // detrend operations are done in-place
         Timeseries.detrend(northData);
@@ -320,14 +324,16 @@ public class EventCompareOrientation extends Metric {
 
         RealVector init = new ArrayRealVector(new double[]{0.});
         LeastSquaresProblem.Evaluation initEval = lsp.evaluate(init);
-        double slope = Math.atan(initEval.getPoint().getEntry(0));
-        slope = Math.toDegrees(slope);
-        if (slope < 0) {
-          slope = Math.abs(slope) + 90;
+        // slope her
+        double bAzim = Math.atan(initEval.getPoint().getEntry(0));
+        bAzim = Math.toDegrees(bAzim);
+        if (bAzim < 0) {
+          bAzim = Math.abs(bAzim) + 90;
         } 
         
-        // how to get linearity from residual?
-        double residual = initEval.getCost();
+        if (Math.abs(bAzim - azi) > 5) {
+          logger.error("== {}: Difference btwn calc. and est. azimuth > 5 degrees -- [({} - {}) - ({} (calc) vs. {} (exp))]", getName(), name, pairName, bAzim, azi);
+        }
         
         
       }
