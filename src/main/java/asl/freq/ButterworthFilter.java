@@ -4,6 +4,8 @@
 // change package
 package asl.freq;
 
+import org.apache.commons.math3.complex.Complex;
+
 /* 
  * This file is part of the Anthony Lomax Java Library.
  *
@@ -206,14 +208,14 @@ public class ButterworthFilter implements FrequencyDomainProcess {
 	}
 
 	public final double[] apply(double dt, double[] db) {
-	  Cmplx[] cx = new Cmplx[db.length];
+	  Complex[] cx = new Complex[db.length];
 	  for (int i = 0; i < db.length; ++i) {
-	    cx[i] = new Cmplx(db[i]);
+	    cx[i] = new Complex(db[i]);
 	  }
-	  Cmplx[] filtCx = apply(dt, cx);
+	  Complex[] filtCx = apply(dt, cx);
 	  double[] result = new double[filtCx.length];
 	  for (int i = 0; i < filtCx.length; ++i) {
-	    result[i] = filtCx[i].real();
+	    result[i] = filtCx[i].getReal();
 	  }
 	  return result;
 	}
@@ -234,20 +236,20 @@ public class ButterworthFilter implements FrequencyDomainProcess {
      * @return
      */
     @Override
-    public final Cmplx[] apply(double dt, Cmplx[] cx) {
+    public final Complex[] apply(double dt, Complex[] cx) {
 
         int npts = cx.length;
         double fl = lowFreqCorner;
         double fh = highFreqCorner;
         int npole = numPoles;
 
-        Cmplx c0 = new Cmplx(0.0, 0.0);
-        Cmplx c1 = new Cmplx(1.0, 0.0);
+        Complex c0 = new Complex(0.0, 0.0);
+        Complex c1 = new Complex(1.0, 0.0);
 
-        Cmplx[] sph = new Cmplx[numPoles];
-        Cmplx[] spl = new Cmplx[numPoles];
+        Complex[] sph = new Complex[numPoles];
+        Complex[] spl = new Complex[numPoles];
 
-        Cmplx cjw, cph, cpl;
+        Complex cjw, cph, cpl;
         int nop, nepp, np;
         double wch, wcl, ak, ai, ar, w, dw;
         int i, j;
@@ -264,7 +266,7 @@ public class ButterworthFilter implements FrequencyDomainProcess {
         np = -1;
         if (nop > 0) {
             np += 1;
-            sph[np] = new Cmplx(1., 0.);
+            sph[np] = new Complex(1., 0.);
         }
         if (nepp > 0) {
             for (i = 0; i < nepp; i++) {
@@ -272,15 +274,15 @@ public class ButterworthFilter implements FrequencyDomainProcess {
                 ar = ak * wch / 2.;
                 ai = wch * Math.sqrt(4. - ak * ak) / 2.;
                 np += 1;
-                sph[np] = new Cmplx(-ar, -ai);
+                sph[np] = new Complex(-ar, -ai);
                 np += 1;
-                sph[np] = new Cmplx(-ar, ai);
+                sph[np] = new Complex(-ar, ai);
             }
         }
         np = -1;
         if (nop > 0) {
             np += 1;
-            spl[np] = new Cmplx(1., 0.);
+            spl[np] = new Complex(1., 0.);
         }
         if (nepp > 0) {
             for (i = 0; i < nepp; i++) {
@@ -288,9 +290,9 @@ public class ButterworthFilter implements FrequencyDomainProcess {
                 ar = ak * wcl / 2.;
                 ai = wcl * Math.sqrt(4. - ak * ak) / 2.;
                 np += 1;
-                spl[np] = new Cmplx(-ar, -ai);
+                spl[np] = new Complex(-ar, -ai);
                 np += 1;
-                spl[np] = new Cmplx(-ar, ai);
+                spl[np] = new Complex(-ar, ai);
             }
         }
 
@@ -299,21 +301,24 @@ public class ButterworthFilter implements FrequencyDomainProcess {
         w = 0.;
         for (i = 1; i < npts / 2 + 1; i++) {
             w += dw;
-            cjw = new Cmplx(0., -w);
+            cjw = new Complex(0., -w);
             cph = c1;
             cpl = c1;
             for (j = 0; j < npole; j++) {
-                cph = Cmplx.mul(cph, Cmplx.div(sph[j], Cmplx.add(sph[j], cjw)));
-                cpl = Cmplx.mul(cpl, Cmplx.div(cjw, Cmplx.add(spl[j], cjw)));
+              cph = cph.multiply(sph[j].divide(sph[j].add(cjw)));
+              cpl = cpl.multiply(cjw.divide(spl[j].add(cjw)));
+               // cph = Complex.mul(cph, Complex.div(sph[j], Complex.add(sph[j], cjw)));
+               // cpl = Complex.mul(cpl, Complex.div(cjw, Complex.add(spl[j], cjw)));
 // Does not work! : following 2 lines to replace preceeding 2 lines
-//              cph.mul(Cmplx.div(sph[j], Cmplx.add(sph[j], cjw)));
-//              cpl.mul(Cmplx.div(cjw, Cmplx.add(spl[j], cjw)));
-//orig              cph = Cmplx.div(Cmplx.mul(cph, sph[j]), Cmplx.add(sph[j], cjw));
-//orig              cpl = Cmplx.div(Cmplx.mul(cpl, cjw), Cmplx.add(spl[j], cjw));
+//              cph.mul(Complex.div(sph[j], Complex.add(sph[j], cjw)));
+//              cpl.mul(Complex.div(cjw, Complex.add(spl[j], cjw)));
+//orig              cph = Complex.div(Complex.mul(cph, sph[j]), Complex.add(sph[j], cjw));
+//orig              cpl = Complex.div(Complex.mul(cpl, cjw), Complex.add(spl[j], cjw));
             }
-            cx[i].mul(Cmplx.mul(cph, cpl).conjg());
-//orig          cx[i] = Cmplx.mul(cx[i], Cmplx.conjg(Cmplx.mul(cph, cpl)));
-            cx[npts - i] = Cmplx.conjg(cx[i]);
+            cx[i] = cx[i].multiply(cph.multiply(cpl).conjugate());
+            //cx[i].mul(Complex.mul(cph, cpl).conjg());
+//orig          cx[i] = Complex.mul(cx[i], Complex.conjg(Complex.mul(cph, cpl)));
+            cx[npts - i] = cx[i].conjugate();
         }
 
         return (cx);

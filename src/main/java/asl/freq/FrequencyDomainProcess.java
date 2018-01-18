@@ -4,6 +4,8 @@
 // change package
 package asl.freq;
 
+import org.apache.commons.math3.complex.Complex;
+
 /* 
  * This file is part of the Anthony Lomax Java Library.
  *
@@ -31,7 +33,7 @@ public interface  FrequencyDomainProcess {
 
 	/***  method to apply processing in freq domain ***/
  
-  public Cmplx[] apply(double dt, Cmplx[] cx);
+  public Complex[] apply(double dt, Complex[] cx);
 
 
 }	// End interface FrequencyDomainProcess

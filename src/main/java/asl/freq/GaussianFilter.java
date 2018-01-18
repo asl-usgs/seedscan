@@ -3,6 +3,8 @@
 // change package
 package asl.freq;
 
+import org.apache.commons.math3.complex.Complex;
+
 /* 
  * This file is part of the Anthony Lomax Java Library.
  *
@@ -143,7 +145,7 @@ public class GaussianFilter implements FrequencyDomainProcess {
 
 	/*** function to do gaussian filter in frequency domain */
  
-	public final Cmplx[] apply(double dtime, Cmplx[] cz) {
+	public final Complex[] apply(double dtime, Complex[] cz) {
 
 	//void gauss_filt(np, dtime, cz, fcent, alpha)
 	//int np;
@@ -163,22 +165,22 @@ public class GaussianFilter implements FrequencyDomainProcess {
 		int np2 = cz.length / 2;
 		double w;
 		double wdiff;
-		Cmplx ctf;
-		Cmplx chalf = new Cmplx(0.5, 0.);
+		Complex ctf;
+		Complex chalf = new Complex(0.5, 0.);
 		for (int i = 0; i < np2; i++) {
 			w = freq0 * (double) (i + 1);
 			wdiff = (w - wcent) / wcent;
-			ctf = new Cmplx(Math.exp(-alpha * wdiff * wdiff), 0.0);
+			ctf = new Complex(Math.exp(-alpha * wdiff * wdiff), 0.0);
 			i1 = i + 1;
 			i2 = np - 1 - i;
 			if (i != np2 - 1) {
-				cz[i1] = Cmplx.mul( cz[i1], ctf );
-				cz[i2] = Cmplx.mul( cz[i2], ctf );
+				cz[i1] = cz[i1].multiply(ctf);
+				cz[i2] = cz[i2].multiply(ctf);
 			} else {
-				cz[i1] = Cmplx.mul( cz[i1], Cmplx.mul( ctf, chalf ) );
+				cz[i1] = cz[i1].multiply(ctf.multiply(chalf));
 			}
 		}
-		cz[0] = new Cmplx(0., 0.);
+		cz[0] = new Complex(0., 0.);
 
 		return(cz);
 
