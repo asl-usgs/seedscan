@@ -45,7 +45,8 @@ import sac.SacTimeSeries;
 
 public class EventCompareOrientation extends Metric {
 
-  private static final Logger logger = LoggerFactory.getLogger(asl.seedscan.metrics.EventCompareOrientation.class);
+  private static final Logger logger =:q
+      LoggerFactory.getLogger(asl.seedscan.metrics.EventCompareOrientation.class);
 
   // length of window to take for data using synthetic surface comparison
   private static final int SURFACE_MS = 300000;
@@ -81,7 +82,8 @@ public class EventCompareOrientation extends Metric {
     Hashtable<String, EventCMT> eventCMTs = getEventTable();
     if (eventCMTs == null) {
       logger.info(
-          String.format("No Event CMTs found for Day=[%s] --> Skip EventCompareSynthetic Metric", getDay()));
+          String.format("No Event CMTs found for Day=[%s] --> Skip EventCompareOrientation Metric",
+              getDay()));
       return;
     }
 
@@ -103,11 +105,11 @@ public class EventCompareOrientation extends Metric {
     }
     if (basePreSplit == null) {
       basePreSplit = "XX-LX";
-      logger.info("No base channel for Event Compare Synthetic using: " + basePreSplit);
+      logger.info("No base channel for Event Compare Orientation using: " + basePreSplit);
     }
     if (preSplitBands == null) {
       preSplitBands = "LH";
-      logger.info("No band restriction set for Event Compare Synthetic using: " + preSplitBands);
+      logger.info("No band restriction set for Event Compare Orientation using: " + preSplitBands);
     }
 
     bands = Arrays.asList(preSplitBands.split(","));
@@ -214,7 +216,8 @@ public class EventCompareOrientation extends Metric {
         double[] eastData = metricData.getWindowedData(pairChannel, stationEventStartTime,
             stationEventEndTime);
         if (northData.length != eastData.length) {
-          logger.error("== {}: {} datasets of north & east not the same length!!", getName(), getStation());
+          logger.error("== {}: {} datasets of north & east not the same length!!", 
+              getName(), getStation());
           continue;
         }
 
@@ -235,7 +238,8 @@ public class EventCompareOrientation extends Metric {
         double sigNoiseE = sigE/noiseE;
         final double SIGNAL_CUTOFF = 5.;
         if (sigNoiseN < SIGNAL_CUTOFF  || sigNoiseE < SIGNAL_CUTOFF) {
-          logger.info("== {}: Signal to noise ratio under 5 -- [{} - {}], [{} - {}]", getName(), name, sigNoiseN, pairName, sigNoiseE);
+          logger.info("== {}: Signal to noise ratio under 5 -- [{} - {}], [{} - {}]", getName(),
+              name, sigNoiseN, pairName, sigNoiseE);
           continue;
         }
         // TODO: use as point of evaluation of goodness of data
@@ -253,7 +257,8 @@ public class EventCompareOrientation extends Metric {
         double linearity = (eigD.getEntry(2, 2)/eigD.getTrace()) - 
             (eigD.getEntry(1, 1)/eigD.getTrace());
         if (linearity < 0.95) {
-          logger.error("== {}: Linearity of data less than .95 -- [({} - {}) - {}]", getName(), name, pairName, linearity);
+          logger.error("== {}: Linearity of data less than .95 -- [({} - {}) - {}]", getName(),
+              name, pairName, linearity);
           continue;
         }
         // TODO: use this to evaluate the goodness of the given data
