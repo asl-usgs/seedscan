@@ -159,8 +159,10 @@ public class EventCompareOrientation extends Metric {
       // now curChannel, pairChannel the two channels to get the orientation of
       double azi = stationMeta.getChannelMetadata(curChannel).getAzimuth();
       // now we have the angle for which to rotate data
-      // TODO: possibly check paired channel azi to ensure near-orthogonality?
-
+      
+      ByteBuffer digest = metricData.valueDigestChanged(curChannel, createIdentifier(curChannel), 
+          getForceUpdate());
+      
       // now to get the synthetics data
       SortedSet<String> eventKeys = new TreeSet<String>(eventCMTs.keySet());
       for (String key : eventKeys) {
@@ -170,13 +172,14 @@ public class EventCompareOrientation extends Metric {
 
         double angleBetween = getAngleToEvent(evtLat, evtLon, stnLat, stnLon);
         if (angleBetween < MIN_DEGREES || angleBetween > MAX_DEGREES) {
-          logger.info("== {}: Arc length to key=[{}] out of range for this station\n", getName(), key);
+          logger.info("== {}: Arc length to key=[{}] out of range for this station\n", 
+              getName(), key);
           continue;
         }
 
         Hashtable<String, SacTimeSeries> synthetics = getEventSynthetics(key);
         if (synthetics == null) {
-          logger.info("== {}: No synthetics found for key=[{}] for this station\n", getName(), key);
+          logger.warn("== {}: No synthetics found for key=[{}] for this station\n", getName(), key);
           continue;
         }
 
@@ -187,7 +190,7 @@ public class EventCompareOrientation extends Metric {
         if (synthetics.containsKey(fileKey)) {
           sacSynthetics = synthetics.get(fileKey);
         } else {
-          logger.info("Did not find sac synthetic=[{}] in Hashtable", fileKey);
+          logger.warn("Did not find sac synthetic=[{}] in Hashtable", fileKey);
           continue; // Try next event
         }
 
@@ -195,6 +198,11 @@ public class EventCompareOrientation extends Metric {
         SacHeader header = sacSynthetics.getHeader();
         long eventStartTime = getSacStartTimeInMillis(header);
         long pTravelTime = getPArrivalTime(eventMeta);
+        if (pTravelTime < eventStartTime) {
+          // causality violation detected (p-wave time not gotten correctly)
+          logger.warn("Error in calculating p-wave arrival time after event");
+          continue;
+        }
         long stationEventStartTime = eventStartTime + pTravelTime;
         // ending of p-wave is this length of time afterward
         long stationEventEndTime = stationEventStartTime + P_WAVE_MS;
@@ -207,7 +215,7 @@ public class EventCompareOrientation extends Metric {
             stationEventEndTime);
         if (northData.length != eastData.length) {
           logger.error("== {}: {} datasets of north & east not the same length!!", getName(), getStation());
-          return;
+          continue;
         }
 
         // evaluate signal-to-noise ratio of data
@@ -227,7 +235,8 @@ public class EventCompareOrientation extends Metric {
         double sigNoiseE = sigE/noiseE;
         final double SIGNAL_CUTOFF = 5.;
         if (sigNoiseN < SIGNAL_CUTOFF  || sigNoiseE < SIGNAL_CUTOFF) {
-          logger.error("== {}: Signal to noise ratio under 5 -- [{} - {}], [{} - {}]", getName(), name, sigNoiseN, pairName, sigNoiseE);
+          logger.info("== {}: Signal to noise ratio under 5 -- [{} - {}], [{} - {}]", getName(), name, sigNoiseN, pairName, sigNoiseE);
+          continue;
         }
         // TODO: use as point of evaluation of goodness of data
         
@@ -245,6 +254,7 @@ public class EventCompareOrientation extends Metric {
             (eigD.getEntry(1, 1)/eigD.getTrace());
         if (linearity < 0.95) {
           logger.error("== {}: Linearity of data less than .95 -- [({} - {}) - {}]", getName(), name, pairName, linearity);
+          continue;
         }
         // TODO: use this to evaluate the goodness of the given data
         
@@ -329,12 +339,25 @@ public class EventCompareOrientation extends Metric {
         bAzim = Math.toDegrees(bAzim);
         if (bAzim < 0) {
           bAzim = Math.abs(bAzim) + 90;
-        } 
-        
-        if (Math.abs(bAzim - azi) > 5) {
-          logger.error("== {}: Difference btwn calc. and est. azimuth > 5 degrees -- [({} - {}) - ({} (calc) vs. {} (exp))]", getName(), name, pairName, bAzim, azi);
         }
         
+        if ( Math.abs(azi - (bAzim + 180) ) < Math.abs(azi - bAzim) ) {
+          // recall that Java modulo permits negative numbers up to -(modulus)
+          bAzim = ( (bAzim + 180) % 360 + 360 ) % 360;
+        }
+        
+        double angleDifference = Math.abs(bAzim - azi);
+        
+        // add warning before publishing result if it's inconsistent with expected
+        if (angleDifference > 5) {
+          StringBuilder sb = new StringBuilder();
+          sb.append("== {}: Difference btwn calc. and est. azimuth > 5 degrees -- ");
+          sb.append("[({} - {}) - ({} (calc) vs. {} (exp))]");
+          logger.warn(sb.toString(), getName(), name, pairName, bAzim, azi);
+        }
+        
+        // now, populate the results from this data
+        metricResult.addResult(curChannel, angleDifference, digest);
         
       }
     }
@@ -391,6 +414,7 @@ public class EventCompareOrientation extends Metric {
   }
 
   private double getAngleToEvent(double evtLat, double evtLon, double staLat, double staLon) {
+    // Vincenty formula
     double evtLatRad = Math.toRadians(evtLat);
     double evtLonRad = Math.toRadians(evtLon);
     double staLatRad = Math.toRadians(staLat);
@@ -399,7 +423,10 @@ public class EventCompareOrientation extends Metric {
     double x = Math.cos(staLatRad) * Math.sin(deltaLon);
     double y = Math.cos(evtLatRad) * Math.sin(staLatRad);
     y -= Math.sin(evtLatRad) * Math.cos(staLatRad) * Math.cos(deltaLon);
-    return Math.toDegrees( Math.atan2(x, y) );
+    double numer = Math.sqrt( Math.pow(x, 2) + Math.pow(y, 2) );
+    double denom = Math.sin(staLatRad) * Math.sin(evtLatRad);
+    denom += Math.cos(staLatRad) * Math.cos(evtLatRad) * Math.cos(deltaLon);
+    return Math.toDegrees( Math.atan2(numer, denom) );
   }
   
   private int getXSecondsLength(int secs, double sRate) {
