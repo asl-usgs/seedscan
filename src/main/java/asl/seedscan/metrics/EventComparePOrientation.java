@@ -43,10 +43,10 @@ import edu.sc.seis.TauP.TauP_Time;
 import sac.SacHeader;
 import sac.SacTimeSeries;
 
-public class EventCompareOrientation extends Metric {
+public class EventComparePOrientation extends Metric {
 
-  private static final Logger logger =:q
-      LoggerFactory.getLogger(asl.seedscan.metrics.EventCompareOrientation.class);
+  private static final Logger logger =
+      LoggerFactory.getLogger(asl.seedscan.metrics.EventComparePOrientation.class);
 
   // length of window to take for data using synthetic surface comparison
   private static final int SURFACE_MS = 300000;
@@ -58,7 +58,7 @@ public class EventCompareOrientation extends Metric {
   private static final int MIN_DEGREES = 30;
   private static final int MAX_DEGREES = 90;
 
-  public EventCompareOrientation() {
+  public EventComparePOrientation() {
     super();
     addArgument("base-channel");
     addArgument("channel-restriction");
@@ -82,7 +82,7 @@ public class EventCompareOrientation extends Metric {
     Hashtable<String, EventCMT> eventCMTs = getEventTable();
     if (eventCMTs == null) {
       logger.info(
-          String.format("No Event CMTs found for Day=[%s] --> Skip EventCompareOrientation Metric",
+          String.format("No Event CMTs found for Day=[%s] --> Skip EventComparePOrientation Metric",
               getDay()));
       return;
     }
@@ -105,11 +105,12 @@ public class EventCompareOrientation extends Metric {
     }
     if (basePreSplit == null) {
       basePreSplit = "XX-LX";
-      logger.info("No base channel for Event Compare Orientation using: " + basePreSplit);
+      logger.info("No base channel for Event Compare P Orientation using: " + basePreSplit);
     }
     if (preSplitBands == null) {
       preSplitBands = "LH";
-      logger.info("No band restriction set for Event Compare Orientation using: " + preSplitBands);
+      logger.info("No band restriction set for Event Compare P Orientation using: "
+          + preSplitBands);
     }
 
     bands = Arrays.asList(preSplitBands.split(","));
