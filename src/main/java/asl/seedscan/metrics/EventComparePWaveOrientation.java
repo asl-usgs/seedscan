@@ -43,10 +43,10 @@ import edu.sc.seis.TauP.TauP_Time;
 import sac.SacHeader;
 import sac.SacTimeSeries;
 
-public class EventComparePOrientation extends Metric {
+public class EventComparePWaveOrientation extends Metric {
 
   private static final Logger logger =
-      LoggerFactory.getLogger(asl.seedscan.metrics.EventComparePOrientation.class);
+      LoggerFactory.getLogger(asl.seedscan.metrics.EventComparePWaveOrientation.class);
 
   // length of window to take for data using synthetic surface comparison
   private static final int SURFACE_MS = 300000;
@@ -58,7 +58,7 @@ public class EventComparePOrientation extends Metric {
   private static final int MIN_DEGREES = 30;
   private static final int MAX_DEGREES = 90;
 
-  public EventComparePOrientation() {
+  public EventComparePWaveOrientation() {
     super();
     addArgument("base-channel");
     addArgument("channel-restriction");
