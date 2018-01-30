@@ -419,7 +419,7 @@ public class EventComparePWaveOrientation extends Metric {
     return angle;
   }
 
-  private double getAngleToEvent(double evtLat, double evtLon, double staLat, double staLon) {
+  public static double getAngleToEvent(double evtLat, double evtLon, double staLat, double staLon) {
     // Vincenty formula
     double evtLatRad = Math.toRadians(evtLat);
     double evtLonRad = Math.toRadians(evtLon);
