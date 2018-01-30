@@ -1,5 +1,6 @@
 package asl.seedscan.metrics;
 
+import static org.junit.Assert.*;
 import org.junit.Test;
 
 public class OrientationMetricTest {
@@ -19,7 +20,7 @@ public class OrientationMetricTest {
     double y = Math.cos(evtLatRad) * Math.sin(staLatRad);
     y -= Math.sin(evtLatRad) * Math.cos(staLatRad) * Math.cos(deltaLon);
     double result = Math.toDegrees( Math.atan2(x, y) );
-    System.out.println(result);
+    assertEquals(result, 55, 1.0);
   }
   
 }
