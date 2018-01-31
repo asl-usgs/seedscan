@@ -23,10 +23,12 @@ import org.junit.Test;
 
 public class StationMetaTest {
 
+  private static MetricData data1;
   private static MetricData maleabledata1;
   private static MetricData data2;
   private static MetricData maleabledata3;
 
+  private static StationMeta metadata1;
   private static StationMeta maleablemetadata1;
   private static StationMeta metadata2;
   private static StationMeta maleablemetadata3;
@@ -36,6 +38,8 @@ public class StationMetaTest {
 
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
+    data1 = (MetricData) ResourceManager
+        .loadCompressedObject("/data/IU.NWAO.2015.299.MetricData.ser.gz", false);
     maleabledata1 = (MetricData) ResourceManager
         .loadCompressedObject("/data/IU.NWAO.2015.299.MetricData.ser.gz", true);
     data2 = (MetricData) ResourceManager
@@ -49,6 +53,7 @@ public class StationMetaTest {
         maleabledata4.getTimestamp(), new Station("GS", "OK029"));
     maleabledata4.addChannel(new ChannelKey("51", "HHE"), channelMeta);
 
+    metadata1 = data1.getMetaData();
     maleablemetadata1 = maleabledata1.getMetaData();
     metadata2 = data2.getMetaData();
     maleablemetadata3 = maleabledata3.getMetaData();
@@ -56,11 +61,13 @@ public class StationMetaTest {
 
   @AfterClass
   public static void tearDownAfterClass() throws Exception {
+    data1 = null;
     maleabledata1 = null;
     data2 = null;
     maleabledata3 = null;
     maleabledata4 = null;
 
+    metadata1 = null;
     maleablemetadata1 = null;
     metadata2 = null;
     maleablemetadata3 = null;
@@ -68,31 +75,31 @@ public class StationMetaTest {
 
   @Test
   public final void testGetStation() throws Exception {
-    assertEquals("NWAO", maleablemetadata1.getStation());
+    assertEquals("NWAO", metadata1.getStation());
     assertEquals("OK029", metadata2.getStation());
   }
 
   @Test
   public final void testGetNetwork() throws Exception {
-    assertEquals("IU", maleablemetadata1.getNetwork());
+    assertEquals("IU", metadata1.getNetwork());
     assertEquals("GS", metadata2.getNetwork());
   }
 
   @Test
   public final void testGetLatitude() throws Exception {
-    assertEquals(new Double(-32.9277), new Double(maleablemetadata1.getLatitude()));
+    assertEquals(new Double(-32.9277), new Double(metadata1.getLatitude()));
     assertEquals(new Double(35.79657), new Double(metadata2.getLatitude()));
   }
 
   @Test
   public final void testGetLongitude() throws Exception {
-    assertEquals(new Double(117.239), new Double(maleablemetadata1.getLongitude()));
+    assertEquals(new Double(117.239), new Double(metadata1.getLongitude()));
     assertEquals(new Double(-97.45486), new Double(metadata2.getLongitude()));
   }
 
   @Test
   public final void testGetElevation() throws Exception {
-    assertEquals(new Double(380.0), new Double(maleablemetadata1.getElevation()));
+    assertEquals(new Double(380.0), new Double(metadata1.getElevation()));
     assertEquals(new Double(333.0), new Double(metadata2.getElevation()));
   }
 
@@ -107,20 +114,20 @@ public class StationMetaTest {
     LocalDateTime cal1 = LocalDate.of(2015, 10, 26).atStartOfDay();
     LocalDateTime cal2 = LocalDate.of(2015, 12, 26).atStartOfDay();
 
-    assertEquals(cal1, maleablemetadata1.getTimestamp());
+    assertEquals(cal1, metadata1.getTimestamp());
     assertEquals(cal2, metadata2.getTimestamp());
   }
 
   @Test
   public final void testGetDate() throws Exception {
-    assertEquals("2015:299", maleablemetadata1.getDate());
+    assertEquals("2015:299", metadata1.getDate());
     assertEquals("2015:360", metadata2.getDate());
   }
 
   @Test
   public final void testFindChannelMetadataChannel() throws Exception {
     Channel channel = new Channel("00", "LH1");
-    ChannelMeta meta = maleablemetadata1.getChannelMetadata(channel);
+    ChannelMeta meta = metadata1.getChannelMetadata(channel);
 
 			/*
 			 * This should only change with different metadata. This isn't an
