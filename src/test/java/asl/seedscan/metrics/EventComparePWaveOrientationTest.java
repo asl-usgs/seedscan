@@ -52,6 +52,27 @@ public class EventComparePWaveOrientationTest {
   }
 
   @Test
+  public void testProcessCustomConfig() throws Exception {
+
+    metric = new EventComparePWaveOrientation();
+
+    //Not a strong motion comparison, but that is not what we are testing.
+    //Only care if the custom channel is set.
+    metric.add("base-channel", "10-LH");
+    metric.add("channel-restriction", "LH");
+
+    metric.setData(data);
+    LocalDate date = LocalDate.of(2015, 10, 26);
+    metric.setEventTable(eventLoader.getDayEvents(date));
+    HashMap<String, Double> expect = new HashMap<>();
+    expect.put("00-10,LHZ-LHZ", -0.0000032751134376322145);
+    expect.put("00-10,LHND-LHND", 0.0000023421505281695907);
+    expect.put("00-10,LHED-LHED", 0.00000010633680999724207);
+
+    TestUtils.testMetric(metric, expect);
+  }
+
+  @Test
   public final void testGetVersion() throws Exception {
     metric = new EventComparePWaveOrientation();
     assertEquals(1, metric.getVersion());
