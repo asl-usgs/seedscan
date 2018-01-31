@@ -35,7 +35,7 @@ import asl.metadata.meta_new.ChannelMeta;
 import asl.metadata.meta_new.ChannelMeta.ResponseUnits;
 import asl.seedscan.event.EventCMT;
 import asl.timeseries.MyFilter;
-import asl.timeseries.Timeseries;
+import asl.timeseries.TimeseriesUtils;
 import edu.sc.seis.TauP.Arrival;
 import edu.sc.seis.TauP.SphericalCoords;
 import edu.sc.seis.TauP.TauModelException;
@@ -274,8 +274,8 @@ public class EventComparePWaveOrientation extends Metric {
         eastData = bf.apply(1/sampleRateE, eastData);
 
         // detrend operations are done in-place
-        Timeseries.detrend(northData);
-        Timeseries.detrend(eastData);
+        TimeseriesUtils.detrend(northData);
+        TimeseriesUtils.detrend(eastData);
         // now normalize
         double minNorth = northData[0];
         double maxNorth = minNorth;
@@ -300,8 +300,8 @@ public class EventComparePWaveOrientation extends Metric {
           eastData[i] = (2 * (e - minEast) / eastChange) - 1;
         }
         // detrend operations are done in-place
-        Timeseries.detrend(northData);
-        Timeseries.detrend(eastData);
+        TimeseriesUtils.detrend(northData);
+        TimeseriesUtils.detrend(eastData);
 
         // TODO: need to extract the last range of data before this processing??
         double[] east = eastData; // change to arrays.copyofrange(eastdata...?
@@ -372,8 +372,8 @@ public class EventComparePWaveOrientation extends Metric {
 
   private double getPWaveAngleEst(double[] dataN, double[] dataE) {
 
-    Timeseries.demean(dataN);
-    Timeseries.demean(dataE);
+    TimeseriesUtils.demean(dataN);
+    TimeseriesUtils.demean(dataE);
 
     double minN = dataN[0];
     double maxN = dataN[0];
@@ -407,8 +407,8 @@ public class EventComparePWaveOrientation extends Metric {
       dataE[i] += (scaleMinE + scaleMaxE - maxE - minE) / 2;
     }
 
-    Timeseries.demean(dataN);
-    Timeseries.demean(dataE);
+    TimeseriesUtils.demean(dataN);
+    TimeseriesUtils.demean(dataE);
 
     SimpleRegression sr = new SimpleRegression();
     for (int i = 0; i < dataN.length; ++i) {
