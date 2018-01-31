@@ -71,7 +71,7 @@ public class EventComparePWaveOrientation extends Metric {
 
   @Override
   public String getName() {
-    return "EventCompareOrientation";
+    return "EventComparePWaveOrientation";
   }
 
   @Override
