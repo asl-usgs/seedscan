@@ -1,12 +1,8 @@
-
-// added by HPC to put in a package
-//package net.alomax.freq;
-// change package
 package asl.freq;
 
 import org.apache.commons.math3.complex.Complex;
 
-/* 
+/*
  * This file is part of the Anthony Lomax Java Library.
  *
  * Copyright (C) 1999 Anthony Lomax <lomax@faille.unice.fr>
@@ -27,15 +23,13 @@ import org.apache.commons.math3.complex.Complex;
  */
 
 
+public interface FrequencyDomainProcess {
 
+  /***  method to apply processing in freq domain ***/
 
-public interface  FrequencyDomainProcess {
-
-	/***  method to apply processing in freq domain ***/
- 
   public Complex[] apply(double dt, Complex[] cx);
 
 
-}	// End interface FrequencyDomainProcess
+}
 
 

@@ -1,10 +1,6 @@
-
-// added by HPC to put in a package
-//package net.alomax.freq;
-// change package
 package asl.freq;
 
-/* 
+/*
  * This file is part of the Anthony Lomax Java Library.
  *
  * Copyright (C) 1999 Anthony Lomax <lomax@faille.unice.fr>
@@ -24,22 +20,26 @@ package asl.freq;
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-
-
-
-
 class FilterException extends Exception {
 
-	/**
-   * 
+  /**
+   *
    */
   private static final long serialVersionUID = 1L;
-  /** constructors */
 
-	public FilterException() { super("Filter Error: "); }
-	public FilterException(String s) { super("Filter Error: " + s); }
+  /**
+   * constructors
+   */
 
-}	// End class FilterException
+  public FilterException() {
+    super("Filter Error: ");
+  }
+
+  public FilterException(String s) {
+    super("Filter Error: " + s);
+  }
+
+}  // End class FilterException
 
 
 

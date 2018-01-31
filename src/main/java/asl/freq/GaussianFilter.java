@@ -1,11 +1,8 @@
-// added by HPC to put in a package
-//package net.alomax.freq;
-// change package
 package asl.freq;
 
 import org.apache.commons.math3.complex.Complex;
 
-/* 
+/*
  * This file is part of the Anthony Lomax Java Library.
  *
  * Copyright (C) 1999 Anthony Lomax <lomax@faille.unice.fr>
@@ -26,167 +23,173 @@ import org.apache.commons.math3.complex.Complex;
  */
 
 
-
-
-
 public class GaussianFilter implements FrequencyDomainProcess {
 
-	private SeisGramText localeText;
-	public double centFreq;
-	public double alpha;
+  private SeisGramText localeText;
+  public double centFreq;
+  public double alpha;
 
-	public String errorMessage;
+  public String errorMessage;
 
-	private static final double FREQ_MIN = Double.MIN_VALUE;
-	private static final double FREQ_MAX = Double.MAX_VALUE;
+  private static final double FREQ_MIN = Double.MIN_VALUE;
+  private static final double FREQ_MAX = Double.MAX_VALUE;
 
-	private static final double ALPHA_MIN = Double.MIN_VALUE;
-	private static final double ALPHA_MAX = Double.MAX_VALUE;
-
-
-	/** constructor */
-
-	public GaussianFilter(SeisGramText localeText, double centFreq, 
-							double alpha) {
-		this.localeText = localeText;
-		this.centFreq = centFreq;
-		this.alpha = alpha;
-		this.errorMessage = " ";
-	}
+  private static final double ALPHA_MIN = Double.MIN_VALUE;
+  private static final double ALPHA_MAX = Double.MAX_VALUE;
 
 
-	/** Method to set center frequency */
+  /**
+   * constructor
+   */
 
-	public void setCentFreq(double freqValue) 
-									throws FilterException {
-		if (freqValue < FREQ_MIN || freqValue > FREQ_MAX) {
-			throw new FilterException(
-				localeText.invalid_center_frequency);
-		}
-
-		centFreq = freqValue;
-	}
-
-
-	/** Method to set center frequency */
-
-	public void setCentFreq(String str)
-									throws FilterException {
-
-		double freqValue;
-
-		try {
-			freqValue = Double.valueOf(str).doubleValue();
-		} catch (NumberFormatException e) {
-			throw new FilterException(
-				localeText.invalid_center_frequency);
-		}
-
-		setCentFreq(freqValue);
-	}
+  public GaussianFilter(SeisGramText localeText, double centFreq,
+      double alpha) {
+    this.localeText = localeText;
+    this.centFreq = centFreq;
+    this.alpha = alpha;
+    this.errorMessage = " ";
+  }
 
 
-	/** Method to set alpha */
+  /**
+   * Method to set center frequency
+   */
 
-	public void setAlpha(double alphaValue)
-									throws FilterException {
-		if (alphaValue < ALPHA_MIN || alphaValue > ALPHA_MAX) {
-			throw new FilterException(
-				localeText.invalid_alpha_value);
-		}
+  public void setCentFreq(double freqValue)
+      throws FilterException {
+    if (freqValue < FREQ_MIN || freqValue > FREQ_MAX) {
+      throw new FilterException(
+          localeText.invalid_center_frequency);
+    }
 
-		alpha = alphaValue;
-	}
-
-
-	/** Method to set alpha */
-
-	public void setAlpha(String str)
-									throws FilterException {
-
-		double alphaValue;
-
-		try {
-			alphaValue = Double.valueOf(str).doubleValue();
-		} catch (NumberFormatException e) {
-			throw new FilterException(
-				localeText.invalid_alpha_value);
-		}
-
-		setAlpha(alphaValue);
-	}
+    centFreq = freqValue;
+  }
 
 
+  /**
+   * Method to set center frequency
+   */
 
-	/** Method to check settings */
+  public void setCentFreq(String str)
+      throws FilterException {
 
-	public void checkSettings() throws FilterException {
+    double freqValue;
 
-		String errMessage = "";
-		int badSettings = 0;
+    try {
+      freqValue = Double.valueOf(str).doubleValue();
+    } catch (NumberFormatException e) {
+      throw new FilterException(
+          localeText.invalid_center_frequency);
+    }
 
-		if (centFreq < FREQ_MIN || centFreq > FREQ_MAX) {
-			errMessage += ": " + localeText.invalid_center_frequency;
-			badSettings++;
-		}
-
-		if (alpha < ALPHA_MIN || alpha > ALPHA_MAX) {
-			errMessage += ": " + localeText.invalid_alpha_value;
-			badSettings++;
-		}
-
-		if (badSettings > 0) {
-			throw new FilterException(errMessage + ".");
-		}
-
-	}
+    setCentFreq(freqValue);
+  }
 
 
+  /**
+   * Method to set alpha
+   */
 
-	/*** function to do gaussian filter in frequency domain */
- 
-	public final Complex[] apply(double dtime, Complex[] cz) {
+  public void setAlpha(double alphaValue)
+      throws FilterException {
+    if (alphaValue < ALPHA_MIN || alphaValue > ALPHA_MAX) {
+      throw new FilterException(
+          localeText.invalid_alpha_value);
+    }
 
-	//void gauss_filt(np, dtime, cz, fcent, alpha)
-	//int np;
-	//double dtime;
-	//fcomplex cz[];
-	//double fcent, alpha;
+    alpha = alphaValue;
+  }
 
 
-		double wcent = 2.0 * Math.PI * centFreq;
+  /**
+   * Method to set alpha
+   */
+
+  public void setAlpha(String str)
+      throws FilterException {
+
+    double alphaValue;
+
+    try {
+      alphaValue = Double.valueOf(str).doubleValue();
+    } catch (NumberFormatException e) {
+      throw new FilterException(
+          localeText.invalid_alpha_value);
+    }
+
+    setAlpha(alphaValue);
+  }
+
+
+  /**
+   * Method to check settings
+   */
+
+  public void checkSettings() throws FilterException {
+
+    String errMessage = "";
+    int badSettings = 0;
+
+    if (centFreq < FREQ_MIN || centFreq > FREQ_MAX) {
+      errMessage += ": " + localeText.invalid_center_frequency;
+      badSettings++;
+    }
+
+    if (alpha < ALPHA_MIN || alpha > ALPHA_MAX) {
+      errMessage += ": " + localeText.invalid_alpha_value;
+      badSettings++;
+    }
+
+    if (badSettings > 0) {
+      throw new FilterException(errMessage + ".");
+    }
+
+  }
+
+
+  /*** function to do gaussian filter in frequency domain */
+
+  public final Complex[] apply(double dtime, Complex[] cz) {
+
+    //void gauss_filt(np, dtime, cz, fcent, alpha)
+    //int np;
+    //double dtime;
+    //fcomplex cz[];
+    //double fcent, alpha;
+
+    double wcent = 2.0 * Math.PI * centFreq;
 //System.out.println("cz.length "+cz.length+"  ((double) cz.length)) "+((double) cz.length));
-		double freq0 = 2.0 * Math.PI / (((double) (cz.length - 1) + 1.0) * dtime);
-		// fix bug with (double) operator in JDK 1.1.8 win32 jit compiler !!!
-		//double freq0 = 2.0 * Math.PI / ((double) cz.length * dtime);
+    double freq0 = 2.0 * Math.PI / (((double) (cz.length - 1) + 1.0) * dtime);
+    // fix bug with (double) operator in JDK 1.1.8 win32 jit compiler !!!
+    //double freq0 = 2.0 * Math.PI / ((double) cz.length * dtime);
 
-		int i1, i2;
-		int np = cz.length;
-		int np2 = cz.length / 2;
-		double w;
-		double wdiff;
-		Complex ctf;
-		Complex chalf = new Complex(0.5, 0.);
-		for (int i = 0; i < np2; i++) {
-			w = freq0 * (double) (i + 1);
-			wdiff = (w - wcent) / wcent;
-			ctf = new Complex(Math.exp(-alpha * wdiff * wdiff), 0.0);
-			i1 = i + 1;
-			i2 = np - 1 - i;
-			if (i != np2 - 1) {
-				cz[i1] = cz[i1].multiply(ctf);
-				cz[i2] = cz[i2].multiply(ctf);
-			} else {
-				cz[i1] = cz[i1].multiply(ctf.multiply(chalf));
-			}
-		}
-		cz[0] = new Complex(0., 0.);
+    int i1, i2;
+    int np = cz.length;
+    int np2 = cz.length / 2;
+    double w;
+    double wdiff;
+    Complex ctf;
+    Complex chalf = new Complex(0.5, 0.);
+    for (int i = 0; i < np2; i++) {
+      w = freq0 * (double) (i + 1);
+      wdiff = (w - wcent) / wcent;
+      ctf = new Complex(Math.exp(-alpha * wdiff * wdiff), 0.0);
+      i1 = i + 1;
+      i2 = np - 1 - i;
+      if (i != np2 - 1) {
+        cz[i1] = cz[i1].multiply(ctf);
+        cz[i2] = cz[i2].multiply(ctf);
+      } else {
+        cz[i1] = cz[i1].multiply(ctf.multiply(chalf));
+      }
+    }
+    cz[0] = new Complex(0., 0.);
 
-		return(cz);
+    return (cz);
 
-	}
+  }
 
 
-}	// End class GaussianFilter
+}  // End class GaussianFilter
 
 

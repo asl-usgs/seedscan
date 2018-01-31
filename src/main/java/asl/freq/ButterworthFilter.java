@@ -1,12 +1,8 @@
-
-// added by HPC to put in a package
-//package net.alomax.freq;
-// change package
 package asl.freq;
 
 import org.apache.commons.math3.complex.Complex;
 
-/* 
+/*
  * This file is part of the Anthony Lomax Java Library.
  *
  * Copyright (C) 1999 Anthony Lomax <lomax@faille.unice.fr>
@@ -27,306 +23,316 @@ import org.apache.commons.math3.complex.Complex;
  */
 
 
-
-
-
 public class ButterworthFilter implements FrequencyDomainProcess {
 
-	private SeisGramText localeText;
-	public double highFreqCorner;
-	public double lowFreqCorner;
-	public int numPoles;
-	public int filterType;
+  private SeisGramText localeText;
+  public double highFreqCorner;
+  public double lowFreqCorner;
+  public int numPoles;
+  public int filterType;
 
-	public String errorMessage;
+  public String errorMessage;
 
-	private static final double FREQ_MIN = 1.0e-5;
-	private static final double FREQ_MAX = 1.0e5;
+  private static final double FREQ_MIN = 1.0e-5;
+  private static final double FREQ_MAX = 1.0e5;
 
-	private static final double NUM_POLES_MIN = 2;
-	private static final double NUM_POLES_MAX = 20;
+  private static final double NUM_POLES_MIN = 2;
+  private static final double NUM_POLES_MAX = 20;
 
-	private static final double PI = Math.PI;
-	private static final double TWOPI = 2.0 * Math.PI;
+  private static final double PI = Math.PI;
+  private static final double TWOPI = 2.0 * Math.PI;
 
-        public static final int CAUSAL = 0;
-        public static final int NONCAUSAL = 1;
-        public static final int TWOPASS = 1;
+  public static final int CAUSAL = 0;
+  public static final int NONCAUSAL = 1;
+  public static final int TWOPASS = 1;
 
-	/** constructor */
+  /**
+   * constructor
+   */
 
-    public ButterworthFilter(SeisGramText localeText, 
-                             double lowFreqCorner, 
-                             double highFreqCorner, 
-			     int numPoles) {
-           this(localeText, lowFreqCorner, highFreqCorner, numPoles, CAUSAL);
-	   }
+  public ButterworthFilter(SeisGramText localeText,
+      double lowFreqCorner,
+      double highFreqCorner,
+      int numPoles) {
+    this(localeText, lowFreqCorner, highFreqCorner, numPoles, CAUSAL);
+  }
 
-    public ButterworthFilter(SeisGramText localeText, 
-                             double lowFreqCorner, 
-                             double highFreqCorner, 
-			     int numPoles,
-			     int filterType) {
-		this.localeText = localeText;
-		this.highFreqCorner = highFreqCorner;
-		this.lowFreqCorner = lowFreqCorner;
-		this.numPoles = numPoles;
-		this.filterType = filterType;
-		this.errorMessage = " ";
-	}
-
-
-	/** Method to set high frequency corner */
-
-	public void setHighFreqCorner(double freqValue) 
-									throws FilterException {
-		if (freqValue < FREQ_MIN || freqValue > FREQ_MAX) {
-			throw new FilterException(
-				localeText.invalid_high_frequency_corner);
-		}
-
-		highFreqCorner = freqValue;
-	}
+  public ButterworthFilter(SeisGramText localeText,
+      double lowFreqCorner,
+      double highFreqCorner,
+      int numPoles,
+      int filterType) {
+    this.localeText = localeText;
+    this.highFreqCorner = highFreqCorner;
+    this.lowFreqCorner = lowFreqCorner;
+    this.numPoles = numPoles;
+    this.filterType = filterType;
+    this.errorMessage = " ";
+  }
 
 
-	/** Method to set high frequency corner */
+  /**
+   * Method to set high frequency corner
+   */
 
-	public void setHighFreqCorner(String str)
-									throws FilterException {
+  public void setHighFreqCorner(double freqValue)
+      throws FilterException {
+    if (freqValue < FREQ_MIN || freqValue > FREQ_MAX) {
+      throw new FilterException(
+          localeText.invalid_high_frequency_corner);
+    }
 
-		double freqValue;
-
-		try {
-			freqValue = Double.valueOf(str).doubleValue();
-		} catch (NumberFormatException e) {
-			throw new FilterException(
-				localeText.invalid_high_frequency_corner);
-		}
-
-		setHighFreqCorner(freqValue);
-	}
+    highFreqCorner = freqValue;
+  }
 
 
-	/** Method to set low frequency corner */
+  /**
+   * Method to set high frequency corner
+   */
 
-	public void setLowFreqCorner(double freqValue)
-									throws FilterException {
-		if (freqValue < FREQ_MIN || freqValue > FREQ_MAX) {
-			throw new FilterException(
-				localeText.invalid_low_frequency_corner);
-		}
+  public void setHighFreqCorner(String str)
+      throws FilterException {
 
-		lowFreqCorner = freqValue;
-	}
+    double freqValue;
 
+    try {
+      freqValue = Double.valueOf(str).doubleValue();
+    } catch (NumberFormatException e) {
+      throw new FilterException(
+          localeText.invalid_high_frequency_corner);
+    }
 
-	/** Method to set low frequency corner */
-
-	public void setLowFreqCorner(String str)
-									throws FilterException {
-
-		double freqValue;
-
-		try {
-			freqValue = Double.valueOf(str).doubleValue();
-		} catch (NumberFormatException e) {
-			throw new FilterException(
-				localeText.invalid_low_frequency_corner);
-		}
-
-		setLowFreqCorner(freqValue);
-	}
+    setHighFreqCorner(freqValue);
+  }
 
 
-	/** Method to set number of poles */
+  /**
+   * Method to set low frequency corner
+   */
 
-	public void setNumPoles(int nPoles)
-									throws FilterException {
+  public void setLowFreqCorner(double freqValue)
+      throws FilterException {
+    if (freqValue < FREQ_MIN || freqValue > FREQ_MAX) {
+      throw new FilterException(
+          localeText.invalid_low_frequency_corner);
+    }
 
-		if (nPoles < NUM_POLES_MIN || nPoles > NUM_POLES_MAX
-				|| nPoles % 2 != 0) {
-			throw new FilterException(
-				localeText.invalid_number_of_poles);
-		}
-
-		numPoles = nPoles;
-	}
-
-
-	/** Method to set number of poles */
-
-	public void setNumPoles(String str)
-									throws FilterException {
-
-		int nPoles;
-
-		try {
-			nPoles = Integer.parseInt(str);
-		} catch (NumberFormatException e) {
-			throw new FilterException(
-				localeText.invalid_number_of_poles);
-		}
-
-		setNumPoles(nPoles);
-	}
+    lowFreqCorner = freqValue;
+  }
 
 
+  /**
+   * Method to set low frequency corner
+   */
 
-	/** Method to check settings */
+  public void setLowFreqCorner(String str)
+      throws FilterException {
 
-	void checkSettings() throws FilterException {
+    double freqValue;
 
-		String errMessage = "";
-		int badSettings = 0;
+    try {
+      freqValue = Double.valueOf(str).doubleValue();
+    } catch (NumberFormatException e) {
+      throw new FilterException(
+          localeText.invalid_low_frequency_corner);
+    }
 
-		if (highFreqCorner < FREQ_MIN || highFreqCorner > FREQ_MAX) {
-			errMessage += ": " + localeText.invalid_high_frequency_corner;
-			badSettings++;
-		}
+    setLowFreqCorner(freqValue);
+  }
 
-		if (lowFreqCorner < FREQ_MIN || lowFreqCorner > FREQ_MAX) {
-			errMessage += ": " + localeText.invalid_low_frequency_corner;
-			badSettings++;
-		}
 
-		if (lowFreqCorner >= highFreqCorner) {
-			errMessage += 
-				": " + localeText.low_corner_greater_than_high_corner;
-			badSettings++;
-		}
+  /**
+   * Method to set number of poles
+   */
 
-		if (numPoles < NUM_POLES_MIN || numPoles > NUM_POLES_MAX
-				|| numPoles % 2 != 0) {
-			errMessage += ": " + localeText.invalid_number_of_poles;
-			badSettings++;
-		}
+  public void setNumPoles(int nPoles)
+      throws FilterException {
 
-		if (badSettings > 0) {
-			throw new FilterException(errMessage + ".");
-		}
+    if (nPoles < NUM_POLES_MIN || nPoles > NUM_POLES_MAX
+        || nPoles % 2 != 0) {
+      throw new FilterException(
+          localeText.invalid_number_of_poles);
+    }
 
-	}
+    numPoles = nPoles;
+  }
 
-	public final double[] apply(double dt, double[] db) {
-	  Complex[] cx = new Complex[db.length];
-	  for (int i = 0; i < db.length; ++i) {
-	    cx[i] = new Complex(db[i]);
-	  }
-	  Complex[] filtCx = apply(dt, cx);
-	  double[] result = new double[filtCx.length];
-	  for (int i = 0; i < filtCx.length; ++i) {
-	    result[i] = filtCx[i].getReal();
-	  }
-	  return result;
-	}
-	
 
-    /**
-     * method to do Butterworth band-pass filter in freq domain **
-     *
-     * bandpass filter (nPBP Butterworth Filter)
-     *
-     * convolve with nPole Butterworth Bandpass filter
-     *
-     * where - fl - low frequency corner in Hz fh - high frequency corner in Hz npole - number of poles in filter at each corner (not more than 20)
-     * npts - number of complex fourier spectral coefficients dt - sampling interval in seconds cx - complex fourier spectral coefficients
-     *
-     * @param dt - sampling interval
-     * @param cx - data to run filter on
-     * @return
-     */
-    @Override
-    public final Complex[] apply(double dt, Complex[] cx) {
+  /**
+   * Method to set number of poles
+   */
 
-        int npts = cx.length;
-        double fl = lowFreqCorner;
-        double fh = highFreqCorner;
-        int npole = numPoles;
+  public void setNumPoles(String str)
+      throws FilterException {
 
-        Complex c0 = new Complex(0.0, 0.0);
-        Complex c1 = new Complex(1.0, 0.0);
+    int nPoles;
 
-        Complex[] sph = new Complex[numPoles];
-        Complex[] spl = new Complex[numPoles];
+    try {
+      nPoles = Integer.parseInt(str);
+    } catch (NumberFormatException e) {
+      throw new FilterException(
+          localeText.invalid_number_of_poles);
+    }
 
-        Complex cjw, cph, cpl;
-        int nop, nepp, np;
-        double wch, wcl, ak, ai, ar, w, dw;
-        int i, j;
+    setNumPoles(nPoles);
+  }
 
-        if (npole % 2 != 0) {
-            System.out.println("WARNING - Number of poles not a multiple of 2!");
-        }
 
-        nop = npole - 2 * (npole / 2);
-        nepp = npole / 2;
-        wch = TWOPI * fh;
-        wcl = TWOPI * fl;
+  /**
+   * Method to check settings
+   */
 
-        np = -1;
-        if (nop > 0) {
-            np += 1;
-            sph[np] = new Complex(1., 0.);
-        }
-        if (nepp > 0) {
-            for (i = 0; i < nepp; i++) {
-                ak = 2. * Math.sin((2. * (double) i + 1.0) * PI / (2. * (double) npole));
-                ar = ak * wch / 2.;
-                ai = wch * Math.sqrt(4. - ak * ak) / 2.;
-                np += 1;
-                sph[np] = new Complex(-ar, -ai);
-                np += 1;
-                sph[np] = new Complex(-ar, ai);
-            }
-        }
-        np = -1;
-        if (nop > 0) {
-            np += 1;
-            spl[np] = new Complex(1., 0.);
-        }
-        if (nepp > 0) {
-            for (i = 0; i < nepp; i++) {
-                ak = 2. * Math.sin((2. * (double) i + 1.0) * PI / (2. * (double) npole));
-                ar = ak * wcl / 2.;
-                ai = wcl * Math.sqrt(4. - ak * ak) / 2.;
-                np += 1;
-                spl[np] = new Complex(-ar, -ai);
-                np += 1;
-                spl[np] = new Complex(-ar, ai);
-            }
-        }
+  void checkSettings() throws FilterException {
 
-        cx[0] = c0;
-        dw = TWOPI / ((double) npts * dt);
-        w = 0.;
-        for (i = 1; i < npts / 2 + 1; i++) {
-            w += dw;
-            cjw = new Complex(0., -w);
-            cph = c1;
-            cpl = c1;
-            for (j = 0; j < npole; j++) {
-              cph = cph.multiply(sph[j].divide(sph[j].add(cjw)));
-              cpl = cpl.multiply(cjw.divide(spl[j].add(cjw)));
-               // cph = Complex.mul(cph, Complex.div(sph[j], Complex.add(sph[j], cjw)));
-               // cpl = Complex.mul(cpl, Complex.div(cjw, Complex.add(spl[j], cjw)));
+    String errMessage = "";
+    int badSettings = 0;
+
+    if (highFreqCorner < FREQ_MIN || highFreqCorner > FREQ_MAX) {
+      errMessage += ": " + localeText.invalid_high_frequency_corner;
+      badSettings++;
+    }
+
+    if (lowFreqCorner < FREQ_MIN || lowFreqCorner > FREQ_MAX) {
+      errMessage += ": " + localeText.invalid_low_frequency_corner;
+      badSettings++;
+    }
+
+    if (lowFreqCorner >= highFreqCorner) {
+      errMessage +=
+          ": " + localeText.low_corner_greater_than_high_corner;
+      badSettings++;
+    }
+
+    if (numPoles < NUM_POLES_MIN || numPoles > NUM_POLES_MAX
+        || numPoles % 2 != 0) {
+      errMessage += ": " + localeText.invalid_number_of_poles;
+      badSettings++;
+    }
+
+    if (badSettings > 0) {
+      throw new FilterException(errMessage + ".");
+    }
+
+  }
+
+  public final double[] apply(double dt, double[] db) {
+    Complex[] cx = new Complex[db.length];
+    for (int i = 0; i < db.length; ++i) {
+      cx[i] = new Complex(db[i]);
+    }
+    Complex[] filtCx = apply(dt, cx);
+    double[] result = new double[filtCx.length];
+    for (int i = 0; i < filtCx.length; ++i) {
+      result[i] = filtCx[i].getReal();
+    }
+    return result;
+  }
+
+
+  /**
+   * method to do Butterworth band-pass filter in freq domain **
+   *
+   * bandpass filter (nPBP Butterworth Filter)
+   *
+   * convolve with nPole Butterworth Bandpass filter
+   *
+   * where - fl - low frequency corner in Hz fh - high frequency corner in Hz npole - number of poles in filter at each corner (not more than 20)
+   * npts - number of complex fourier spectral coefficients dt - sampling interval in seconds cx - complex fourier spectral coefficients
+   *
+   * @param dt - sampling interval
+   * @param cx - data to run filter on
+   */
+  @Override
+  public final Complex[] apply(double dt, Complex[] cx) {
+
+    int npts = cx.length;
+    double fl = lowFreqCorner;
+    double fh = highFreqCorner;
+    int npole = numPoles;
+
+    Complex c0 = new Complex(0.0, 0.0);
+    Complex c1 = new Complex(1.0, 0.0);
+
+    Complex[] sph = new Complex[numPoles];
+    Complex[] spl = new Complex[numPoles];
+
+    Complex cjw, cph, cpl;
+    int nop, nepp, np;
+    double wch, wcl, ak, ai, ar, w, dw;
+    int i, j;
+
+    if (npole % 2 != 0) {
+      System.out.println("WARNING - Number of poles not a multiple of 2!");
+    }
+
+    nop = npole - 2 * (npole / 2);
+    nepp = npole / 2;
+    wch = TWOPI * fh;
+    wcl = TWOPI * fl;
+
+    np = -1;
+    if (nop > 0) {
+      np += 1;
+      sph[np] = new Complex(1., 0.);
+    }
+    if (nepp > 0) {
+      for (i = 0; i < nepp; i++) {
+        ak = 2. * Math.sin((2. * (double) i + 1.0) * PI / (2. * (double) npole));
+        ar = ak * wch / 2.;
+        ai = wch * Math.sqrt(4. - ak * ak) / 2.;
+        np += 1;
+        sph[np] = new Complex(-ar, -ai);
+        np += 1;
+        sph[np] = new Complex(-ar, ai);
+      }
+    }
+    np = -1;
+    if (nop > 0) {
+      np += 1;
+      spl[np] = new Complex(1., 0.);
+    }
+    if (nepp > 0) {
+      for (i = 0; i < nepp; i++) {
+        ak = 2. * Math.sin((2. * (double) i + 1.0) * PI / (2. * (double) npole));
+        ar = ak * wcl / 2.;
+        ai = wcl * Math.sqrt(4. - ak * ak) / 2.;
+        np += 1;
+        spl[np] = new Complex(-ar, -ai);
+        np += 1;
+        spl[np] = new Complex(-ar, ai);
+      }
+    }
+
+    cx[0] = c0;
+    dw = TWOPI / ((double) npts * dt);
+    w = 0.;
+    for (i = 1; i < npts / 2 + 1; i++) {
+      w += dw;
+      cjw = new Complex(0., -w);
+      cph = c1;
+      cpl = c1;
+      for (j = 0; j < npole; j++) {
+        cph = cph.multiply(sph[j].divide(sph[j].add(cjw)));
+        cpl = cpl.multiply(cjw.divide(spl[j].add(cjw)));
+        // cph = Complex.mul(cph, Complex.div(sph[j], Complex.add(sph[j], cjw)));
+        // cpl = Complex.mul(cpl, Complex.div(cjw, Complex.add(spl[j], cjw)));
 // Does not work! : following 2 lines to replace preceeding 2 lines
 //              cph.mul(Complex.div(sph[j], Complex.add(sph[j], cjw)));
 //              cpl.mul(Complex.div(cjw, Complex.add(spl[j], cjw)));
 //orig              cph = Complex.div(Complex.mul(cph, sph[j]), Complex.add(sph[j], cjw));
 //orig              cpl = Complex.div(Complex.mul(cpl, cjw), Complex.add(spl[j], cjw));
-            }
-            cx[i] = cx[i].multiply(cph.multiply(cpl).conjugate());
-            //cx[i].mul(Complex.mul(cph, cpl).conjg());
+      }
+      cx[i] = cx[i].multiply(cph.multiply(cpl).conjugate());
+      //cx[i].mul(Complex.mul(cph, cpl).conjg());
 //orig          cx[i] = Complex.mul(cx[i], Complex.conjg(Complex.mul(cph, cpl)));
-            cx[npts - i] = cx[i].conjugate();
-        }
-
-        return (cx);
-    
+      cx[npts - i] = cx[i].conjugate();
     }
-	
+
+    return (cx);
+
+  }
 
 
-}	// End class ButterworthFilter
+}  // End class ButterworthFilter
 
 
