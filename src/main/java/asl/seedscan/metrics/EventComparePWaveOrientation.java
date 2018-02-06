@@ -45,7 +45,7 @@ public class EventComparePWaveOrientation extends Metric {
   private static final int SURFACE_MS = 300000;
 
   // length of window to take for p-wave data
-  private static final int P_WAVE_MS = 5000;
+  private static final int P_WAVE_MS = 15000;
 
   // range of degrees (arc length) over which data will be valid
   private static final int MIN_DEGREES = 30;
@@ -82,32 +82,34 @@ public class EventComparePWaveOrientation extends Metric {
 
     List<Channel> channels = stationMeta.getRotatableChannels();
     // get pairs of ED, ND data and then do the rotation with those
-
     String[] basechannel;
     String basePreSplit = null;
-    List<String> bands;
-    String preSplitBands = null;
+
     try {
       basePreSplit = get("base-channel");
 
     } catch (NoSuchFieldException ignored) {
     }
-    try {
-      preSplitBands = get("channel-restriction");
-    } catch (NoSuchFieldException ignored) {
-    }
+
     if (basePreSplit == null) {
       basePreSplit = "XX-LX";
       logger.info("No base channel for Event Compare P Orientation using: " + basePreSplit);
+    }
+    basechannel = basePreSplit.split("-");
+    
+    String preSplitBands = null;
+    try {
+      preSplitBands = get("channel-restriction");
+    } catch (NoSuchFieldException ignored) {
     }
     if (preSplitBands == null) {
       preSplitBands = "LH";
       logger.info("No band restriction set for Event Compare P Orientation using: "
           + preSplitBands);
     }
-
+    List<String> bands;
     bands = Arrays.asList(preSplitBands.split(","));
-    basechannel = basePreSplit.split("-");
+
 
     StationMeta stnMeta = metricData.getMetaData();
     // get lat and long to make sure data is within a reasonable range
@@ -119,10 +121,15 @@ public class EventComparePWaveOrientation extends Metric {
     // exist in the map
     Map<String, Channel> chNameMap = new HashMap<String, Channel>();
     for (Channel curChannel : channels) {
+
       String name = curChannel.toString();
       chNameMap.put(name, curChannel);
-
       String channelVal = name.split("-")[1];
+      if (!bands.contains(channelVal.substring(0, 2))) {
+        // current channel not part of valid band options, skip it
+        continue;
+      }
+
       int lastCharIdx = channelVal.length() - 1;
       char last = channelVal.charAt(lastCharIdx);
       if (last == 'Z' || last == 'E') {
@@ -149,15 +156,16 @@ public class EventComparePWaveOrientation extends Metric {
         continue;
       }
 
+      // this is the function that produces rotated data given the current chanel
+      ByteBuffer digest = metricData.valueDigestChanged(curChannel, createIdentifier(curChannel),
+          getForceUpdate());
+      
       Channel pairChannel = chNameMap.get(pairName);
       double sampleRateN = stationMeta.getChannelMetadata(curChannel).getSampleRate();
       double sampleRateE = stationMeta.getChannelMetadata(pairChannel).getSampleRate();
       // now curChannel, pairChannel the two channels to get the orientation of
       double azi = stationMeta.getChannelMetadata(curChannel).getAzimuth();
       // now we have the angle for which to rotate data
-
-      ByteBuffer digest = metricData.valueDigestChanged(curChannel, createIdentifier(curChannel),
-          getForceUpdate());
 
       // now to get the synthetics data
       SortedSet<String> eventKeys = new TreeSet<String>(eventCMTs.keySet());
@@ -166,7 +174,7 @@ public class EventComparePWaveOrientation extends Metric {
         double evtLat = eventMeta.getLatitude();
         double evtLon = eventMeta.getLongitude();
 
-        double angleBetween = getAngleToEvent(evtLat, evtLon, stnLat, stnLon);
+        double angleBetween = SphericalCoords.distance(evtLat, evtLon, stnLat, stnLon);
         if (angleBetween < MIN_DEGREES || angleBetween > MAX_DEGREES) {
           logger.info("== {}: Arc length to key=[{}] out of range for this station\n",
               getName(), key);
@@ -193,70 +201,40 @@ public class EventComparePWaveOrientation extends Metric {
         // get start time of p-wave, then take data 100 secs before that
         SacHeader header = sacSynthetics.getHeader();
         long eventStartTime = getSacStartTimeInMillis(header);
-        long pTravelTime = getPArrivalTime(eventMeta);
-        if (pTravelTime < eventStartTime) {
-          // causality violation detected (p-wave time not gotten correctly)
-          logger.warn("Error in calculating p-wave arrival time after event");
+        long pTravelTime = eventStartTime + getPArrivalTime(eventMeta);
+        
+        long stationDataStartTime = pTravelTime;
+        // ending of p-wave is this length of time afterward
+        long stationEventEndTime = stationDataStartTime + P_WAVE_MS;
+        // now, set window start back by 100 seconds (units in ms here)
+        stationDataStartTime -= 100 * 1000; // 100 sec * 1000 ms/sec
+
+        double[] northData = metricData.getWindowedData(curChannel, stationDataStartTime,
+            stationEventEndTime);
+        double[] eastData = metricData.getWindowedData(pairChannel, stationDataStartTime,
+            stationEventEndTime);
+        boolean somethingNull = false;
+        if (null == northData) {
+          logger.error("== {}: {} attempt to get north-facing data returned nothing",
+              getName(), getStation());
+          somethingNull = true;
+        }
+        // separate conditionals for each to log if one or both pieces of data not gettable
+        if (null == eastData) {
+          logger.error("== {}: {} attempt to get east-facing data returned nothing",
+              getName(), getStation());
+          somethingNull = true;
+        }
+        if (somethingNull) {
           continue;
         }
-        long stationEventStartTime = eventStartTime + pTravelTime;
-        // ending of p-wave is this length of time afterward
-        long stationEventEndTime = stationEventStartTime + P_WAVE_MS;
-        // now, set window start back by 100 seconds (units in ms here)
-        stationEventStartTime -= 100 * 1000; // 100 sec * 1000 ms/sec
-
-        double[] northData = metricData.getWindowedData(curChannel, stationEventStartTime,
-            stationEventEndTime);
-        double[] eastData = metricData.getWindowedData(pairChannel, stationEventStartTime,
-            stationEventEndTime);
         if (northData.length != eastData.length) {
           logger.error("== {}: {} datasets of north & east not the same length!!",
               getName(), getStation());
           continue;
         }
-
-        // evaluate signal-to-noise ratio of data
-        // noise is first 15 seconds of data (i.e., before p-wave arrival)
-        int noiseLength = getXSecondsLength(15, sampleRateN);
-        // signal is last 15 seconds of data (i.e., after p-wave arrival);
-        int signalOffset = northData.length - noiseLength;
-        double sigN = 0., noiseN = 0., sigE = 0., noiseE = 0.;
-        for (int i = 0; i < noiseLength; ++i) {
-          sigN += northData[signalOffset + i];
-          noiseN += northData[i];
-          sigE += eastData[signalOffset + i];
-          noiseE += eastData[i];
-        }
-
-        double sigNoiseN = sigN / noiseN;
-        double sigNoiseE = sigE / noiseE;
-        final double SIGNAL_CUTOFF = 5.;
-        if (sigNoiseN < SIGNAL_CUTOFF || sigNoiseE < SIGNAL_CUTOFF) {
-          logger.info("== {}: Signal to noise ratio under 5 -- [{} - {}], [{} - {}]", getName(),
-              name, sigNoiseN, pairName, sigNoiseE);
-          continue;
-        }
-        // TODO: use as point of evaluation of goodness of data
-
-        double sumNN = 0., sumEN = 0., sumEE = 0.;
-        for (int i = 0; i < northData.length; ++i) {
-          sumNN += northData[i] * northData[i];
-          sumEE += eastData[i] * eastData[i];
-          sumEN += eastData[i] * northData[i];
-        }
-
-        RealMatrix mat = new BlockRealMatrix(new double[][]{{sumNN, sumEN}, {sumEN, sumEE}});
-        EigenDecomposition egd = new EigenDecomposition(mat);
-        RealMatrix eigD = egd.getD();
-        double linearity = (eigD.getEntry(2, 2) / eigD.getTrace()) -
-            (eigD.getEntry(1, 1) / eigD.getTrace());
-        if (linearity < 0.95) {
-          logger.error("== {}: Linearity of data less than .95 -- [({} - {}) - {}]", getName(),
-              name, pairName, linearity);
-          continue;
-        }
-        // TODO: use this to evaluate the goodness of the given data
-
+        
+        // preprocess (filter, detrend, normalize)
         // first, we low-pass filter the data
         SeisGramText sgt = new SeisGramText(""); // default english
         // low corner at 0Hz (don't highpass), high corner at 0.5Hz
@@ -274,6 +252,7 @@ public class EventComparePWaveOrientation extends Metric {
         double maxNorth = minNorth;
         double minEast = eastData[0];
         double maxEast = minEast;
+        // get min and max values for scaling to (-1, 1)
         for (int i = 0; i < northData.length; ++i) {
           double testNorth = northData[i];
           double testEast = eastData[i];
@@ -295,6 +274,61 @@ public class EventComparePWaveOrientation extends Metric {
         // detrend operations are done in-place
         TimeseriesUtils.detrend(northData);
         TimeseriesUtils.detrend(eastData);
+        
+
+        // evaluate signal-to-noise ratio of data (RMS)
+        // noise is first 15 seconds of data (i.e., before p-wave arrival)
+        int noiseLength = getXSecondsLength(15, sampleRateN);
+        // signal is last 15 seconds of data (i.e., after p-wave arrival);
+        int signalOffset = northData.length - noiseLength;
+        
+        double sigN = 0., noiseN = 0., sigE = 0., noiseE = 0.;
+        for (int i = 0; i < noiseLength; ++i) {
+          sigN += Math.pow(northData[signalOffset + i], 2);
+          noiseN += Math.pow(northData[i], 2);
+          sigE += Math.pow(eastData[signalOffset + i], 2);
+          noiseE += Math.pow(eastData[i], 2);
+        }
+        
+        System.out.println("N: " + sigN + ", " + noiseN);
+        
+        sigN /= noiseLength;
+        sigE /= noiseLength;
+        noiseN /= noiseLength;
+        noiseE /= noiseLength;
+        
+        sigN = Math.sqrt(sigN);
+        sigE = Math.sqrt(sigE);
+        noiseN = Math.sqrt(noiseN);
+        noiseE = Math.sqrt(noiseE);
+        
+        double sigNoiseN = sigN / noiseN;
+        double sigNoiseE = sigE / noiseE;
+        final double SIGNAL_CUTOFF = 5.;
+        System.out.println(sigNoiseN + ", " + sigNoiseE);
+        if (sigNoiseN < SIGNAL_CUTOFF || sigNoiseE < SIGNAL_CUTOFF) {
+          logger.warn("== {}: Signal to noise ratio under 5 -- [{} - {}], [{} - {}]", getName(),
+              name, sigNoiseN, pairName, sigNoiseE);
+          continue;
+        }
+
+        double sumNN = 0., sumEN = 0., sumEE = 0.;
+        for (int i = 0; i < northData.length; ++i) {
+          sumNN += northData[i] * northData[i];
+          sumEE += eastData[i] * eastData[i];
+          sumEN += eastData[i] * northData[i];
+        }
+
+        RealMatrix mat = new BlockRealMatrix(new double[][]{{sumNN, sumEN}, {sumEN, sumEE}});
+        EigenDecomposition egd = new EigenDecomposition(mat);
+        RealMatrix eigD = egd.getD();
+        double linearity = (eigD.getEntry(2, 2) / eigD.getTrace()) -
+            (eigD.getEntry(1, 1) / eigD.getTrace());
+        if (linearity < 0.95) {
+          logger.warn("== {}: Skipping; data linearity less than .95 -- [({} - {}) - {}]", 
+              getName(), name, pairName, linearity);
+          continue;
+        }
 
         // TODO: need to extract the last range of data before this processing??
         double[] east = eastData; // change to arrays.copyofrange(eastdata...?
@@ -357,86 +391,21 @@ public class EventComparePWaveOrientation extends Metric {
 
         // now, populate the results from this data
         metricResult.addResult(curChannel, angleDifference, digest);
-
+        System.out.println("Result added");
       }
     }
   }
 
-
-  private double getPWaveAngleEst(double[] dataN, double[] dataE) {
-
-    TimeseriesUtils.demean(dataN);
-    TimeseriesUtils.demean(dataE);
-
-    double minN = dataN[0];
-    double maxN = dataN[0];
-    double minE = dataE[0];
-    double maxE = dataE[0];
-    for (int i = 1; i < dataN.length; ++i) {
-      if (dataN[i] < minN) {
-        minN = dataN[i];
-      } else if (dataN[i] > maxN) {
-        maxN = dataN[i];
-      }
-      if (dataE[i] < minE) {
-        minE = dataE[i];
-      } else if (dataE[i] > maxE) {
-        maxE = dataE[i];
-      }
-    }
-
-    double rangeN = maxN - minN;
-    double rangeE = maxE - minE;
-
-    double constN = Math.max(rangeN, rangeE) / rangeN;
-    double scaleMinN = constN * minN;
-    double scaleMaxN = constN * maxN;
-    double constE = Math.max(rangeN, rangeE) / rangeE;
-    double scaleMinE = constE * minE;
-    double scaleMaxE = constE * maxE;
-
-    for (int i = 0; i < dataN.length; ++i) {
-      dataN[i] += (scaleMinN + scaleMaxN - maxN - minN) / 2;
-      dataE[i] += (scaleMinE + scaleMaxE - maxE - minE) / 2;
-    }
-
-    TimeseriesUtils.demean(dataN);
-    TimeseriesUtils.demean(dataE);
-
-    SimpleRegression sr = new SimpleRegression();
-    for (int i = 0; i < dataN.length; ++i) {
-      sr.addData(dataN[i], dataE[i]);
-    }
-    double slope = sr.getSlope();
-    double angle = Math.atan(1 / slope);
-    return angle;
-  }
-
-  public static double getAngleToEvent(double evtLat, double evtLon, double staLat, double staLon) {
-    // Vincenty formula
-    double evtLatRad = Math.toRadians(evtLat);
-    double evtLonRad = Math.toRadians(evtLon);
-    double staLatRad = Math.toRadians(staLat);
-    double staLonRad = Math.toRadians(staLon);
-    double deltaLon = staLonRad - evtLonRad;
-    double x = Math.cos(staLatRad) * Math.sin(deltaLon);
-    double y = Math.cos(evtLatRad) * Math.sin(staLatRad);
-    y -= Math.sin(evtLatRad) * Math.cos(staLatRad) * Math.cos(deltaLon);
-    double numer = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
-    double denom = Math.sin(staLatRad) * Math.sin(evtLatRad);
-    denom += Math.cos(staLatRad) * Math.cos(evtLatRad) * Math.cos(deltaLon);
-    return Math.toDegrees(Math.atan2(numer, denom));
-  }
-
-  private int getXSecondsLength(int secs, double sRate) {
+  private static int getXSecondsLength(int secs, double sRate) {
     // input is the sample rate in hertz
     // samples = 15 (s) * sRate (samp/s) 
     int count = (int) Math.ceil(secs * sRate);
     return count;
   }
 
-  private String getPairedChannelNameString(String channelName) throws MetricException {
+  public static String getPairedChannelNameString(String channelName) throws MetricException {
     // get the string for the 
+    
     char[] chNameArray = channelName.toCharArray();
     int lastCharIdx = chNameArray.length - 1;
     char lastChar = chNameArray[lastCharIdx];
@@ -445,11 +414,11 @@ public class EventComparePWaveOrientation extends Metric {
       lastChar = chNameArray[lastCharIdx];
     }
     char pairChar = getPairChar(lastChar);
-    chNameArray[lastChar] = pairChar;
+    chNameArray[lastCharIdx] = pairChar;
     return new String(chNameArray);
   }
 
-  private char getPairChar(char orient) throws MetricException {
+  private static char getPairChar(char orient) throws MetricException {
     // get N,E pairs (horizontal data) for orientation calculation
     if (orient == 'N') {
       return 'E';
@@ -461,6 +430,7 @@ public class EventComparePWaveOrientation extends Metric {
   }
 
   private long getPArrivalTime(EventCMT eventCMT) {
+    
     double evla = eventCMT.getLatitude();
     double evlo = eventCMT.getLongitude();
     double evdep = eventCMT.getDepth();
@@ -512,7 +482,7 @@ public class EventComparePWaveOrientation extends Metric {
    * @param hdr the sac header
    * @return the sac start time in millis
    */
-  private long getSacStartTimeInMillis(SacHeader hdr) {
+  private static long getSacStartTimeInMillis(SacHeader hdr) {
     GregorianCalendar gcal = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
     gcal.set(Calendar.YEAR, hdr.getNzyear());
     gcal.set(Calendar.DAY_OF_YEAR, hdr.getNzjday());

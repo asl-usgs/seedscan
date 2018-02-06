@@ -1,7 +1,7 @@
 package asl.seedscan.metrics;
 
 import static org.junit.Assert.*;
-
+import asl.metadata.Station;
 import asl.seedscan.event.EventLoader;
 import asl.testutils.ResourceManager;
 import java.time.LocalDate;
@@ -40,6 +40,7 @@ public class EventComparePWaveOrientationTest {
     metric.setData(data);
     LocalDate date = LocalDate.of(2015, 10, 26);
     metric.setEventTable(eventLoader.getDayEvents(date));
+    metric.setEventSynthetics(eventLoader.getDaySynthetics(date, new Station("IU", "NWAO")));
     HashMap<String, Double> expect = new HashMap<>();
     expect.put("00-20,LHZ-LNZ",
         2.884394926482693);
@@ -64,6 +65,7 @@ public class EventComparePWaveOrientationTest {
     metric.setData(data);
     LocalDate date = LocalDate.of(2015, 10, 26);
     metric.setEventTable(eventLoader.getDayEvents(date));
+    metric.setEventSynthetics(eventLoader.getDaySynthetics(date, new Station("IU", "NWAO")));
     HashMap<String, Double> expect = new HashMap<>();
     expect.put("00-10,LHZ-LHZ", -0.0000032751134376322145);
     expect.put("00-10,LHND-LHND", 0.0000023421505281695907);
@@ -83,18 +85,12 @@ public class EventComparePWaveOrientationTest {
     metric = new EventComparePWaveOrientation();
     assertEquals("EventComparePWaveOrientation", metric.getName());
   }
-
+  
   @Test
-  public final void testGetAngleToEventDefault() {
-    double evtLat = 1;
-    double evtLon = 5;
-    double staLat = 20;
-    double staLon = 35;
-    
-    double ang = EventComparePWaveOrientation.getAngleToEvent(evtLat, evtLon, staLat, staLon);
-    assertEquals(ang, 34.8, 1.0);
+  public final void testGetCorrectPairedChannelName() throws MetricException {
+    String init = "IU.ANMO.10.LHND";
+    String result = EventComparePWaveOrientation.getPairedChannelNameString(init);
+    assertTrue(result.equals("IU.ANMO.10.LHED"));
   }
-  
-  
   
 }

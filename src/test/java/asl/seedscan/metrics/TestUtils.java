@@ -26,7 +26,7 @@ public class TestUtils {
     for (String id : result.getIdSet()) {
       //System.out.println(id+"   "+result.getResult(id));
 
-      //System.out.println("expect.put(\""+id+"\", "+ result.getResult(id) +");");
+      System.out.println("expect.put(\""+id+"\", "+ result.getResult(id) +");");
 
       /*System.out.println("database.insertMockData(\n"
           + "        new MetricValueIdentifier(expectDate, metricName, station, new Channel(\""
