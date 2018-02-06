@@ -1,15 +1,5 @@
 package asl.seedscan.metrics;
 
-import asl.freq.ButterworthFilter;
-import asl.freq.SeisGramText;
-import asl.metadata.Channel;
-import asl.metadata.meta_new.StationMeta;
-import asl.seedscan.event.EventCMT;
-import asl.timeseries.TimeseriesUtils;
-import edu.sc.seis.TauP.Arrival;
-import edu.sc.seis.TauP.SphericalCoords;
-import edu.sc.seis.TauP.TauModelException;
-import edu.sc.seis.TauP.TauP_Time;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -29,10 +19,19 @@ import org.apache.commons.math3.linear.BlockRealMatrix;
 import org.apache.commons.math3.linear.EigenDecomposition;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.linear.RealVector;
-import org.apache.commons.math3.stat.regression.SimpleRegression;
 import org.apache.commons.math3.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import asl.freq.ButterworthFilter;
+import asl.freq.SeisGramText;
+import asl.metadata.Channel;
+import asl.metadata.meta_new.StationMeta;
+import asl.seedscan.event.EventCMT;
+import asl.timeseries.TimeseriesUtils;
+import edu.sc.seis.TauP.Arrival;
+import edu.sc.seis.TauP.SphericalCoords;
+import edu.sc.seis.TauP.TauModelException;
+import edu.sc.seis.TauP.TauP_Time;
 import sac.SacHeader;
 import sac.SacTimeSeries;
 
@@ -41,11 +40,8 @@ public class EventComparePWaveOrientation extends Metric {
   private static final Logger logger =
       LoggerFactory.getLogger(asl.seedscan.metrics.EventComparePWaveOrientation.class);
 
-  // length of window to take for data using synthetic surface comparison
-  private static final int SURFACE_MS = 300000;
-
   // length of window to take for p-wave data
-  private static final int P_WAVE_MS = 15000;
+  private static final int P_WAVE_MS = 10000;
 
   // range of degrees (arc length) over which data will be valid
   private static final int MIN_DEGREES = 30;
@@ -96,7 +92,7 @@ public class EventComparePWaveOrientation extends Metric {
       logger.info("No base channel for Event Compare P Orientation using: " + basePreSplit);
     }
     basechannel = basePreSplit.split("-");
-    
+
     String preSplitBands = null;
     try {
       preSplitBands = get("channel-restriction");
@@ -159,7 +155,7 @@ public class EventComparePWaveOrientation extends Metric {
       // this is the function that produces rotated data given the current chanel
       ByteBuffer digest = metricData.valueDigestChanged(curChannel, createIdentifier(curChannel),
           getForceUpdate());
-      
+
       Channel pairChannel = chNameMap.get(pairName);
       double sampleRateN = stationMeta.getChannelMetadata(curChannel).getSampleRate();
       double sampleRateE = stationMeta.getChannelMetadata(pairChannel).getSampleRate();
@@ -201,13 +197,19 @@ public class EventComparePWaveOrientation extends Metric {
         // get start time of p-wave, then take data 100 secs before that
         SacHeader header = sacSynthetics.getHeader();
         long eventStartTime = getSacStartTimeInMillis(header);
-        long pTravelTime = eventStartTime + getPArrivalTime(eventMeta);
-        
+        long pTravelTime = eventStartTime;
+        try{
+          pTravelTime += getPArrivalTime(eventMeta);
+        } catch (ArrivalTimeException e) {
+          // error was already logged when the , just continue;
+          continue;
+        }
+
         long stationDataStartTime = pTravelTime;
         // ending of p-wave is this length of time afterward
         long stationEventEndTime = stationDataStartTime + P_WAVE_MS;
         // now, set window start back by 100 seconds (units in ms here)
-        stationDataStartTime -= 100 * 1000; // 100 sec * 1000 ms/sec
+        stationDataStartTime -= 150 * 1000; // 150 sec * 1000 ms/sec
 
         double[] northData = metricData.getWindowedData(curChannel, stationDataStartTime,
             stationEventEndTime);
@@ -233,20 +235,25 @@ public class EventComparePWaveOrientation extends Metric {
               getName(), getStation());
           continue;
         }
-        
+
         // preprocess (filter, detrend, normalize)
         // first, we low-pass filter the data
         SeisGramText sgt = new SeisGramText(""); // default english
         // low corner at 0Hz (don't highpass), high corner at 0.5Hz
         // and use a 4 poles in the filter
-        ButterworthFilter bf = new ButterworthFilter(sgt, 0, 0.5, 4);
-        // TODO: may need to do verification that this works how we expect
+        ButterworthFilter bf = new ButterworthFilter(sgt, 0, 0.05, 4);
+        // this appears to work correctly now
         northData = bf.apply(1 / sampleRateN, northData);
         eastData = bf.apply(1 / sampleRateE, eastData);
 
+        // assume there are filter artifacts in first 50 seconds' worth of data
+        int afterRinging = getXSecondsLength(50, sampleRateN);
+        northData = Arrays.copyOfRange(northData, afterRinging, northData.length);
+        eastData = Arrays.copyOfRange(eastData, afterRinging, eastData.length);
+
         // detrend operations are done in-place
-        TimeseriesUtils.detrend(northData);
-        TimeseriesUtils.detrend(eastData);
+        TimeseriesUtils.demean(northData);
+        TimeseriesUtils.demean(eastData);
         // now normalize
         double minNorth = northData[0];
         double maxNorth = minNorth;
@@ -262,6 +269,7 @@ public class EventComparePWaveOrientation extends Metric {
           maxEast = Math.max(maxEast, testEast);
         }
         // now scale data to (-1, 1)
+
         double eastChange = maxEast - minEast;
         double northChange = maxNorth - minNorth;
         for (int i = 0; i < northData.length; ++i) {
@@ -271,17 +279,20 @@ public class EventComparePWaveOrientation extends Metric {
           northData[i] = (2 * (n - minNorth) / northChange) - 1;
           eastData[i] = (2 * (e - minEast) / eastChange) - 1;
         }
-        // detrend operations are done in-place
-        TimeseriesUtils.detrend(northData);
-        TimeseriesUtils.detrend(eastData);
-        
+
+        // demean (constant detrend) operations are done in-place
+        // TimeseriesUtils.demean(northData);
+        // TimeseriesUtils.demean(eastData);
+
+
 
         // evaluate signal-to-noise ratio of data (RMS)
         // noise is first 15 seconds of data (i.e., before p-wave arrival)
-        int noiseLength = getXSecondsLength(15, sampleRateN);
+        int secs = P_WAVE_MS / 1000;
+        int noiseLength = getXSecondsLength(secs, sampleRateN);
         // signal is last 15 seconds of data (i.e., after p-wave arrival);
         int signalOffset = northData.length - noiseLength;
-        
+
         double sigN = 0., noiseN = 0., sigE = 0., noiseE = 0.;
         for (int i = 0; i < noiseLength; ++i) {
           sigN += Math.pow(northData[signalOffset + i], 2);
@@ -289,23 +300,19 @@ public class EventComparePWaveOrientation extends Metric {
           sigE += Math.pow(eastData[signalOffset + i], 2);
           noiseE += Math.pow(eastData[i], 2);
         }
-        
-        System.out.println("N: " + sigN + ", " + noiseN);
-        
         sigN /= noiseLength;
         sigE /= noiseLength;
         noiseN /= noiseLength;
         noiseE /= noiseLength;
-        
+
         sigN = Math.sqrt(sigN);
         sigE = Math.sqrt(sigE);
         noiseN = Math.sqrt(noiseN);
         noiseE = Math.sqrt(noiseE);
-        
+
         double sigNoiseN = sigN / noiseN;
         double sigNoiseE = sigE / noiseE;
         final double SIGNAL_CUTOFF = 5.;
-        System.out.println(sigNoiseN + ", " + sigNoiseE);
         if (sigNoiseN < SIGNAL_CUTOFF || sigNoiseE < SIGNAL_CUTOFF) {
           logger.warn("== {}: Signal to noise ratio under 5 -- [{} - {}], [{} - {}]", getName(),
               name, sigNoiseN, pairName, sigNoiseE);
@@ -322,10 +329,10 @@ public class EventComparePWaveOrientation extends Metric {
         RealMatrix mat = new BlockRealMatrix(new double[][]{{sumNN, sumEN}, {sumEN, sumEE}});
         EigenDecomposition egd = new EigenDecomposition(mat);
         RealMatrix eigD = egd.getD();
-        double linearity = (eigD.getEntry(2, 2) / eigD.getTrace()) -
+        double linearity = (eigD.getEntry(0, 0) / eigD.getTrace()) -
             (eigD.getEntry(1, 1) / eigD.getTrace());
         if (linearity < 0.95) {
-          logger.warn("== {}: Skipping; data linearity less than .95 -- [({} - {}) - {}]", 
+          logger.warn("== {}: Skipping; data linearity less than .95 -- [({} - {}) - {}]",
               getName(), name, pairName, linearity);
           continue;
         }
@@ -337,15 +344,15 @@ public class EventComparePWaveOrientation extends Metric {
         // now do least squares on the data to get the linearity
         // and then do arctan solving on that to get the angle of orientation
         MultivariateJacobianFunction slopeCalculation = new MultivariateJacobianFunction() {
+          @Override
           public Pair<RealVector, RealMatrix> value(final RealVector point) {
 
             double slope = point.getEntry(0);
-            RealVector value = new ArrayRealVector(1);
+            RealVector value = new ArrayRealVector(east.length);
             for (int i = 0; i < east.length; ++i) {
               value.setEntry(i, (east[i] * slope));
             }
 
-            // TODO: is an Array2DRowRealMatrix suitable for this?
             RealMatrix jacobian = new BlockRealMatrix(1, east.length);
             for (int i = 0; i < east.length; ++i) {
               jacobian.setEntry(0, i, slope);
@@ -379,10 +386,10 @@ public class EventComparePWaveOrientation extends Metric {
           bAzim = ((bAzim + 180) % 360 + 360) % 360;
         }
 
-        double angleDifference = Math.abs(bAzim - azi);
+        double angleDifference = azi-bAzim;
 
         // add warning before publishing result if it's inconsistent with expected
-        if (angleDifference > 5) {
+        if (Math.abs(angleDifference) > 5) {
           StringBuilder sb = new StringBuilder();
           sb.append("== {}: Difference btwn calc. and est. azimuth > 5 degrees -- ");
           sb.append("[({} - {}) - ({} (calc) vs. {} (exp))]");
@@ -391,21 +398,20 @@ public class EventComparePWaveOrientation extends Metric {
 
         // now, populate the results from this data
         metricResult.addResult(curChannel, angleDifference, digest);
-        System.out.println("Result added");
       }
     }
   }
 
   private static int getXSecondsLength(int secs, double sRate) {
     // input is the sample rate in hertz
-    // samples = 15 (s) * sRate (samp/s) 
+    // samples = 15 (s) * sRate (samp/s)
     int count = (int) Math.ceil(secs * sRate);
     return count;
   }
 
   public static String getPairedChannelNameString(String channelName) throws MetricException {
-    // get the string for the 
-    
+    // get the string for the
+
     char[] chNameArray = channelName.toCharArray();
     int lastCharIdx = chNameArray.length - 1;
     char lastChar = chNameArray[lastCharIdx];
@@ -429,8 +435,8 @@ public class EventComparePWaveOrientation extends Metric {
     }
   }
 
-  private long getPArrivalTime(EventCMT eventCMT) {
-    
+  private long getPArrivalTime(EventCMT eventCMT) throws ArrivalTimeException {
+
     double evla = eventCMT.getLatitude();
     double evlo = eventCMT.getLongitude();
     double evdep = eventCMT.getDepth();
@@ -446,7 +452,7 @@ public class EventComparePWaveOrientation extends Metric {
       timeTool.calculate(gcarc);
     } catch (TauModelException e) {
       logger.error(e.getMessage());
-      return -1; // Return null since arrival times are not
+      throw new ArrivalTimeException(e.getMessage()); // Return null since arrival times are not
       // determinable.
     }
 
@@ -458,15 +464,15 @@ public class EventComparePWaveOrientation extends Metric {
     if (arrivals.size() != 1) {
       // if we don't have P, or have more than P
       logger.info(String.format("Expected P arrival time not found [gcarc=%8.4f]", gcarc));
-      return 0;
+      throw new ArrivalTimeException("P arrival not found");
     }
 
     double arrivalTimeP = 0.;
     if (arrivals.get(0).getName().equals("P")) {
       arrivalTimeP = arrivals.get(0).getTime();
     } else {
-      logger.info(String.format("Expected P arrival time not found"));
-      // TODO: return 0 here too?
+      logger.info(String.format("Got an arrival, but it was not a P-wave"));
+      throw new ArrivalTimeException("Arrival time found was not a P-wave");
     }
 
     logger.info(String.format(
@@ -492,6 +498,18 @@ public class EventComparePWaveOrientation extends Metric {
     gcal.set(Calendar.MILLISECOND, hdr.getNzmsec());
 
     return gcal.getTimeInMillis();
+  }
+
+  private class ArrivalTimeException extends Exception {
+    /**
+     *
+     */
+    private static final long serialVersionUID = 6851116640460104395L;
+
+    public ArrivalTimeException(String message) {
+      super(message);
+    }
+
   }
 
 }

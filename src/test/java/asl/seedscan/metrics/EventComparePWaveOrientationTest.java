@@ -1,14 +1,15 @@
 package asl.seedscan.metrics;
 
-import static org.junit.Assert.*;
-import asl.metadata.Station;
-import asl.seedscan.event.EventLoader;
-import asl.testutils.ResourceManager;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import java.time.LocalDate;
 import java.util.HashMap;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import asl.metadata.Station;
+import asl.seedscan.event.EventLoader;
+import asl.testutils.ResourceManager;
 
 public class EventComparePWaveOrientationTest {
 
@@ -42,13 +43,8 @@ public class EventComparePWaveOrientationTest {
     metric.setEventTable(eventLoader.getDayEvents(date));
     metric.setEventSynthetics(eventLoader.getDaySynthetics(date, new Station("IU", "NWAO")));
     HashMap<String, Double> expect = new HashMap<>();
-    expect.put("00-20,LHZ-LNZ",
-        2.884394926482693);
-    expect.put("00-20,LHND-LNND", 0.6842270334452618);
-    expect.put("00-20,LHED-LNED", 1.0140182353130993);
-    expect.put("10-20,LHZ-LNZ", 4.0);
-    expect.put("10-20,LHND-LNND", 4.0);
-    expect.put("10-20,LHED-LNED", -4.0);
+    expect.put("00,LHND", 0.0);
+    expect.put("10,LHND", 0.0);
     TestUtils.testMetric(metric, expect);
   }
 
@@ -59,7 +55,7 @@ public class EventComparePWaveOrientationTest {
 
     //Not a strong motion comparison, but that is not what we are testing.
     //Only care if the custom channel is set.
-    metric.add("base-channel", "10-LH");
+    metric.add("base-channel", "XX-LX");
     metric.add("channel-restriction", "LH");
 
     metric.setData(data);
@@ -67,10 +63,8 @@ public class EventComparePWaveOrientationTest {
     metric.setEventTable(eventLoader.getDayEvents(date));
     metric.setEventSynthetics(eventLoader.getDaySynthetics(date, new Station("IU", "NWAO")));
     HashMap<String, Double> expect = new HashMap<>();
-    expect.put("00-10,LHZ-LHZ", -0.0000032751134376322145);
-    expect.put("00-10,LHND-LHND", 0.0000023421505281695907);
-    expect.put("00-10,LHED-LHED", 0.00000010633680999724207);
-
+    expect.put("00,LHND", 0.0);
+    expect.put("10,LHND", 0.0);
     TestUtils.testMetric(metric, expect);
   }
 
@@ -85,12 +79,12 @@ public class EventComparePWaveOrientationTest {
     metric = new EventComparePWaveOrientation();
     assertEquals("EventComparePWaveOrientation", metric.getName());
   }
-  
+
   @Test
   public final void testGetCorrectPairedChannelName() throws MetricException {
     String init = "IU.ANMO.10.LHND";
     String result = EventComparePWaveOrientation.getPairedChannelNameString(init);
     assertTrue(result.equals("IU.ANMO.10.LHED"));
   }
-  
+
 }
