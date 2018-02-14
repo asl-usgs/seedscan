@@ -46,7 +46,7 @@ public class EventComparePWaveOrientationTest {
     metric.setEventTable(eventLoader.getDayEvents(date));
     metric.setEventSynthetics(eventLoader.getDaySynthetics(date, new Station("IU", "NWAO")));
     HashMap<String, Double> expect = new HashMap<>();
-    expect.put("00,LHND", -0.5776058837471396);
+    expect.put("00,LHND", -2.540952254110209);
     // expect.put("10,LHND", 0.0); // skipped because linearity not good enough
     TestUtils.testMetric(metric, expect);
   }
@@ -59,9 +59,9 @@ public class EventComparePWaveOrientationTest {
     metric.setEventTable(eventLoader.getDayEvents(date));
     metric.setEventSynthetics(eventLoader.getDaySynthetics(date, new Station("IU", "TUC")));
     HashMap<String, Double> expect = new HashMap<>();
-    expect.put("00,LHND", -6.057872178256787); // seems overly high but 10, 60 returning good nums
-    expect.put("10,LHND", 0.5574496184388522);
-    expect.put("60,LHND", -0.2759658796433655);
+    expect.put("00,LHND", -6.2504661649869036);
+    //expect.put("10,LHND", 0.5574496184388522);
+    expect.put("60,LHND", -0.5888912051460125);
     TestUtils.testMetric(metric, expect);
   }
 
@@ -79,7 +79,7 @@ public class EventComparePWaveOrientationTest {
     metric.setEventTable(eventLoader.getDayEvents(date));
     metric.setEventSynthetics(eventLoader.getDaySynthetics(date, new Station("IU", "NWAO")));
     HashMap<String, Double> expect = new HashMap<>();
-    expect.put("00,LHND", -0.5776058837471396);
+    expect.put("00,LHND", -2.540952254110209);
     // expect.put("10,LHND", 0.0);
     TestUtils.testMetric(metric, expect);
   }

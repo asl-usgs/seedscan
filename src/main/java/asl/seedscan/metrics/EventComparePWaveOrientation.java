@@ -392,7 +392,7 @@ public class EventComparePWaveOrientation extends Metric {
         double bAzim = Math.atan(initEval.getPoint().getEntry(0));
         bAzim = Math.toDegrees(bAzim);
 
-        azi = ( (azi % 360) + 360 ) % 360;
+        azi = ((azi % 360) + 360) % 360;
 
         // correct backAzimuth value (i.e., make an actual azimuth)
         if (bAzim < 0) {
@@ -531,7 +531,7 @@ public class EventComparePWaveOrientation extends Metric {
 
   public static double[] lowPassFilter(double[] toFilt, double sps, double corner) {
     Butterworth casc = new Butterworth();
-    casc.bandPass(4, sps, corner/2, corner/2);
+    casc.lowPass(4, sps, corner);
 
     double[] filtered = new double[toFilt.length];
     for (int i = 0; i < toFilt.length; ++i) {
