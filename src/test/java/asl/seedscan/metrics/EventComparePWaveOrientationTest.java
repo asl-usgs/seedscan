@@ -1,15 +1,9 @@
 package asl.seedscan.metrics;
 
-import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
-
-import asl.metadata.Channel;
 import java.time.LocalDate;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -25,7 +19,7 @@ public class EventComparePWaveOrientationTest {
   private static EventLoader eventLoader;
 
   @BeforeClass
-  public static void setUpBeforeClass() {
+  public static void setUpBeforeClass() throws Exception {
     try {
       data = (MetricData) ResourceManager
           .loadCompressedObject("/data/IU.NWAO.2015.299.MetricData.ser.gz", false);
@@ -38,14 +32,14 @@ public class EventComparePWaveOrientationTest {
   }
 
   @AfterClass
-  public static void tearDownAfterClass() {
+  public static void tearDownAfterClass() throws Exception {
     data = null;
     data2 = null;
     eventLoader = null;
   }
 
   @Test
-  public void testProcessDefault() {
+  public void testProcessDefault() throws Exception {
     metric = new EventComparePWaveOrientation();
     metric.setData(data);
     LocalDate date = LocalDate.of(2015, 10, 26);
@@ -58,7 +52,7 @@ public class EventComparePWaveOrientationTest {
   }
 
   @Test
-  public void testProcessDefaultData2() {
+  public void testProcessDefaultData2() throws Exception {
     metric = new EventComparePWaveOrientation();
     metric.setData(data2);
     LocalDate date = LocalDate.of(2018, 01, 23);
@@ -109,143 +103,49 @@ public class EventComparePWaveOrientationTest {
   }
 
   @Test
-  public final void testGetVersion() {
+  public final void testGetVersion() throws Exception {
     metric = new EventComparePWaveOrientation();
     assertEquals(1, metric.getVersion());
   }
 
   @Test
-  public final void testGetName() {
+  public final void testGetName() throws Exception {
     metric = new EventComparePWaveOrientation();
     assertEquals("EventComparePWaveOrientation", metric.getName());
   }
 
   @Test
-  public final void testFilterChannel_SingleBandPass() {
-    List<String> allowedBands = new LinkedList<>();
-    allowedBands.add("LH");
-    Channel channel = new Channel("00", "LHND");
-    assertFalse(EventComparePWaveOrientation.filterChannel(channel, allowedBands));
-  }
-  @Test
-  public final void testFilterChannel_MultiBandPass() {
-    List<String> allowedBands = new LinkedList<>();
-    allowedBands.add("LH");
-    allowedBands.add("BH");
-    Channel channel = new Channel("10", "LHND");
-    assertFalse(EventComparePWaveOrientation.filterChannel(channel, allowedBands));
-    channel = new Channel("00", "BHND");
-    assertFalse(EventComparePWaveOrientation.filterChannel(channel, allowedBands));
+  public final void testGetCorrectPairedChannelNameNorthDerived() throws MetricException {
+    String init = "10-LHND";
+    String result = EventComparePWaveOrientation.getPairedChannelNameString(init);
+    assertTrue(result.equals("10-LHED"));
   }
 
   @Test
-  public final void testFilterChannel_MultiBandDifferentOrderingPass() {
-    List<String> allowedBands = new LinkedList<>();
-    allowedBands.add("LH");
-    allowedBands.add("BH");
-    Channel channel = new Channel("10", "BHND");
-    assertFalse(EventComparePWaveOrientation.filterChannel(channel, allowedBands));
-    channel = new Channel("00", "LHND");
-    assertFalse(EventComparePWaveOrientation.filterChannel(channel, allowedBands));
+  public final void testGetCorrectPairedChannelNameEastDerived() throws MetricException {
+    String init = "10-LHED";
+    String result = EventComparePWaveOrientation.getPairedChannelNameString(init);
+    assertTrue(result.equals("10-LHND"));
   }
 
   @Test
-  public final void testFilterChannel_MultiBandReject() {
-    List<String> allowedBands = new LinkedList<>();
-    allowedBands.add("LH");
-    allowedBands.add("BH");
-    Channel channel = new Channel("10", "HHND");
-    assertTrue(EventComparePWaveOrientation.filterChannel(channel, allowedBands));
-    channel = new Channel("00", "LNND");
-    assertTrue(EventComparePWaveOrientation.filterChannel(channel, allowedBands));
+  public final void testGetCorrectPairedChannelNameNorth() throws MetricException {
+    String init = "10-LHN";
+    String result = EventComparePWaveOrientation.getPairedChannelNameString(init);
+    assertTrue(result.equals("10-LHE"));
   }
 
   @Test
-  public final void testFilterChannel_SingleBandReject() {
-    List<String> allowedBands = new LinkedList<>();
-    allowedBands.add("BH");
-    Channel channel = new Channel("10", "LHND");
-    assertTrue(EventComparePWaveOrientation.filterChannel(channel, allowedBands));
+  public final void testGetCorrectPairedChannelNameEast() throws MetricException {
+    String init = "00-LHE";
+    String result = EventComparePWaveOrientation.getPairedChannelNameString(init);
+    assertTrue(result.equals("00-LHN"));
   }
 
-  @Test
-  public final void testFilterChannel_EastDerivedReject() {
-    List<String> allowedBands = new LinkedList<>();
-    allowedBands.add("LH");
-    Channel channel = new Channel("10", "LHED");
-    assertTrue(EventComparePWaveOrientation.filterChannel(channel, allowedBands));
-  }
-
-  @Test
-  public final void testFilterChannel_NorthDerivedPass() {
-    List<String> allowedBands = new LinkedList<>();
-    allowedBands.add("LH");
-    Channel channel = new Channel("10", "LHND");
-    assertFalse(EventComparePWaveOrientation.filterChannel(channel, allowedBands));
-  }
-
-  @Test
-  public final void testFilterChannel_ZReject() {
-    List<String> allowedBands = new LinkedList<>();
-    allowedBands.add("LH");
-    Channel channel = new Channel("10", "LHZ");
-    assertTrue(EventComparePWaveOrientation.filterChannel(channel, allowedBands));
-  }
-
-  @Test
-  public final void testScaleByMax_PositiveOnly_Data2Max() {
-    double[] data1 = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-    double[] data2 = {1, 1, 1, 1, 1, 1, 1, 1, 1, 2};
-    double[] data1Expected = {0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5};
-    double[] data2Expected = {0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1};
-    EventComparePWaveOrientation.scaleByMax(data1, data2);
-
-    assertArrayEquals(data1Expected, data1, 1e-7);
-    assertArrayEquals(data2Expected, data2, 1e-7);
-  }
-
-  @Test
-  public final void testScaleByMax_PositiveOnly_Data1Max() {
-    double[] data1 = {1, 1, 1, 1, 0, 1, 1, 1, 1, 4};
-    double[] data2 = {1, 1.5, 1, 1, 1, 1, 1, 1, 1, 2};
-    double[] data1Expected = {0.25, 0.25, 0.25, 0.25, 0, 0.25, 0.25, 0.25, 0.25, 1};
-    double[] data2Expected = {0.25, 0.375, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.5};
-    EventComparePWaveOrientation.scaleByMax(data1, data2);
-
-    assertArrayEquals(data1Expected, data1, 1e-7);
-    assertArrayEquals(data2Expected, data2, 1e-7);
-  }
-
-  @Test
-  public final void testScaleByMax_NegativeMax() {
-    double[] data1 = {-1, 1, 1, 1, 0, 1, 1, 1, 1, -4};
-    double[] data2 = {1, 1.5, 1, -1, 1, 1, 1, 1, 1, -2};
-    double[] data1Expected = {-0.25, 0.25, 0.25, 0.25, 0, 0.25, 0.25, 0.25, 0.25, -1};
-    double[] data2Expected = {0.25, 0.375, 0.25, -0.25, 0.25, 0.25, 0.25, 0.25, 0.25, -0.5};
-    EventComparePWaveOrientation.scaleByMax(data1, data2);
-
-    assertArrayEquals(data1Expected, data1, 1e-7);
-    assertArrayEquals(data2Expected, data2, 1e-7);
-  }
-
-  @Test
-  public final void testScaleByMax_0s() {
-    double[] data1 = {0,0,0,0,0,0,0};
-    double[] data2 = {0,0,0,0,0,0,0};
-    double[] data1Expected = {0,0,0,0,0,0,0};
-    double[] data2Expected = {0,0,0,0,0,0,0};
-    EventComparePWaveOrientation.scaleByMax(data1, data2);
-
-    assertArrayEquals(data1Expected, data1, 1e-7);
-    assertArrayEquals(data2Expected, data2, 1e-7);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public final void testScaleByMax_MismatchedLengths_ExpectException() {
-    double[] data1 = {0,0,0,0,0,0,0};
-    double[] data2 = {0,0,0,0,0,0};
-
-    EventComparePWaveOrientation.scaleByMax(data1, data2);
+  @Test(expected = MetricException.class)
+  public final void testGetCorrectPairedChannelNameException() throws MetricException {
+    String init = "10-LH1";
+    EventComparePWaveOrientation.getPairedChannelNameString(init);
   }
 
 }
