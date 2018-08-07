@@ -34,6 +34,7 @@ public class EventComparePWaveOrientation extends Metric {
   // length of window to take for p-wave data in seconds, including a lead-in time
   private static final int P_WAVE_WINDOW = 40;
 
+
   // range of degrees (arc length) over which data will be valid
   private static final int MIN_DEGREES = 20;
   private static final int MAX_DEGREES = 90;
@@ -94,6 +95,7 @@ public class EventComparePWaveOrientation extends Metric {
     List<Channel> channels = stationMeta.getRotatableChannels();
 
     // get pairs of ED, ND data and then do the rotation with those
+    String[] basechannel;
     String basePreSplit = null;
 
     try {
@@ -105,6 +107,7 @@ public class EventComparePWaveOrientation extends Metric {
       basePreSplit = "XX-LX";
       logger.info("No base channel for Event Compare P Orientation using: " + basePreSplit);
     }
+    basechannel = basePreSplit.split("-");
 
     String preSplitBands = null;
     try {
