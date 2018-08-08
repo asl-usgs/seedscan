@@ -1,10 +1,6 @@
 package asl.seedscan.metrics;
 
-<<<<<<< HEAD
 import static org.junit.Assert.assertEquals;
-
-=======
->>>>>>> Add test case for PressureMetric; use stage 0 to match test case
 import asl.metadata.Station;
 import asl.testutils.ResourceManager;
 import java.time.LocalDate;
