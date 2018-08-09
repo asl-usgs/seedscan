@@ -19,7 +19,6 @@ if (file('database.gradle').exists()) {
    apply from:'database.gradle'
 }
 
-
 version = '1.6.2'
 
 mainClassName = 'asl.seedscan.SeedScan'
