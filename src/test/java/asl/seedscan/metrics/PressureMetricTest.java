@@ -21,11 +21,12 @@ public class PressureMetricTest {
   @BeforeClass
   public static void setUpBeforeClass() {
     try {
+      String networkName = "IU";
       String metadataLocation = "/metadata/rdseed/IU-ANMO-ascii.txt";
       String seedDataLocation = "/seed_data/IU_ANMO/2018/121";
-      station = new Station("IU", "ANMO");
+      station = new Station(networkName, "ANMO");
       dataDate = LocalDate.of(2018, 5, 1);
-      data = ResourceManager.getMetricData(seedDataLocation, metadataLocation, dataDate, station);
+      data = ResourceManager.getMetricData(seedDataLocation, metadataLocation, dataDate, station, networkName);
     } catch (Exception e) {
       e.printStackTrace();
     }

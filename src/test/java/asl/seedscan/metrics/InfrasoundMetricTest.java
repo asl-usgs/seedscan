@@ -23,9 +23,10 @@ public class InfrasoundMetricTest {
     try {
       String metadataLocation = "/metadata/rdseed/IU-ANMO-ascii.txt";
       String seedDataLocation = "/seed_data/IU_ANMO/2018/121";
-      station = new Station("IU", "ANMO");
+      String networkName = "IU";
+      station = new Station(networkName, "ANMO");
       dataDate = LocalDate.of(2018, 5, 1);
-      data = ResourceManager.getMetricData(seedDataLocation, metadataLocation, dataDate, station);
+      data = ResourceManager.getMetricData(seedDataLocation, metadataLocation, dataDate, station, networkName);
     } catch (Exception e) {
       e.printStackTrace();
     }
