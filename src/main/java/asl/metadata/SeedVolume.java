@@ -24,6 +24,7 @@ public class SeedVolume {
 
 	/** The network key. This is based on info blockette field 9: volume label */
 	private NetworkKey networkKey = null;
+	/* TODO: need to change this around. Either volume needs to be more flexible on network identity per volume or this value needs to be derived from the filename */
 
 	/** The station locators. */
 	private ArrayList<Blockette> stationLocators;
@@ -45,13 +46,18 @@ public class SeedVolume {
 	 * @param volumeInfo
 	 *            the volume info
 	 */
-	public SeedVolume(Blockette volumeInfo) {
+	public SeedVolume(Blockette volumeInfo, String networkName) {
 		this.volumeInfo = volumeInfo;
+		this.networkKey = new NetworkKey(networkName);
+		// commented out block used the network key derived from volume info blockette,
+		// which does not always exist
+		/*
 		try {
 			this.networkKey = new NetworkKey(volumeInfo);
 		} catch (WrongBlocketteException e) {
 			logger.error("== WrongBlocketteException:", e);
 		}
+		*/
 		stations = new Hashtable<>();
 		stationLocators = new ArrayList<>();
 	}
