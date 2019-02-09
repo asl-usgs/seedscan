@@ -270,8 +270,8 @@ class Dataless {
 				if (channel == null) {
 					throw new BlocketteOutOfOrderException();
 				}
-
-				channel.addComment(blockette);
+				// TODO: restore this line; closed out because some comments had time string issues
+				// channel.addComment(blockette);
 				break;
 			case 53:
 			case 54:
