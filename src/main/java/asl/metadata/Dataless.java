@@ -266,13 +266,6 @@ class Dataless {
 				}
 				epoch.setFormat(blockette);
 				break;
-			case 59:
-				if (channel == null) {
-					throw new BlocketteOutOfOrderException();
-				}
-				// TODO: restore this line; closed out because some comments had time string issues
-				// channel.addComment(blockette);
-				break;
 			case 53:
 			case 54:
 			case 55:
