@@ -83,7 +83,14 @@ public class TimingQualityMetric extends Metric {
 			return NO_RESULT;
 		}
 
-		List<Integer> qualities = metricData.getChannelTimingQualityData(channel);
+		List<Integer> qualities = null;
+		// try-catch here to deal with null-pointer exception caused by problems with
+		try {
+			qualities = metricData.getChannelTimingQualityData(channel);
+		} catch (NullPointerException e) {
+			logger.error("Null pointer exception caused when reading in timing quality for station={} channel={} day={}",
+					getStation(), channel, getDay());
+		}
 
 		if (qualities == null) {
 			return NO_RESULT;
