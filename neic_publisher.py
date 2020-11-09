@@ -59,7 +59,11 @@ def publish_messages(networks=None, select_dates=None, metrics=None,
         date_string = select_date.strftime("%Y-%m-%d")
         output = call_dqa(network=network, metric=metric, begin=date_string,
                           end=date_string, format='csv')
-        # set up the kafka (producer) connection here
+
+        # each line in the result of call_dqa is effectively a row in the database
+        data = csv.reader(output.splitlines(), skipinitialspace=True)
+
+        # set up the kafka (producer) connection now that we have data
         # default blocktime is 60000 ms -- so let's try multiplying by 5
         blocktime = 10000
         producer = KafkaProducer(bootstrap_servers=
@@ -68,8 +72,7 @@ def publish_messages(networks=None, select_dates=None, metrics=None,
                                  max_block_ms=blocktime,
                                  value_serializer=lambda v: json.dumps(v)
                                  .encode('utf-8'))
-        # each line is effectively a row in the database
-        data = csv.reader(output.splitlines(), skipinitialspace=True)
+
         # note that CSV class works in such a way that the iterator is the only reasonable way to
         # access the data once converted into it -- fortunately the first entry can still easily be
         # checked to determine if there's really any content to iterator over
@@ -79,13 +82,17 @@ def publish_messages(networks=None, select_dates=None, metrics=None,
                 if is_test:
                     print("Nothing available for", select_date, network, metric)
                 break  # go back to outer loop, no data in this record exists
+
             # now we get the fields and jsonify them for publication
             # value order is how they come out of the call_dqa method
             (r_date, network, station, location, channel, metric, value) = record
             if is_test:
                 print(r_date, network, station, location, channel, metric, value)
-            # get the topic name derived from the metric and run type
+
+            # get the topic name derived from the metric and how we're running the code
+            # this should also validate the name to make sure it has no disallowed characters
             topic_name = topic_fix(metric, is_test)
+
             # json format description:
             # https://github.com/usgs/earthquake-detection-formats (cont.)
             # /blob/master/format-docs/StationInfo.md
@@ -98,10 +105,9 @@ def publish_messages(networks=None, select_dates=None, metrics=None,
                        "Quality": value, "Date": date_string, "Enable": "true",
                        "Metric": metric}
             # next step is to actually send this message
-            # metric (topic) name might have disallowed character in it
-            # print(topic_name, message)
             producer.send(topic_name, message)
-        producer.flush()
+        # make sure all messages are properly committed to the server
+        producer.flush()  # end of the loop over date-network-metric product
 
 
 if __name__ == '__main__':
