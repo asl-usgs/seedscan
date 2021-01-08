@@ -1,7 +1,8 @@
 package asl.seedscan.metrics;
 
-import static asl.utils.ResponseUnits.ResolutionType.HIGH;
-import static asl.utils.ResponseUnits.SensorType.STS2gen3;
+import static asl.utils.response.ResponseParser.loadEmbeddedResponse;
+import static asl.utils.response.ResponseUnits.ResolutionType.HIGH;
+import static asl.utils.response.ResponseUnits.SensorType.STS2gen3;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -11,11 +12,12 @@ import asl.metadata.Station;
 import asl.seedscan.event.EventLoader;
 import asl.testutils.MetricTestMap;
 import asl.testutils.ResourceManager;
-import asl.utils.input.InstrumentResponse;
+import asl.utils.response.ChannelMetadata;
+import asl.utils.response.ChannelMetadata.ResponseStageException;
+import asl.utils.response.PolesZeros.Pole;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Arrays;
-import org.apache.commons.math3.complex.Complex;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -208,9 +210,9 @@ public class WPhaseQualityMetricTest {
   }
 
   @Test
-  public void responseCheckPasses() throws IOException {
-    InstrumentResponse resp = InstrumentResponse.loadEmbeddedResponse(STS2gen3, HIGH);
-    Complex pole = resp.getPoles().get(0);
+  public void responseCheckPasses() throws IOException, ResponseStageException {
+    ChannelMetadata resp = loadEmbeddedResponse(STS2gen3, HIGH);
+    Pole pole = resp.getPoleZeroStage().getPoleDoubleList().get(0);
     double w = pole.abs(); // corner frequency
     double h = Math.abs(pole.getReal() / pole.abs()); // damping
     assertTrue(WPhaseQualityMetric.passesResponseCheck(w, h));

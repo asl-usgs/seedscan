@@ -1,12 +1,13 @@
 package asl.seedscan.metrics;
 
+import static asl.utils.timeseries.TimeSeriesUtils.ONE_HZ_INTERVAL;
+
 import asl.metadata.Channel;
 import asl.metadata.meta_new.ChannelMeta;
 import asl.metadata.meta_new.ResponseStage;
 import asl.seedsplitter.DataSet;
 import asl.util.Logging;
 import asl.utils.FFTResult;
-import asl.utils.TimeSeriesUtils;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -265,7 +266,7 @@ public abstract class CalibrationMetric extends Metric {
 		// Compute/Get the 1-sided psd[f] using Peterson's algorithm (24 hrs, 13
 		// segments, etc.)
 
-		long dt = (long) (1. / srate * TimeSeriesUtils.ONE_HZ_INTERVAL);
+		long dt = (long) (1. / srate * ONE_HZ_INTERVAL);
 		FFTResult psdX = FFTResult.spectralCalc(inData, inData, dt);
 		Complex[] Gx = psdX.getFFT();
 		double df = psdX.getFreq(1);

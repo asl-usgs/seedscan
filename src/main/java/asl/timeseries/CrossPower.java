@@ -1,16 +1,15 @@
 package asl.timeseries;
 
-import asl.utils.FFTResult;
-import asl.utils.TimeSeriesUtils;
-import java.util.Arrays;
-
-import org.apache.commons.math3.complex.Complex;
+import static asl.utils.timeseries.TimeSeriesUtils.ONE_HZ_INTERVAL;
 
 import asl.metadata.Channel;
-import asl.metadata.meta_new.ChannelMetaException;
 import asl.metadata.meta_new.ChannelMeta.ResponseUnits;
+import asl.metadata.meta_new.ChannelMetaException;
 import asl.seedscan.metrics.MetricData;
 import asl.seedscan.metrics.MetricPSDException;
+import asl.utils.FFTResult;
+import java.util.Arrays;
+import org.apache.commons.math3.complex.Complex;
 
 public class CrossPower {
 	private double[] powerSpectrum;
@@ -88,7 +87,7 @@ public class CrossPower {
 			throw new MetricPSDException("Got srate=0");
 
 		FFTResult psdRaw = FFTResult.spectralCalc(xData, yData,
-				(long) (TimeSeriesUtils.ONE_HZ_INTERVAL / sampleRate));
+				(long) (ONE_HZ_INTERVAL / sampleRate));
 		Complex[] spectrumRaw = psdRaw.getFFT();
 		frequencyArray = psdRaw.getFreqs();
 

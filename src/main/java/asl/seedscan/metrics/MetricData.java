@@ -4,7 +4,7 @@ import static asl.utils.FFTResult.cosineTaper;
 import static asl.utils.FFTResult.singleSidedFFT;
 import static asl.utils.NumericUtils.demeanInPlace;
 import static asl.utils.NumericUtils.detrend;
-import static asl.utils.TimeSeriesUtils.concatAll;
+import static asl.utils.timeseries.TimeSeriesUtils.concatAll;
 
 import asl.metadata.Channel;
 import asl.metadata.ChannelArray;

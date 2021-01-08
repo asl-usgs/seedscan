@@ -3,8 +3,6 @@ package asl.timeseries;
 import static org.junit.Assert.assertEquals;
 
 import asl.utils.FFTResult;
-import asl.utils.NumericUtils;
-import asl.utils.TimeSeriesUtils;
 import org.junit.Test;
 
 public class PreprocessingUtilsTest {

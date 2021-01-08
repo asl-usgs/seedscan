@@ -1,8 +1,5 @@
 package asl.metadata.meta_new;
 
-import static asl.utils.NumericUtils.atanc;
-import static asl.utils.NumericUtils.unwrap;
-
 import asl.metadata.Blockette;
 import asl.metadata.Channel;
 import asl.metadata.ChannelKey;
@@ -13,7 +10,6 @@ import asl.security.MemberDigest;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Hashtable;
 import org.apache.commons.math3.complex.Complex;
 import org.slf4j.Logger;
