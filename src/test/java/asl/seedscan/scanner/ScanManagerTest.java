@@ -68,8 +68,9 @@ public class ScanManagerTest {
     Thread.sleep(500);
     int count = database.getNumberOfScanRequests();
     Thread.sleep(500);
-
-    assertTrue(count < database.getNumberOfScanRequests());
+    int checkAgainst = database.getNumberOfScanRequests();
+    assertTrue("Old value for scans was " + count + " and new value was " + checkAgainst,
+        count < checkAgainst);
   }
 
   /**

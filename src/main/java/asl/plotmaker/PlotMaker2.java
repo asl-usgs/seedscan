@@ -19,12 +19,13 @@
 
 package asl.plotmaker;
 
+import static org.jfree.chart.ChartUtils.saveChartAsPNG;
+
 import java.awt.Color;
 import java.awt.Font;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.annotations.XYLineAnnotation;
 import org.jfree.chart.annotations.XYTextAnnotation;
@@ -34,12 +35,11 @@ import org.jfree.chart.axis.NumberTickUnit;
 import org.jfree.chart.plot.CombinedDomainXYPlot;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYDotRenderer;
-import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.chart.title.TextTitle;
+import org.jfree.chart.ui.TextAnchor;
 import org.jfree.data.Range;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-import org.jfree.ui.TextAnchor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -250,7 +250,7 @@ public class PlotMaker2 {
 		chart.removeLegend();
 
 		try {
-			ChartUtilities.saveChartAsPNG(outputFile, chart, 1400, 1400);
+			saveChartAsPNG(outputFile, chart, 1400, 1400);
 		} catch (IOException e) {
 			// System.err.println("Problem occurred creating chart.");
 			logger.error("IOException:", e);

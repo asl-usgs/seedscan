@@ -84,7 +84,8 @@ public class ScanManager {
         /*Update incase available processors changes.
 				 * This is not a constant, but can vary with the OS according to Oracle Javadoc.
 				 */
-        if (Runtime.getRuntime().availableProcessors() > this.threadPool.getCorePoolSize()) {
+        if (Runtime.getRuntime().availableProcessors() > this.threadPool.getCorePoolSize()
+            && Runtime.getRuntime().availableProcessors() > 0) {
           this.threadPool.setCorePoolSize(Runtime.getRuntime().availableProcessors());
         }
       } catch (InterruptedException e) {
