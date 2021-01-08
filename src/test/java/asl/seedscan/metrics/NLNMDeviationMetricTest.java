@@ -1,5 +1,6 @@
 package asl.seedscan.metrics;
 
+import static asl.seedscan.metrics.TestUtils.testMetric;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -59,7 +60,7 @@ public class NLNMDeviationMetricTest {
     expect.put("10,LH2",  8.537544, error);
     expect.put("10,LHZ", 10.869350, error);
 
-    TestUtils.testMetric(metric, expect);
+    testMetric(metric, expect);
 
     // Consider adding this once memozing computePSD is done. Currently it
     // pretends to, but doesn't really.
@@ -121,7 +122,7 @@ public class NLNMDeviationMetricTest {
     expect.put("10,BH2", 12.010476, error);
     expect.put("10,BHZ", 12.022624, error);
 
-    TestUtils.testMetric(metric, expect);
+    testMetric(metric, expect);
   }
 
   @Test
