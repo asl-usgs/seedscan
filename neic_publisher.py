@@ -102,7 +102,7 @@ def publish_messages(networks=None, select_dates=None, metrics=None,
                                                        "Station": station,
                                                        "Location": location,
                                                        "Channel": channel},
-                       "Quality": value, "Date": date_string, "Enable": "true",
+                       "MetricValue": value, "StartDate": date_string, "Enable": "true",
                        "Metric": metric}
             # next step is to actually send this message
             producer.send(topic_name, message)
