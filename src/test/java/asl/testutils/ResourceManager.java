@@ -216,6 +216,15 @@ public abstract class ResourceManager { // NO_UCD (test only)
     return getMetricData(seedDataLocation, metadataLocation, dataDate, station);
   }
 
+  public static MetricData loadASA1MainTestCase() {
+    final String metadataLocation = "/metadata/rdseed/GS-ASA1-ascii.txt";
+    final String seedDataLocation = "/seed_data/GS_ASA/2021/013";
+    final String networkName = "GS";
+    final Station station = new Station(networkName, "ASA1");
+    final LocalDate dataDate = LocalDate.ofYearDay(2021, 13);
+    return getMetricData(seedDataLocation, metadataLocation, dataDate, station);
+  }
+
   public static MetricData loadNWAOMainTestCase() {
     final String seedLocation = "/seed_data/IU_NWAO/2015/299";
     final String metadataLocation = "/metadata/rdseed/IU-NWAO-ascii.txt";
