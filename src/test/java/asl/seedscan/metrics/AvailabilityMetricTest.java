@@ -446,7 +446,7 @@ public class AvailabilityMetricTest {
   public final void testProcess_ASA1_failing_to_compute_nonzero_value() throws Exception {
     Metric metric = new AvailabilityMetric();
     MetricData metricData = ResourceManager.loadASA1MainTestCase();
-
+    metric.setData(metricData);
     HashMap<String, Double> expect = new HashMap<>();
     expect.put("00,BH2", 99.99994212966313);
     expect.put("00,BH1", 99.99994212966313);
