@@ -1,6 +1,9 @@
 package asl.seedsplitter;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -676,51 +679,21 @@ public class Sequence extends MemberDigest implements Comparable<Sequence>, Seri
 	 *             values.
 	 */
 	static long sampleRateToInterval(double sampleRate) throws IllegalSampleRateException {
-		long interval;
-		if (sampleRate == 0.001)
-			interval = 1000000000L;
-		else if (sampleRate == 0.01)
-			interval = 100000000L;
-		else if (sampleRate == 0.1)
-			interval = 10000000L;
-		else if (sampleRate == 1.0)
-			interval = 1000000L;
-		else if (sampleRate == 2.5)
-			interval = 400000L;
-		else if (sampleRate == 4.0)
-			interval = 250000L;
-		else if (sampleRate == 5.0)
-			interval = 200000L;
-		else if (sampleRate == 10.0)
-			interval = 100000L;
-		else if (sampleRate == 20.0)
-			interval = 50000L;
-		else if (sampleRate == 40.0)
-			interval = 25000L;
-		else if (sampleRate == 50.0)
-			interval = 20000L;
-		else if (sampleRate == 100.0)
-			interval = 10000L;
-		else if (sampleRate == 200.0)
-			interval = 5000L;
-		else if (sampleRate == 250.0)
-			interval = 4000L;
-		else if (sampleRate == 400.0)
-			interval = 2500L;
-		else if (sampleRate == 500.0)
-			interval = 2000L;
-		else if (sampleRate == 1000.0)
-			interval = 1000L;
-		else if (sampleRate == 2000.0)
-			interval = 500L;
-		else if (sampleRate == 4000.0)
-			interval = 250L;
-		else if (sampleRate == 5000.0)
-			interval = 200L;
-		else {
-			throw new IllegalSampleRateException("The selected sample rate (" + sampleRate + " Hz) is not supported.");
-		}
-		return interval;
+	  if (sampleRate > 1000000){
+	    throw new IllegalSampleRateException("Sample rate has exceeded 1 sample per microsecond.");
+    }
+    if (sampleRate < 3.17096999999e-8){
+      throw new IllegalSampleRateException("Sample rate must be greater than 1 sample per year.");
+    }
+	  long interval =  (long) (1000000L / sampleRate);
+
+    if (sampleRate >= 1.0) {
+      return interval;
+    }
+    else {
+      int scale = (int)(Math.log10(sampleRate)) - 2;
+      return BigDecimal.valueOf(interval).setScale(scale, RoundingMode.HALF_UP).longValue();
+    }
 	}
 
 	/**
