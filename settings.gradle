@@ -1,1 +1,3 @@
+rootProject.name = 'seedscan'
+
 include 'asl-java-utils'

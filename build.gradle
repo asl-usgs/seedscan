@@ -11,6 +11,8 @@ plugins {
     id 'org.unbroken-dome.xjc' version '1.4.3'
     id 'java'
     id 'application'
+    id 'idea'
+    id 'eclipse'
 }
 
 if (file('database.gradle').exists()) {
