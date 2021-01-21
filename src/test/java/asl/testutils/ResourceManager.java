@@ -126,7 +126,7 @@ public abstract class ResourceManager { // NO_UCD (test only)
   public static synchronized MetaGenerator loadMetaGenerator() throws Exception {
     Dependent.requireRDSeed();
     if (sharedMetaGenerator == null) {
-      String[] netArray = {"CU", "GT", "IC", "IW", "NE", "US", "IU"};
+      String[] netArray = {"CU", "GS", "GT", "IC", "IW", "NE", "US", "IU"};
       sharedMetaGenerator = new MetaGenerator(
           ResourceManager.getDirectoryPath("/metadata/station_dataless"),
           "${NETWORK}_${STATION}.dataless", Arrays.asList(netArray));
@@ -218,7 +218,7 @@ public abstract class ResourceManager { // NO_UCD (test only)
 
   public static MetricData loadASA1MainTestCase() {
     final String metadataLocation = "/metadata/rdseed/GS-ASA1-ascii.txt";
-    final String seedDataLocation = "/seed_data/GS_ASA/2021/013";
+    final String seedDataLocation = "/seed_data/GS_ASA1/2021/013";
     final String networkName = "GS";
     final Station station = new Station(networkName, "ASA1");
     final LocalDate dataDate = LocalDate.ofYearDay(2021, 13);
