@@ -1,21 +1,3 @@
-/*
- * Copyright 2012, United States Geological Survey or
- * third-party contributors as indicated by the @author tags.
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/  >.
- *
- */
 package asl.seedsplitter;
 
 import java.io.BufferedInputStream;
@@ -36,7 +18,8 @@ import org.slf4j.LoggerFactory;
 import seed.Blockette320;
 
 /**
- * @author Joel D. Edwards
+ * @author Joel D. Edwards - USGS
+ * @author Mike Hagerty
  * 
  *         The SeedSplitter class reads MiniSEED records from a list of files,
  *         filters out records that don't match the filters (if supplied),
@@ -56,12 +39,12 @@ public class SeedSplitter extends
 	private File[] m_files;
 	private Hashtable<String, ArrayList<DataSet>> m_table;
 	private LinkedBlockingQueue<ByteBlock> m_recordQueue;
-	private SeedSplitProgress m_lastProgress = null;
+	private final SeedSplitProgress m_lastProgress = null;
 
-	private Pattern m_patternNetwork = null;
-	private Pattern m_patternStation = null;
-	private Pattern m_patternLocation = null;
-	private Pattern m_patternChannel = null;
+	private final Pattern m_patternNetwork = null;
+	private final Pattern m_patternStation = null;
+	private final Pattern m_patternLocation = null;
+	private final Pattern m_patternChannel = null;
 
 	// MTH
 	private Hashtable<String, ArrayList<Integer>> m_qualityTable;
@@ -131,22 +114,9 @@ public class SeedSplitter extends
 	@Override
 	public Hashtable<String, ArrayList<DataSet>> doInBackground() {
 		int progressPercent = 0; // 0 - 100
-		int lastPercent = 0;
-		long totalBytes = 0;
-		long progressBytes = 0;
+
 		long stageBytes = 0;
 		boolean finalFile = false;
-		for (File file : m_files) {
-			totalBytes += file.length();
-		}
-
-		// Initialize new logging for data errors
-		/*
-		 * String errorLogFile = appender.getFile(); String[] logsplit =
-		 * errorLogFile.split("ERROR"); String dataLogFile = logsplit[0] +
-		 * "DATA" + logsplit[1]; appender.setFile(dataLogFile);
-		 * appender.activateOptions();
-		 */
 
 		SeedSplitProcessor processor = new SeedSplitProcessor(m_recordQueue);
 		processor.setNetworkPattern(m_patternNetwork);
@@ -178,7 +148,6 @@ public class SeedSplitter extends
 				// Should we do something more? Throw an exception?
 			}
 			m_table = processor.getTable();
-			// MTH:
 			m_qualityTable = processor.getQualityTable();
 			m_calTable = processor.getCalTable();
 			if (this.isCancelled()) {
