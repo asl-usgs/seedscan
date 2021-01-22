@@ -31,18 +31,21 @@ public class TestUtils {
     metric.process();
     MetricResult result = metric.getMetricResult();
 
-    // assertEquals("Result Size: ", expect.size(), result.getIdSet().size());
+    assertEquals("Result Size: ", expect.size(), result.getIdSet().size());
 
-    for (String id : expect.keySet()) {
+    //for (String id : result.getIdSortedSet()) {
       //System.out.println(id+"   "+result.getResult(id));
 
-      //System.out.println("expect.put(\""+id+"\", "+ result.getResult(id) +");");
+      //System.out.println("expect.put(\"" + id + "\", " + result.getResult(id) + ");");
 
       /*System.out.println("database.insertMockData(\n"
           + "        new MetricValueIdentifier(expectDate, metricName, station, new Channel(\""
 					+id.split(",")[0]+"\",\""+ id.split(",")[1]+"\")),\n"
 					+ "        "+result.getResult(id)+", ByteBuffer.wrap(DatatypeConverter.parseHexBinary(\""+printHexBinary(result.getDigest(id).array())+"\")));");
       */
+    //}
+    for (String id : expect.keySet()) {
+
 
       Double expected = expect.get(id);
       Double resulted = result.getResult(id);
