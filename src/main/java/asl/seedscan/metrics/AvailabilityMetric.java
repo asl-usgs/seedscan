@@ -1,140 +1,127 @@
-/*
- * Copyright 2012, United States Geological Survey or
- * third-party contributors as indicated by the @author tags.
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/  >.
- *
- */
 package asl.seedscan.metrics;
-
-import java.nio.ByteBuffer;
-import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import asl.metadata.Channel;
 import asl.metadata.meta_new.ChannelMeta;
 import asl.seedsplitter.DataSet;
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
+import java.nio.ByteBuffer;
+import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+/**
+ * Availability Metric produces a percentage representing actual data samples compared to expected
+ * samples.
+ *
+ * @author Joel Edwards - USGS
+ * @author James Holland -USGS
+ */
 public class AvailabilityMetric extends Metric {
-	private static final Logger logger = LoggerFactory
-			.getLogger(asl.seedscan.metrics.AvailabilityMetric.class);
 
-	@Override
-	public long getVersion() {
-		return 1;
-	}
+  private static final Logger logger = LoggerFactory
+      .getLogger(asl.seedscan.metrics.AvailabilityMetric.class);
 
-	@Override
-	public String getName() {
-		return "AvailabilityMetric";
-	}
+  @Override
+  public long getVersion() {
+    return 1;
+  }
 
-	public void process() {
-		logger.info("-Enter- [ Station {} ] [ Day {} ]", getStation(), getDay());
+  @Override
+  public String getName() {
+    return "AvailabilityMetric";
+  }
 
-		// Get a sorted list of continuous channels for this stationMeta and
-		// loop over:
+  public void process() {
+    logger.info("-Enter- [ Station {} ] [ Day {} ]", getStation(), getDay());
 
-		List<Channel> channels = stationMeta.getContinuousChannels();
+    List<Channel> channels = stationMeta.getContinuousChannels();
+    for (Channel channel : channels) {
+      ByteBuffer digest = metricData.valueDigestChanged(channel,
+          createIdentifier(channel), getForceUpdate());
 
-		for (Channel channel : channels) {
+      if (digest == null) {
+        // means oldDigest == newDigest and we don't need to recompute the metric
+        logger.info(
+            "Digest unchanged station:[{}] channel:[{}] day:[{}] --> Skip metric",
+            getStation(), channel, getDay());
+        continue;
+      }
+      metricResult.addResult(channel, computeMetric(channel), digest);
+    }
+  }
 
-			ByteBuffer digest = metricData.valueDigestChanged(channel,
-					createIdentifier(channel), getForceUpdate());
+  @Override
+  public String getSimpleDescription() {
+    return "Returns a percentage of expected samples in the trace";
+  }
 
-			if (digest == null) { // means oldDigest == newDigest and we don't
-				// need to recompute the metric
-				logger.info(
-						"Digest unchanged station:[{}] channel:[{}] day:[{}] --> Skip metric",
-						getStation(), channel, getDay());
-				continue;
-			}
+  @Override
+  public String getLongDescription() {
+    return "For a sensor's sample rate and the length of a full day, this metric compares the "
+        + "number of points gotten from the data archive with the expected number of samples it "
+        + "should have. This is returned as a percentage; if we have 1 point when we expected 2, "
+        + "this would be a 50% availability result.";
+  }
 
-			double result = computeMetric(channel);
+  private double computeMetric(Channel channel) {
 
-			metricResult.addResult(channel, result, digest);
+    // AvailabilityMetric still returns a result (availability=0) even when
+    // there is NO data for this channel
+    if (!metricData.hasChannelData(channel)) {
+      return 0.;
+    }
 
-		}// end foreach channel
+    // The expected (=from metadata) number of samples:
+    ChannelMeta chanMeta = stationMeta.getChannelMetadata(channel);
+    final BigDecimal SECONDS_PER_DAY = new BigDecimal(86400);
+    BigDecimal metaSR = BigDecimal.valueOf(chanMeta.getSampleRate());
 
-	} // end process()
+    int expectedPoints = metaSR.multiply(SECONDS_PER_DAY).intValue();
 
-	@Override
-	public String getSimpleDescription() {
-		return "Returns a percentage of expected samples in the trace";
-	}
+    // The actual (=from data) number of samples:
+    List<DataSet> datasets = metricData.getChannelData(channel);
 
-	@Override
-	public String getLongDescription() {
-		return "For a sensor's sample rate and the length of a full day, this metric compares the "
-				+ "number of points gotten from the data archive with the expected number of samples it "
-				+ "should have. This is returned as a percentage; if we have 1 point when we expected 2, "
-				+ "this would be a 50% availability result.";
-	}
+    int ndata = 0;
 
-	private double computeMetric(Channel channel) {
+    for (DataSet dataset : datasets) {
+      // Check sample rates of metadata and station channel data
+      BigDecimal dataSR = BigDecimal.valueOf(dataset.getSampleRate());
 
-		// AvailabilityMetric still returns a result (availability=0) even when
-		// there is NO data for this channel
-		if (!metricData.hasChannelData(channel)) {
-			return 0.;
-		}
+      /*
+      rdseed produces sample rates with only a scale of 6 decimal places regardless of precision
+      SEED data can have about 6 precision places
+      Create same math context for comparison so precision over 5 isn't a problem.
 
-		// Initialize availability and sample rates
-		double availability;
-		double metaSR;
-		double dataSR;
+      This could have problems if a sample rate uses more than 5 precision places.
+      EG 100001 hz vs 100000 hz
+      */
+      MathContext mathContext = new MathContext(5, RoundingMode.HALF_UP);
 
-		// The expected (=from metadata) number of samples:
-		ChannelMeta chanMeta = stationMeta.getChannelMetadata(channel);
-		final int SECONDS_PER_DAY = 86400;
-		metaSR = chanMeta.getSampleRate();
-		int expectedPoints = (int) (metaSR * SECONDS_PER_DAY + 1);
-		// int expectedPoints = (int) (chanMeta.getSampleRate() * 24. * 60. *
-		// 60.);
+      if (!dataSR.round(mathContext).equals(metaSR.round(mathContext))) {
+        logger.error(
+            "SampleRate Mismatch: station:[{}] channel:[{}] day:[{}] "
+                + "metaSR:[{}] dataSR:[{}]", getStation(),
+            channel, getDay(), metaSR, dataSR);
+        continue;
+      }
+      ndata += dataset.getLength();
+    }
 
-		// The actual (=from data) number of samples:
-		List<DataSet> datasets = metricData.getChannelData(channel);
+    double availability;
+    if (expectedPoints > 0) {
+      availability = 100. * ndata / expectedPoints;
+    } else {
+      logger.info("Expected points for channel={} = 0!", channel);
+      return NO_RESULT;
+    }
+    if (availability >= 101.00) {
+      logger.warn(
+          "Availability={} > 101%% for channel={} sRate={} day={}",
+          availability, channel, chanMeta.getSampleRate(), getDay());
+    }
 
-		int ndata = 0;
-
-		for (DataSet dataset : datasets) {
-			// Check sample rates of metadata and station channel data
-			dataSR = dataset.getSampleRate();
-			if (dataSR != metaSR) {
-				logger.error(
-						"SampleRate Mismatch: station:[{}] channel:[{}] day:[{}] "
-								+ "metaSR:[{}] dataSR:[{}]", getStation(),
-						channel, getDay(), metaSR, dataSR);
-				continue;
-			}
-			ndata += dataset.getLength();
-		} // end for each dataset
-
-		if (expectedPoints > 0) {
-			availability = 100. * ndata / expectedPoints;
-		} else {
-			logger.warn("Expected points for channel={} = 0!", channel);
-			return NO_RESULT;
-		}
-		if (availability >= 101.00) {
-			logger.warn(
-					"Availability={} > 100%% for channel={} sRate={} day={}",
-					availability, channel, chanMeta.getSampleRate(), getDay());
-		}
-
-		return availability;
-	} // end computeMetric()
+    return availability;
+  }
 }
