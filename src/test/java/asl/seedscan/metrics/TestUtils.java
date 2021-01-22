@@ -45,8 +45,6 @@ public class TestUtils {
       */
     //}
     for (String id : expect.keySet()) {
-
-
       Double expected = expect.get(id);
       Double resulted = result.getResult(id);
       assertEquals(id + " result: ", expected, resulted, 1e-7);
