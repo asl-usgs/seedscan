@@ -2,7 +2,6 @@ package asl.seedsplitter;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -36,7 +35,7 @@ public class Sequence extends MemberDigest implements Comparable<Sequence>, Seri
 	private static final int BLOCK_SIZE = 4096;
 
 	/** The m_tz. */
-	private static TimeZone m_tz = TimeZone.getTimeZone("GMT");
+	private static final TimeZone m_tz = TimeZone.getTimeZone("GMT");
 
 	/** The m_pool. */
 	private BlockPool m_pool = null;
@@ -166,7 +165,7 @@ public class Sequence extends MemberDigest implements Comparable<Sequence>, Seri
 	public void extend(int[] buffer, int offset, int length) {
 		int copySize = 0;
 		while (length > 0) {
-			copySize = (m_remainder > length) ? length : m_remainder;
+			copySize = Math.min(m_remainder, length);
 			System.arraycopy(buffer, offset, m_block, BLOCK_SIZE - m_remainder, copySize);
 			if (m_remainder <= length) {
 				this._addBlock();

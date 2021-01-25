@@ -26,9 +26,9 @@ package asl.seedsplitter;
  *         blocks.
  */
 public class ContiguousBlock {
-	private long m_startTime;
-	private long m_endTime;
-	private long m_interval;
+	private final long m_startTime;
+	private final long m_endTime;
+	private final long m_interval;
 
 	/**
 	 * Constructor.

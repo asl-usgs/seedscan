@@ -2,8 +2,6 @@ package asl.seedsplitter;
 
 import asl.seedscan.metrics.MetricException;
 import java.util.ArrayList;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author Joel D. Edwards
@@ -17,9 +15,6 @@ import org.slf4j.LoggerFactory;
  * a basic Runnable.
  */
 public class BlockLocator {
-
-  private static final Logger logger = LoggerFactory
-      .getLogger(asl.seedsplitter.BlockLocator.class);
 
   /**
    * Searches for contiguous blocks of data across all of the supplied {@code ArrayList<DataSet>}

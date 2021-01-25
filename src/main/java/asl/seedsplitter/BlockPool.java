@@ -16,7 +16,7 @@ public class BlockPool implements Serializable{
 	 */
 	private static final long serialVersionUID = 1L;
 
-	private ArrayList<int[]> m_pool;
+	private final ArrayList<int[]> m_pool;
 	private int m_blockSize = 0;
 
 	/**

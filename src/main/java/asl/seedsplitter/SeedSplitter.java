@@ -39,9 +39,8 @@ public class SeedSplitter extends
 	private File[] m_files;
 	private Hashtable<String, ArrayList<DataSet>> m_table;
 	private LinkedBlockingQueue<ByteBlock> m_recordQueue;
-	private final SeedSplitProgress m_lastProgress = null;
 
-	private final Pattern m_patternNetwork = null;
+  private final Pattern m_patternNetwork = null;
 	private final Pattern m_patternStation = null;
 	private final Pattern m_patternLocation = null;
 	private final Pattern m_patternChannel = null;
@@ -94,17 +93,7 @@ public class SeedSplitter extends
 		return m_calTable;
 	}
 
-	/**
-	 * Get the final progress status.
-	 * 
-	 * @return A SeedSplitProgress object describing the progress at the
-	 *         completion of processing.
-	 */
-	public SeedSplitProgress getFinalProgress() {
-		return m_lastProgress;
-	}
-
-	/**
+  /**
 	 * Overrides the doInBackground method of SwingWorker, launching and
 	 * monitoring two threads which read the files and process MiniSEED Data.
 	 * 

@@ -34,12 +34,11 @@ public class SeedInputStream implements Runnable {
 
 	private DataInputStream m_inputStream = null;
 	private LinkedBlockingQueue<ByteBlock> m_queue = null;
-	private boolean m_running = false;
-	private byte[] m_buffer = null;
+  private byte[] m_buffer = null;
 	private int m_bufferBytes = 0;
 	private int m_skippedBytes = 0;
 	private boolean m_indicateLast = true;
-	private String m_digest_algorithm = "MD5";
+	private final String m_digest_algorithm = "MD5";
 	private MessageDigest m_digest = null;
 
 	/**
@@ -117,7 +116,7 @@ public class SeedInputStream implements Runnable {
 		 * Read chunks of data in from input stream. Once a complete record has
 		 * been assembled, put it into the queue for processing
 		 */
-		m_running = true;
+    boolean m_running = true;
 		int recordLength = -1;
 		int bytesRead = 0;
 		int indicator;

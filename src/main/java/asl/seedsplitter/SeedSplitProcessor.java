@@ -37,8 +37,8 @@ public class SeedSplitProcessor implements Runnable {
 	private Hashtable<String, ArrayList<DataSet>> m_table = null;
 
 	// MTH:
-	private Hashtable<String, ArrayList<Integer>> m_qualityTable = new Hashtable<>();
-	private Hashtable<String, ArrayList<Blockette320>> m_calTable = new Hashtable<>();
+	private final Hashtable<String, ArrayList<Integer>> m_qualityTable = new Hashtable<>();
+	private final Hashtable<String, ArrayList<Blockette320>> m_calTable = new Hashtable<>();
 
 	private Pattern m_patternNetwork = null;
 	private Pattern m_patternStation = null;
@@ -361,7 +361,7 @@ public class SeedSplitProcessor implements Runnable {
 								temps.put(key, tempData);
 							} // replaceDataSet
 						} catch (RuntimeException e) {
-							logger.error("RuntimeException:", e.getMessage());
+							logger.error("RuntimeException: {}", e.getMessage());
 						}
 
 						record = new MiniSeed(recordBytes);
@@ -397,15 +397,10 @@ public class SeedSplitProcessor implements Runnable {
 						// 64-bytes
 						byte[] byteBuf320 = record.getBlockette320();
 						if (byteBuf320 != null) {
-							// System.out.format("== SeedSplitProcessor: Blockette320 found for key=%s kept=[%d] discarded=[%d]\n",
-							// key, kept, discarded);
-							Blockette320 blockette320 = new Blockette320(
+              Blockette320 blockette320 = new Blockette320(
 									byteBuf320);
-							// System.out.format("== blockette320: epoch secs=[%d]\n",
-							// blockette320.getCalibrationEpoch() );
 
-
-							ArrayList<Blockette320> calBlock = null;
+              ArrayList<Blockette320> calBlock = null;
 							if (m_calTable.get(key) == null) {
 								calBlock = new ArrayList<>();
 								m_calTable.put(key, calBlock);
@@ -417,13 +412,13 @@ public class SeedSplitProcessor implements Runnable {
 					}
 
 				} catch (SteimException e) {
-					logger.error("SteimException:", e.getMessage());
+					logger.error("SteimException: {}", e.getMessage());
 				} catch (BlockSizeException e) {
-					logger.error("BlockSizeException:", e.getMessage());
+					logger.error("BlockSizeException: {}", e.getMessage());
 				} catch (InterruptedException e) {
-					logger.error("InterruptedException:", e.getMessage());
+					logger.error("InterruptedException: {}", e.getMessage());
 				} catch (IllegalSeednameException e) {
-					logger.error("IllegalSeednameException:", e.getMessage());
+					logger.error("IllegalSeednameException: {}", e.getMessage());
 				}
 			}
 		}
@@ -500,7 +495,7 @@ public class SeedSplitProcessor implements Runnable {
 						lastDataSet = currDataSet;
 					} catch (BlockSizeMismatchException e) {
 						logger
-								.error("BlockSizeMismatchException: BlockPool.addBlock() Impossible situation!",
+								.error("BlockSizeMismatchException: BlockPool.addBlock() Impossible situation!\n {}",
 										e.getMessage());
 					}
 				}
