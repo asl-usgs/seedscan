@@ -36,7 +36,7 @@ public class SequenceTest {
   @Test
   public void testSampleRateToInterval_one_sample_per_year_irreducible_origin()
       throws IllegalSampleRateException {
-    // 1/31536000 = 1 sample per year ~= 3.1709791983764586504312531709791983764586504312531709791983 × 10^-8
+    // 1/31536000 = 1 sample per year ~= 3.1709791983764586504312531709791983764586504312531709791983 x 10^-8
     // 9 off of pure math
     Assert.assertEquals(31536000000000L, sampleRateToInterval(3.17097e-8));
   }
@@ -44,7 +44,7 @@ public class SequenceTest {
   @Test
   public void testSampleRateToInterval_two_samples_per_year_irreducible_origin()
       throws IllegalSampleRateException {
-    // 1/15768000 = 2 samples per year ~= 6.3419583967529173008625063419583967529173008625063419583967 × 10^-8
+    // 1/15768000 = 2 samples per year ~= 6.3419583967529173008625063419583967529173008625063419583967 x 10^-8
     //7,8, or 9 off of pure math
     Assert.assertEquals(15768000000000L, sampleRateToInterval(6.34196e-8));
   }
@@ -53,7 +53,7 @@ public class SequenceTest {
   public void testSampleRateToInterval_one_sample_per_month_irreducible_origin()
       throws IllegalSampleRateException {
     // 1 month ~= 4.5 weeks
-    // 1/(4.5*7*24*60*60) ~= 3.6743092298647854203409758965314520870076425631981187536743 × 10^-7
+    // 1/(4.5*7*24*60*60) ~= 3.6743092298647854203409758965314520870076425631981187536743 x 10^-7
     //7 or 8 places off pure math
     Assert.assertEquals(2721600000000L, sampleRateToInterval(3.67431e-7));
   }
@@ -61,7 +61,7 @@ public class SequenceTest {
   @Test
   public void testSampleRateToInterval_one_sample_per_week_irreducible_origin()
       throws IllegalSampleRateException {
-    //1.6534391534391534391534391534391534391534391534391534391534 × 10^-6
+    //1.6534391534391534391534391534391534391534391534391534391534 x 10^-6
     //6,7, or 8 off of pure math
     Assert.assertEquals(604800000000L, sampleRateToInterval(1.65344e-6));
   }
