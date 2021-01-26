@@ -32,12 +32,12 @@ public class SeedInputStream implements Runnable {
 	private static final int MAX_RECORD_SIZE = 16384;
 	private static final int BLOCK_SIZE = 256;
 
-	private DataInputStream m_inputStream = null;
-	private LinkedBlockingQueue<ByteBlock> m_queue = null;
-  private byte[] m_buffer = null;
+	private final DataInputStream m_inputStream;
+	private final LinkedBlockingQueue<ByteBlock> m_queue;
+  private final byte[] m_buffer;
 	private int m_bufferBytes = 0;
 	private int m_skippedBytes = 0;
-	private boolean m_indicateLast = true;
+	private final boolean m_indicateLast;
 	private final String m_digest_algorithm = "MD5";
 	private MessageDigest m_digest = null;
 
@@ -118,7 +118,7 @@ public class SeedInputStream implements Runnable {
 		 */
     boolean m_running = true;
 		int recordLength = -1;
-		int bytesRead = 0;
+		int bytesRead;
 		int indicator;
 		ByteBlock last = new ByteBlock(null, 0, true, true);
 		ByteBlock end = new ByteBlock(null, 0, true, false);

@@ -17,7 +17,7 @@ public class BlockPool implements Serializable{
 	private static final long serialVersionUID = 1L;
 
 	private final ArrayList<int[]> m_pool;
-	private int m_blockSize = 0;
+	private final int m_blockSize;
 
 	/**
 	 * Constructor.
@@ -30,16 +30,7 @@ public class BlockPool implements Serializable{
 		m_pool = new ArrayList<>(8);
 	}
 
-	/**
-	 * Returns the block size.
-	 * 
-	 * @return An integer value representing the block size.
-	 */
-	public int getBlockSize() {
-		return m_blockSize;
-	}
-
-	/**
+  /**
 	 * Adds a new block
 	 * 
 	 * @param block

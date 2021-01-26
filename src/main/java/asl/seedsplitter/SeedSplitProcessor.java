@@ -138,32 +138,32 @@ public class SeedSplitProcessor implements Runnable {
 	@Override
 	public void run() {
 
-		ByteBlock block = null;
-		MiniSeed record = null;
-		DataSet tempData = null;
+		ByteBlock block;
+		MiniSeed record;
+		DataSet tempData;
 
-		String network = null;
-		String station = null;
-		String location = null;
-		String channel = null;
-		double sampleRate = 0.0;
-		long interval = 0;
+		String network;
+		String station;
+		String location;
+		String channel;
+		double sampleRate;
+		long interval;
 
-		long startTime = 0;
+		long startTime;
 
-		byte[] recordBytes = null;
-		int[] samples = null;
+		byte[] recordBytes;
+		int[] samples;
 
-		String seedstring = null;
+		String seedstring;
 		// total number of bytes that have been received from the queue
 		long byteTotal = 0;
-		SeedSplitProgress progress = null;
+		SeedSplitProgress progress;
 		String key = null;
-		TreeSet<DataSet> tree = null;
+		TreeSet<DataSet> tree;
 		Hashtable<String, DataSet> temps = new Hashtable<>();
 		Hashtable<String, Integer> recordCounts = new Hashtable<>();
 
-		Matcher matcher = null;
+		Matcher matcher;
 
 		int kept = 0;
 		int discarded = 0;
@@ -221,8 +221,7 @@ public class SeedSplitProcessor implements Runnable {
 						}
 
 						// Set the default location codes
-						if (location.equals("--") || location.equals("")
-								|| location == null) {
+						if (location.equals("--") || location.equals("")) {
 							logger.debug("miniseed channel=[{}] location=[{}] was changed to [00]",
 											channel, location);
 							location = "00";
@@ -281,7 +280,7 @@ public class SeedSplitProcessor implements Runnable {
 						//
 						// long intervalAdjustment = (interval > 10000 ? 1000 :
 						// 0);
-						long intervalAdjustment = interval / 1;
+						long intervalAdjustment = interval;
 
 						boolean replaceDataSet = false;
 						// Temporarily disabled fudge factor
@@ -311,7 +310,6 @@ public class SeedSplitProcessor implements Runnable {
 															lastSequenceNumber,
 															ms.getSequence());
 								}
-								// throw new SeedRecordOverlapException();
 							}
 						}
 						try {
@@ -346,8 +344,7 @@ public class SeedSplitProcessor implements Runnable {
 									logger.error(String.format(
 											"Invalid Start Time: sequence #%d",
 											ms.getSequence()), e.getMessage());
-									tempData = null;
-									break progress;
+                  break progress;
 								} catch (IllegalSampleRateException e) {
 									MiniSeed ms = new MiniSeed(recordBytes);
 									logger
@@ -355,8 +352,7 @@ public class SeedSplitProcessor implements Runnable {
 													.format("Invalid Sample Rate: sequence #%d, rate = %f",
 															ms.getSequence(),
 															ms.getRate()), e.getMessage());
-									tempData = null;
-									break progress;
+                  break progress;
 								}
 								temps.put(key, tempData);
 							} // replaceDataSet
@@ -376,7 +372,7 @@ public class SeedSplitProcessor implements Runnable {
 						// block and store it for this key
 						int quality = record.getTimingQuality();
 
-						ArrayList<Integer> qualityArray = null;
+						ArrayList<Integer> qualityArray;
 						if (m_qualityTable.get(key) == null) {
 							qualityArray = new ArrayList<>();
 							m_qualityTable.put(key, qualityArray);
@@ -400,7 +396,7 @@ public class SeedSplitProcessor implements Runnable {
               Blockette320 blockette320 = new Blockette320(
 									byteBuf320);
 
-              ArrayList<Blockette320> calBlock = null;
+              ArrayList<Blockette320> calBlock;
 							if (m_calTable.get(key) == null) {
 								calBlock = new ArrayList<>();
 								m_calTable.put(key, calBlock);
@@ -433,7 +429,6 @@ public class SeedSplitProcessor implements Runnable {
 			}
 			if ((tempData != null) && (tree != null)) {
 				tree.add(tempData);
-				tree.size();
 				
 				logger.debug("Adding DataSet to TreeSet.");
 				logger.debug(String.format(
@@ -443,8 +438,7 @@ public class SeedSplitProcessor implements Runnable {
 						((tempData.getEndTime() - tempData.getStartTime())
 								/ tempData.getInterval() + 1),
 						tempData.getLength()));
-				tempData = null;
-			}
+      }
 		}
 
 		// The following block loops through the contents of the tree in order
@@ -477,8 +471,7 @@ public class SeedSplitProcessor implements Runnable {
 				logger.debug("Processing " + tree.size()
 						+ " tree elements for '" + chanKey + "'");
 				iter = tree.iterator();
-				currDataSet = null;
-				lastDataSet = iter.next();
+        lastDataSet = iter.next();
 
 				while (iter.hasNext()) {
 					currDataSet = iter.next();

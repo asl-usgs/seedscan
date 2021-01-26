@@ -8,6 +8,7 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +39,7 @@ public class Sequence extends MemberDigest implements Comparable<Sequence>, Seri
 	private static final TimeZone m_tz = TimeZone.getTimeZone("GMT");
 
 	/** The m_pool. */
-	private BlockPool m_pool = null;
+	private final BlockPool m_pool;
 
 	/** The m_blocks. */
 	private ArrayList<int[]> m_blocks = null;
@@ -163,7 +164,7 @@ public class Sequence extends MemberDigest implements Comparable<Sequence>, Seri
 	 *             - if offset is null.
 	 */
 	public void extend(int[] buffer, int offset, int length) {
-		int copySize = 0;
+		int copySize;
 		while (length > 0) {
 			copySize = Math.min(m_remainder, length);
 			System.arraycopy(buffer, offset, m_block, BLOCK_SIZE - m_remainder, copySize);
@@ -369,8 +370,7 @@ public class Sequence extends MemberDigest implements Comparable<Sequence>, Seri
 			return;
 		}
 
-		BlockPool pool = seq.m_pool;
-		int[] block = null;
+    int[] block;
 
 		// We are going to flush the old data away through this process,
 		// so let's do it now, and keep the old data around. This should
@@ -398,9 +398,9 @@ public class Sequence extends MemberDigest implements Comparable<Sequence>, Seri
 		}
 
 		int blockCount = blocks.size();
-		int blockOffset = 0;
-		int blockLength = 0;
-		int copyLength = 0;
+		int blockOffset;
+		int blockLength;
+		int copyLength;
 		for (int i = 0; i < blockCount; i++) {
 			block = blocks.remove(0);
 			// If we end up on the last block, we need to update the block
@@ -427,7 +427,7 @@ public class Sequence extends MemberDigest implements Comparable<Sequence>, Seri
 			}
 			// Add the block to the target Sequence's BlockPool after its
 			// contents have been copied.
-			pool.addBlock(block);
+			seq.m_pool.addBlock(block);
 		}
 	}
 
@@ -521,7 +521,7 @@ public class Sequence extends MemberDigest implements Comparable<Sequence>, Seri
 		}
 
 		int[] series = new int[count];
-		int[] block = null;
+		int[] block;
 		int numBlocks = m_blocks.size();
 		int finalBlock = numBlocks - 1;
 		int seriesLength = 0;
@@ -584,9 +584,9 @@ public class Sequence extends MemberDigest implements Comparable<Sequence>, Seri
 	 *             the index out of bounds exception
 	 */
 	public int[] getSeries(long startTime, long endTime) throws SequenceRangeException, IndexOutOfBoundsException {
-		int[] series = null;
-		int index = 0;
-		int count = 0;
+		int[] series;
+		int index;
+		int count;
 		if (endTime > this.getEndTime()) {
 			throw new SequenceRangeException();
 		}
@@ -707,7 +707,7 @@ public class Sequence extends MemberDigest implements Comparable<Sequence>, Seri
 	 */
 	static String timestampToString(long timestamp) {
 		TimeZone.setDefault(TimeZone.getTimeZone("GMT"));
-		String result = null;
+		String result;
 		GregorianCalendar cal = new GregorianCalendar(m_tz);
 		cal.setTimeInMillis(timestamp / 1000);
 		result = String.format("%04d/%02d/%02d %02d:%02d:%02d.%06d", cal.get(Calendar.YEAR),
@@ -732,7 +732,7 @@ public class Sequence extends MemberDigest implements Comparable<Sequence>, Seri
 	 * @see java.lang.Comparable#compareTo(java.lang.Object)
 	 */
 	@Override
-	public int compareTo(Sequence other) {
+	public int compareTo(@NotNull Sequence other) {
 		int result = 0;
 		if (other == null) {
 			result = 1;

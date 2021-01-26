@@ -8,7 +8,6 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.regex.Pattern;
 
 import javax.swing.SwingWorker;
 
@@ -39,11 +38,6 @@ public class SeedSplitter extends
 	private File[] m_files;
 	private Hashtable<String, ArrayList<DataSet>> m_table;
 	private LinkedBlockingQueue<ByteBlock> m_recordQueue;
-
-  private final Pattern m_patternNetwork = null;
-	private final Pattern m_patternStation = null;
-	private final Pattern m_patternLocation = null;
-	private final Pattern m_patternChannel = null;
 
 	// MTH
 	private Hashtable<String, ArrayList<Integer>> m_qualityTable;
@@ -104,14 +98,13 @@ public class SeedSplitter extends
 	public Hashtable<String, ArrayList<DataSet>> doInBackground() {
 		int progressPercent = 0; // 0 - 100
 
-		long stageBytes = 0;
-		boolean finalFile = false;
+    boolean finalFile = false;
 
 		SeedSplitProcessor processor = new SeedSplitProcessor(m_recordQueue);
-		processor.setNetworkPattern(m_patternNetwork);
-		processor.setStationPattern(m_patternStation);
-		processor.setLocationPattern(m_patternLocation);
-		processor.setChannelPattern(m_patternChannel);
+		processor.setNetworkPattern(null);
+		processor.setStationPattern(null);
+		processor.setLocationPattern(null);
+		processor.setChannelPattern(null);
 		Thread processorThread = new Thread(processor);
 		processorThread.start();
 		for (int i = 0; i < m_files.length; i++) {
@@ -159,8 +152,7 @@ public class SeedSplitter extends
 			}
 			logger.debug("Finished processing file " + file.getName() + "  "
 					+ progressPercent + "% complete");
-			stageBytes += file.length();
-		}
+    }
 		logger.debug("All done. Setting progress to 100%");
 		this.setProgress(100);
 		return m_table;
