@@ -134,17 +134,7 @@ public class Sequence extends MemberDigest implements Comparable<Sequence>, Seri
 		m_sampleRate = sampleRate;
 	}
 
-	/**
-	 * Resets the time-series, flushing all data.
-	 */
-	private void clear() {
-		_reset();
-		m_startTime = 0;
-		m_sampleRate = 0.0;
-		m_interval = 0;
-	}
-
-	/**
+  /**
 	 * Extends the time-series by adding the specified data to the internal
 	 * buffer.
 	 * 
@@ -177,56 +167,6 @@ public class Sequence extends MemberDigest implements Comparable<Sequence>, Seri
 			m_length += copySize;
 			length -= copySize;
 		}
-	}
-
-	/**
-	 * Trims the sequence such that its data is within the specified time range.
-	 * 
-	 * @param startTime
-	 *            The new starting data point is at or later than this point.
-	 * @param endTime
-	 *            The new ending data point is at or earlier than this point.
-	 */
-	private void trim(long startTime, long endTime) {
-		if (startTime > endTime) {
-			clear();
-		} else if (startTime > this.getEndTime()) {
-			clear();
-		} else if (endTime < m_startTime) {
-			clear();
-		} else if ((startTime > m_startTime) || (endTime < this.getEndTime())) {
-			if (startTime < m_startTime) {
-				startTime = m_startTime;
-			}
-			if (endTime > this.getEndTime()) {
-				endTime = this.getEndTime();
-			}
-			try {
-				Sequence newSequence = new Sequence();
-				newSequence.m_startTime = m_startTime;
-				newSequence.m_interval = m_interval;
-				newSequence.m_sampleRate = m_sampleRate;
-
-				int[] series = this.getSeries(startTime, endTime);
-				newSequence.extend(series, 0, series.length);
-				this.swapData(newSequence);
-			} catch (SequenceRangeException e) {
-				logger.error("SequenceRangeException: Sequence Range Error in trim(). This should never happen!", e);
-			} catch (RuntimeException e) {
-				logger.error("RuntimeException:", e);
-			}
-		}
-	}
-
-	/**
-	 * Trims the sequence such that its data starts at or after the specified
-	 * time.
-	 * 
-	 * @param startTime
-	 *            The new starting data point is at or later than this point.
-	 */
-	void trimStart(long startTime) {
-		this.trim(startTime, this.getEndTime());
 	}
 
 	/**
@@ -432,15 +372,6 @@ public class Sequence extends MemberDigest implements Comparable<Sequence>, Seri
 	}
 
 	/**
-	 * Returns this Sequence's BlockPool.
-	 *
-	 * @return This Sequence's BlockPool.
-	 */
-	public BlockPool getBlockPool() {
-		return m_pool;
-	}
-
-	/**
 	 * Returns the timestamp of the first data point.
 	 * 
 	 * @return starting timestamp
@@ -474,15 +405,6 @@ public class Sequence extends MemberDigest implements Comparable<Sequence>, Seri
 	 */
 	public double getSampleRate() {
 		return m_sampleRate;
-	}
-
-	/**
-	 * Returns the number of blocks contained within this Sequence.
-	 * 
-	 * @return Returns the number of blocks contained within this Sequence.
-	 */
-	public int getBlockCount() {
-		return m_blocks.size();
 	}
 
 	/**

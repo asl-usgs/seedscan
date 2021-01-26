@@ -69,16 +69,6 @@ public class SeedSplitter extends
 		_construct(fileList);
 	}
 
-	/**
-	 * Get the results after the SeedSplitter has finished processing all files.
-	 * 
-	 * @return The hash table containing all of the data post filtering and
-	 *         re-ordering.
-	 */
-	public Hashtable<String, ArrayList<DataSet>> getTable() {
-		return m_table;
-	}
-
 	public Hashtable<String, ArrayList<Integer>> getQualityTable() {
 		return m_qualityTable;
 	}

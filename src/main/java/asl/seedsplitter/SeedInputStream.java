@@ -90,23 +90,6 @@ public class SeedInputStream implements Runnable {
 	}
 
 	/**
-	 * Returns this stream's MessageDigest
-	 * 
-	 * @return the raw digest for this stream.
-	 */
-	public byte[] getDigest() {
-		byte[] result = null;
-		if (m_digest != null) {
-			try {
-				result = ((MessageDigest) m_digest.clone()).digest();
-			} catch (CloneNotSupportedException ex) {
-				logger.warn("CloneNotSupportedException:", ex);
-			}
-		}
-		return result;
-	}
-
-	/**
 	 * Reads data from the input stream, assembles full SEED records and pushes
 	 * them into the queue for processing.
 	 */

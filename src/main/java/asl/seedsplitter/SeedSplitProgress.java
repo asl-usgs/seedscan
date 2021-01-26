@@ -47,33 +47,6 @@ public class SeedSplitProgress implements Progress {
 	}
 
 	/**
-	 * Constructor.
-	 * 
-	 * @param byteCount
-	 *            The number of bytes that have been read to this point.
-	 * @param complete
-	 *            A boolean value set to true if all data has been read.
-	 */
-	public SeedSplitProgress(long byteCount, boolean complete) {
-		_init(byteCount, complete, SeedSplitError.NONE, null);
-	}
-
-	/**
-	 * Constructor.
-	 * 
-	 * @param byteCount
-	 *            The number of bytes that have been read to this point.
-	 * @param errorType
-	 *            The type of error that occurred, if any.
-	 * @param errorMessage
-	 *            A message describing the error if one occurred.
-	 */
-	public SeedSplitProgress(long byteCount, SeedSplitError errorType,
-			String errorMessage) {
-		_init(byteCount, false, errorType, errorMessage);
-	}
-
-	/**
 	 * Hidden initialization method called by all constructors.
 	 * 
 	 * @param byteCount
@@ -114,31 +87,13 @@ public class SeedSplitProgress implements Progress {
 		m_fileDone = done;
 	}
 
-	/**
-	 * Returns the number of bytes that have been read so far.
-	 * 
-	 * @return The number of bytes that have been read so far.
-	 */
-	public long getByteCount() {
-		return m_byteCount;
-	}
-
-	/**
+  /**
 	 * Indicates whether processing is complete.
 	 * 
 	 * @return True if all processing is complete; otherwise false.
 	 */
 	public boolean isComplete() {
 		return m_complete;
-	}
-
-	/**
-	 * Indicates whether file input is done.
-	 * 
-	 * @return True if file input is complete; otherwise false;
-	 */
-	public boolean isFileDone() {
-		return m_fileDone;
 	}
 
 	/**
@@ -171,7 +126,7 @@ public class SeedSplitProgress implements Progress {
 
 	/**
 	 * Reports the current progress percent.
-	 * 
+	 *
 	 * @return A double value between 0.0 and 1.0 indicating the current
 	 *         progress percent.
 	 */

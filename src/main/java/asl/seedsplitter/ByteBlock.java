@@ -30,19 +30,7 @@ public class ByteBlock {
 	private boolean m_fileEnd = false;
 	private boolean m_lastBlock = false;
 
-	/**
-	 * Constructor.
-	 * 
-	 * @param data
-	 *            The raw data.
-	 * @param length
-	 *            Length of the raw data.
-	 */
-	public ByteBlock(byte[] data, int length) {
-		init(data, length, 0, false, false);
-	}
-
-	/**
+  /**
 	 * Constructor.
 	 * 
 	 * @param data
@@ -72,26 +60,7 @@ public class ByteBlock {
 		init(data, length, 0, fileEnd, isLast);
 	}
 
-	/**
-	 * Constructor.
-	 * 
-	 * @param data
-	 *            The raw data.
-	 * @param length
-	 *            Length of the raw data.
-	 * @param skipped
-	 *            Number of bytes skipped when reading data.
-	 * @param fileEnd
-	 *            End of the file has been reached.
-	 * @param isLast
-	 *            This is the last data in a stream.
-	 */
-	public ByteBlock(byte[] data, int length, int skipped, boolean fileEnd,
-			boolean isLast) {
-		init(data, length, skipped, fileEnd, isLast);
-	}
-
-	/**
+  /**
 	 * Hidden initializer called by all constructors.
 	 * 
 	 * @param data
@@ -162,30 +131,4 @@ public class ByteBlock {
 		return m_fileEnd;
 	}
 
-	/**
-	 * Set last block state.
-	 * 
-	 * @param last
-	 *            Is this the last block.
-	 */
-	public void setLast(boolean last) {
-		m_lastBlock = last;
-	}
-
-	/**
-	 * Set file end reached state.
-	 * 
-	 * @param end
-	 *            Has the end of the file been reached.
-	 */
-	public void setEnd(boolean end) {
-		m_fileEnd = end;
-	}
-
-	/**
-	 * Clear last block state.
-	 */
-	public void clearLast() {
-		m_lastBlock = false;
-	}
 }
