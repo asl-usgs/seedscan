@@ -9,8 +9,6 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import javax.swing.SwingWorker;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,16 +23,10 @@ import seed.Blockette320;
  *         de-duplicates the data, orders it based on date, and breaks it up
  *         into DataSets based on continuity and station/channel info.
  */
-public class SeedSplitter extends
-		SwingWorker<Hashtable<String, ArrayList<DataSet>>, SeedSplitProgress> {
-	private static final Logger datalogger = LoggerFactory.getLogger("DataLog");
+public class SeedSplitter {
 	private static final Logger logger = LoggerFactory
 			.getLogger(asl.seedsplitter.SeedSplitter.class);
 
-	// Consider changing the T,V types
-	// T may be alright, but V should be some sort of progress indicator
-	// along the lines of (file # out of total, byte count out of total, percent
-	// complete)
 	private File[] m_files;
 	private Hashtable<String, ArrayList<DataSet>> m_table;
 	private LinkedBlockingQueue<ByteBlock> m_recordQueue;
@@ -54,8 +46,6 @@ public class SeedSplitter extends
 		m_table = null;
 
 		m_recordQueue = new LinkedBlockingQueue<>(1024);
-		// m_dataQueue = new LinkedBlockingQueue<DataSet>(64);
-
 	}
 
 	/**
@@ -84,10 +74,7 @@ public class SeedSplitter extends
 	 * @return A hash table containing all of the data acquired from the file
 	 *         list.
 	 */
-	@Override
 	public Hashtable<String, ArrayList<DataSet>> doInBackground() {
-		int progressPercent = 0; // 0 - 100
-
     boolean finalFile = false;
 
 		SeedSplitProcessor processor = new SeedSplitProcessor(m_recordQueue);
@@ -113,38 +100,29 @@ public class SeedSplitter extends
 				logger.debug("Processing file " + file.getName() + "...");
 				inputThread.start();
 			} catch (FileNotFoundException e) {
-				// logger.debug("File '" +file.getName()+ "' not found\n");
 				String message = "FileNotFoundException: File '"
 						+ file.getName() + "' not found\n";
-				datalogger.error(message, e);
+				logger.error(message, e);
 				// Should we do something more? Throw an exception?
 			}
 			m_table = processor.getTable();
 			m_qualityTable = processor.getQualityTable();
 			m_calTable = processor.getCalTable();
-			if (this.isCancelled()) {
-				m_table = null;
-				return null;
-			}
 			if (inputThread != null) {
 				try {
 					inputThread.join();
 				} catch (InterruptedException e) {
-					datalogger.error("InterruptedException:", e);
+					logger.error("InterruptedException:", e);
 				}
 			}
 			if (finalFile) {
 				try {
 					processorThread.join();
 				} catch (InterruptedException e) {
-					datalogger.error("InterruptedException:", e);
+					logger.error("InterruptedException:", e);
 				}
 			}
-			logger.debug("Finished processing file " + file.getName() + "  "
-					+ progressPercent + "% complete");
     }
-		logger.debug("All done. Setting progress to 100%");
-		this.setProgress(100);
 		return m_table;
 	}
 }
