@@ -157,7 +157,6 @@ public class SeedSplitProcessor implements Runnable {
 		String seedstring;
 		// total number of bytes that have been received from the queue
 		long byteTotal = 0;
-		SeedSplitProgress progress;
 		String key = null;
 		TreeSet<DataSet> tree;
 		Hashtable<String, DataSet> temps = new Hashtable<>();
@@ -177,12 +176,12 @@ public class SeedSplitProcessor implements Runnable {
 					// our progress
 					byteTotal += block.getLength();
 					byteTotal += block.getSkippedBytes();
-					progress = new SeedSplitProgress(byteTotal);
 					recordBytes = block.getData();
 					if (block.isLast()) {
 						m_running = false;
 					} else if (block.isEnd()) {
-						progress.setFileDone(true);
+					  //This if is programmatically required because of legacy logic.
+						logger.debug("File done");
 					} else if (MiniSeed.crackIsHeartBeat(recordBytes)) {
 						logger.debug("Found HEARTBEAT record!");
 					} else { // MTH
