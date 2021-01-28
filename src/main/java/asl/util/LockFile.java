@@ -16,7 +16,7 @@ public class LockFile {
   /**
    * The file.
    */
-  private File file;
+  private final File file;
 
   /**
    * The FileChannel closed in release().

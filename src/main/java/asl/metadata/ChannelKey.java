@@ -92,8 +92,6 @@ public class ChannelKey extends Key implements Comparable<ChannelKey>, Serializa
 					.format("Location code=[%s] chan=[%s] is NOT a valid 2-char code (e.g., %s)\n",
 							location, name, validCodes));
 		}
-		Pattern pattern = Pattern.compile("^[0-9][0-9]$");
-		Matcher matcher = pattern.matcher(location);
 
 		this.location = location;
 	}
