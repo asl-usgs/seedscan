@@ -12,9 +12,9 @@ import java.util.Arrays;
 import org.apache.commons.math3.complex.Complex;
 
 public class CrossPower {
-	private double[] powerSpectrum;
+	private final double[] powerSpectrum;
 	private double[] frequencyArray;
-	private double spectrumDeltaF;
+	private final double spectrumDeltaF;
 
 	// constructor
 	public CrossPower(double[] powerSpectrum, double df) {

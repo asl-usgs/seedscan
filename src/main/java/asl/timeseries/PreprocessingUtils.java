@@ -69,7 +69,6 @@ public class PreprocessingUtils {
 
 		double azimuth;
 		int sign1 = 1;
-		int sign2 = 1;
 		if (azimuthX >= 0 && azimuthX < 90) {
 			azimuth = azimuthX;
 		} else if (azimuthX >= 90 && azimuthX < 180) {
@@ -85,7 +84,7 @@ public class PreprocessingUtils {
 					"Don't know how to rotate az1=" + azimuthX);
 		}
 
-		sign2 = 1;
+		int sign2;
 		if (azimuthY >= 0 && azimuthY < 180) {
 			sign2 = 1;
 		} else if (azimuthY >= 180 && azimuthY < 360) {

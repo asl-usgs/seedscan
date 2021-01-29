@@ -17,7 +17,7 @@ public class MyFilter {
 	public static void bandpass(SacTimeSeries sacSeries, double f1, double f2,
 			double f3, double f4) {
 		SacHeader hdr = sacSeries.getHeader();
-		double delta = (double) hdr.getDelta();
+		double delta = hdr.getDelta();
 		float[] fdata = sacSeries.getY();
 		double[] data = convertFloatsToDoubles(fdata);
 		bandpass(data, delta, f1, f2, f3, f4);
@@ -119,7 +119,7 @@ public class MyFilter {
 		}
 		double[] output = new double[input.length];
 		for (int i = 0; i < input.length; i++) {
-			output[i] = (double) input[i];
+			output[i] = input[i];
 		}
 		return output;
 	}

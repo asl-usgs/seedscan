@@ -10,14 +10,7 @@ public class TimeseriesException extends Exception {
 	/** The Constant serial version UID. */
 	private static final long serialVersionUID = 1L;
 
-	/**
-	 * Instantiates a new timeseries exception.
-	 */
-	TimeseriesException() {
-		super();
-	}
-
-	/**
+  /**
 	 * Instantiates a new timeseries exception.
 	 * 
 	 * @param message

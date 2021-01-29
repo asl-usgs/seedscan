@@ -21,7 +21,7 @@ package asl.timeseries;
 import asl.metadata.Channel;
 
 public class CrossPowerKey {
-	private String key;
+	private final String key;
 
 	public CrossPowerKey(Channel a, Channel b) {
 		String aKey = a.toString();
@@ -66,10 +66,8 @@ public class CrossPowerKey {
 			return false;
 		CrossPowerKey other = (CrossPowerKey) obj;
 		if (key == null) {
-			if (other.key != null)
-				return false;
-		} else if (!key.equals(other.key))
-			return false;
-		return true;
-	}
+      return other.key == null;
+		} else
+      return key.equals(other.key);
+  }
 }
