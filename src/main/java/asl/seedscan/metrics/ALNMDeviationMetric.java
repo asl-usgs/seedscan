@@ -131,7 +131,7 @@ public class ALNMDeviationMetric extends PowerBandMetric {
 				logger.error(Logging.prettyExceptionWithCause(e));
 			}
 
-		} // end foreach channel
+		}
 
 		// If we didn't add any channel-panels below, then plotMaker should
 		// still be null
@@ -155,7 +155,7 @@ public class ALNMDeviationMetric extends PowerBandMetric {
 			final String pngName = String.format("%s.%s.png", getOutputDir(), "alnm-dev");
 			plotMaker.writePlot(pngName);
 		}
-	} // end process()
+	}
 
 	@Override
 	public String getSimpleDescription() {
@@ -197,7 +197,7 @@ public class ALNMDeviationMetric extends PowerBandMetric {
 		// nf = number of positive frequencies + DC (nf = nfft/2 + 1, [f: 0, df,
 		// 2df, ...,nfft/2*df] )
 		int nf = psd.length;
-		double freq[] = new double[nf];
+		double[] freq = new double[nf];
 
 		// Fill freq array & Convert spectrum to dB
 		for (int k = 0; k < nf; k++) {
@@ -220,13 +220,9 @@ public class ALNMDeviationMetric extends PowerBandMetric {
 		double Tmin = per[0]; // Should be = 1/fNyq = 2/fs = 0.1 for fs=20Hz
 		double Tmax = per[nf - 2]; // Should be = 1/df = Ndt
 
-		// Timeseries.timeoutXY(per, psdPer, outFile);
 
 		// Interpolate the smoothed psd to the periods of the ALNM Model:
-		double psdInterp[] = NumericUtils.interpolate(per, psdPer, getALNM().getPeriods());
-
-		// outFile = channel.toString() + ".psd.Fsmooth.T.Interp";
-		// Timeseries.timeoutXY(ALNMPeriods, psdInterp, outFile);
+		double[] psdInterp = NumericUtils.interpolate(per, psdPer, getALNM().getPeriods());
 
 		PowerBand band = getPowerBand();
 		double lowPeriod = band.getLow();
@@ -245,7 +241,6 @@ public class ALNMDeviationMetric extends PowerBandMetric {
 				break;
 			} else if (getALNM().getPeriods()[k] >= lowPeriod) {
 				double difference = psdInterp[k] - getALNM().getPowers()[k];
-				// deviation += Math.sqrt( Math.pow(difference, 2) );
 				deviation += difference;
 				nPeriods++;
 			}
@@ -267,7 +262,7 @@ public class ALNMDeviationMetric extends PowerBandMetric {
 		}
 
 		return deviation;
-	} // end computeMetric()
+	}
 
 	/**
 	 * Make plots.
@@ -297,7 +292,7 @@ public class ALNMDeviationMetric extends PowerBandMetric {
 					metricResult.getDate().getDayOfYear());
 			final String plotTitle = String.format("[ Date: %s ] [ Station: %s ] ALNM-Deviation", date, getStation());
 			plotMaker = new PlotMaker2(plotTitle);
-			plotMaker.initialize3Panels("LNZ", "LN1/LNN", "LN2/LNE");
+			plotMaker.initialize3Panels();
 		}
 		int iPanel;
 		Color color = Color.black;

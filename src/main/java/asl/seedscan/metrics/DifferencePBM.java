@@ -226,7 +226,7 @@ public class DifferencePBM extends PowerBandMetric {
 						metricResult.getDate().getDayOfYear(),
 						metricResult.getStation());
 				plotMaker = new PlotMaker2(plotTitle);
-				plotMaker.initialize3Panels("LHZ", "LHND", "LHED");
+				plotMaker.initialize3Panels();
 			}
 			int iPanel = 0;
 			Color color = Color.red;

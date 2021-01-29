@@ -26,11 +26,11 @@ import java.awt.Stroke;
  * @author Mike Hagerty hagertmb@bc.edu
  */
 public class Trace {
-	private double[] xdata;
-	private double[] ydata;
-	private String traceName;
-	private Color traceColor;
-	private Stroke stroke;
+	private final double[] xdata;
+	private final double[] ydata;
+	private final String traceName;
+	private final Color traceColor;
+	private final Stroke stroke;
 
 	// constructor(s)
 	public Trace(double[] x, double[] y, String name, Color color, Stroke stroke)
@@ -39,7 +39,7 @@ public class Trace {
 			throw new TraceException("Either x[] or y[] is empty!");
 		}
 		if (x.length != y.length) {
-			throw new TraceException("x.lenth != y.length !");
+			throw new TraceException("x.length != y.length !");
 		}
 		this.xdata = new double[x.length];
 		System.arraycopy(x, 0, this.xdata, 0, x.length);

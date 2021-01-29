@@ -25,29 +25,19 @@ import java.util.ArrayList;
  * @author Mike Hagerty hagertmb@bc.edu
  */
 public class Panel {
-	private ArrayList<Trace> traces;
-	private String panelTitle;
+	private final ArrayList<Trace> traces;
 
-	// constructor(s)
-	public Panel(String panelTitle) {
-		this.panelTitle = panelTitle;
-		traces = new ArrayList<>();
+  // constructor(s)
+	public Panel() {
+    traces = new ArrayList<>();
 	}
 
-	public String getTitle() {
-		return panelTitle;
-	}
-
-	public void addTrace(Trace trace) {
+  public void addTrace(Trace trace) {
 		traces.add(trace);
 	}
 
 	public ArrayList<Trace> getTraces() {
 		return traces;
-	}
-
-	public int getNumberOfTraces() {
-		return traces.size();
 	}
 
 }

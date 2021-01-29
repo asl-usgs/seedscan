@@ -308,7 +308,7 @@ public class NLNMDeviationMetric extends PowerBandMetric {
 					metricResult.getDate().getDayOfYear());
 			final String plotTitle = String.format("[ Date: %s ] [ Station: %s ] NLNM-Deviation", date, getStation());
 			plotMaker = new PlotMaker2(plotTitle);
-			plotMaker.initialize3Panels("LHZ", "LH1/LHN", "LH2/LHE");
+			plotMaker.initialize3Panels();
 		}
 		int iPanel;
 		Color color = Color.black;

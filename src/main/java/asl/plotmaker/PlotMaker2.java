@@ -49,7 +49,7 @@ import org.slf4j.LoggerFactory;
 public class PlotMaker2 {
 	private static final Logger logger = LoggerFactory
 			.getLogger(asl.plotmaker.PlotMaker2.class);
-	private String plotTitle;
+	private final String plotTitle;
 
 	private ArrayList<Panel> panels;
 
@@ -61,49 +61,41 @@ public class PlotMaker2 {
 	public void addTraceToPanel(Trace trace, int iPanel)
 			throws PlotMakerException {
 		if (panels == null) {
-			throw new PlotMakerException(
-					"== addTraceToPanel: panels == null !!");
+			throw new PlotMakerException("== addTraceToPanel: panels == null !!");
 		}
 		if (iPanel >= panels.size()) {
-			throw new PlotMakerException(
-					"== addTraceToPanel: Requested iPanel > panels.size() !!");
+			throw new PlotMakerException("== addTraceToPanel: Requested iPanel > panels.size() !!");
 		}
 		Panel panel = panels.get(iPanel);
 		panel.addTrace(trace);
 	}
 
-	public void initialize3Panels(String subTitle1, String subTitle2,
-			String subTitle3) {
+	public void initialize3Panels() {
 		if (panels == null) {
 			panels = new ArrayList<>(3);
 		}
-		Panel panel1 = new Panel(subTitle1);
+		Panel panel1 = new Panel();
 		panels.add(panel1);
-		Panel panel2 = new Panel(subTitle2);
+		Panel panel2 = new Panel();
 		panels.add(panel2);
-		Panel panel3 = new Panel(subTitle3);
+		Panel panel3 = new Panel();
 		panels.add(panel3);
 	}
 
 	public void writePlot(String fileName) {
-		// System.out.format("== plotTitle=[%s] fileName=[%s]\n", plotTitle,
-		// fileName);
 
-		File outputFile = new File(fileName);
+    File outputFile = new File(fileName);
 
 		// Check that we will be able to output the file without problems and if
 		// not --> return
 		if (!checkFileOut(outputFile)) {
-			// System.out.format("== plotMaker: request to output plot=[%s] but we are unable to create it "
-			// + " --> skip plot\n", fileName );
-			logger.warn(
+      logger.warn(
 					"== Request to output plot=[{}] but we are unable to create it "
 							+ " --> skip plot\n", fileName);
 			return;
 		}
 
-		NumberAxis horizontalAxis = new NumberAxis("x-axis default"); // x =
-																		// domain
+		NumberAxis horizontalAxis;
 
 		if (fileName.contains("alnm") || fileName.contains("nlnm") || fileName.contains("coher")
 				|| fileName.contains("stn")) { // NLNM or StationDeviation
@@ -112,7 +104,7 @@ public class PlotMaker2 {
 			horizontalAxis.setTickUnit(new NumberTickUnit(5.0));
 		} else { // EventCompareSynthetics/StrongMotion
 			horizontalAxis = new NumberAxis("Time (s)");
-			double x[] = panels.get(0).getTraces().get(0).getxData();
+			double[] x = panels.get(0).getTraces().get(0).getxData();
 			horizontalAxis.setRange(new Range(x[0], x[x.length - 1]));
 		}
 
@@ -124,8 +116,7 @@ public class PlotMaker2 {
 
 		for (Panel panel : panels) {
 
-			NumberAxis verticalAxis = new NumberAxis("y-axis default"); // y =
-																		// range
+			NumberAxis verticalAxis;
 
 			if (fileName.contains("alnm") || fileName.contains("nlnm") || fileName.contains("stn")) { // NLNM
 																			// or
@@ -163,8 +154,8 @@ public class PlotMaker2 {
 
 				XYSeries series = new XYSeries(trace.getName());
 
-				double xdata[] = trace.getxData();
-				double ydata[] = trace.getyData();
+				double[] xdata = trace.getxData();
+				double[] ydata = trace.getyData();
 				for (int k = 0; k < xdata.length; k++) {
 					series.add(xdata[k], ydata[k]);
 				}
@@ -239,10 +230,9 @@ public class PlotMaker2 {
 				}
 				iTrace++;
 			}
-
 			combinedPlot.add(xyplot, 1);
 
-		} // panel
+		}
 
 		final JFreeChart chart = new JFreeChart(combinedPlot);
 		chart.setTitle(new TextTitle(plotTitle, new Font("Verdana", Font.BOLD,
@@ -252,19 +242,17 @@ public class PlotMaker2 {
 		try {
 			saveChartAsPNG(outputFile, chart, 1400, 1400);
 		} catch (IOException e) {
-			// System.err.println("Problem occurred creating chart.");
 			logger.error("IOException:", e);
 		}
 
-	} // writePlot()
+	}
 
 	private Boolean checkFileOut(File file) {
 
 		// Check that dir either exists or can be created
-
 		File dir = file.getParentFile();
 
-		boolean allIsOkay = true;
+		boolean allIsOkay;
 
 		if (dir.exists()) { // Dir exists --> check write permissions
 			allIsOkay = dir.isDirectory() && dir.canWrite();
@@ -277,11 +265,8 @@ public class PlotMaker2 {
 		}
 
 		// Check that if file already exists it can be overwritten
-
 		if (file.exists()) {
-			if (!file.canWrite()) {
-				return false;
-			}
+      return file.canWrite();
 		}
 
 		return true;

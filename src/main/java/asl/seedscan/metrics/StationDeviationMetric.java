@@ -9,7 +9,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -255,7 +254,7 @@ public class StationDeviationMetric extends PowerBandMetric {
 					"[ Date: %s ] [ Station: %s ] Station-Deviation", date,
 					getStation());
 			plotMaker = new PlotMaker2(plotTitle);
-			plotMaker.initialize3Panels("LHZ", "LH1/LHN", "LH2/LHE");
+			plotMaker.initialize3Panels();
 		}
 		int iPanel;
 		Color color = Color.black;
