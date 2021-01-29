@@ -522,7 +522,6 @@ public class Sequence extends MemberDigest implements Comparable<Sequence>, Seri
 		return series;
 	}
 
-	/* comparison methods */
 	/**
 	 * Determines if this Sequence has a start time which is earlier than the
 	 * start time of the supplied reference Sequence (may overlap).
@@ -618,7 +617,7 @@ public class Sequence extends MemberDigest implements Comparable<Sequence>, Seri
 	}
 
 	/**
-	 * Converts a microsecond granualarity timestamp into a human readable
+	 * Converts a microsecond granularity timestamp into a human readable
 	 * string.
 	 * 
 	 * @param timestamp

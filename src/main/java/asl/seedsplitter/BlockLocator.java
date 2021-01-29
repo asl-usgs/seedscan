@@ -32,8 +32,8 @@ public class BlockLocator {
     // within the original ArrayList and the current data.
 
     ArrayList<ContiguousBlock> blockList = _buildFirstList(dataLists.get(0));
-    for (ArrayList<DataSet> datalist : dataLists) {
-        blockList = _buildDependentList(datalist, blockList);
+    for (ArrayList<DataSet> dataList : dataLists) {
+        blockList = _buildDependentList(dataList, blockList);
     }
 
     return blockList;

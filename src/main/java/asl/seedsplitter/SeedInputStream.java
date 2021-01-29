@@ -141,29 +141,11 @@ public class SeedInputStream implements Runnable {
 							try {
 								recordLength = MiniSeed
 										.crackBlockSize(m_buffer);
-								if(recordLength == 0){
-									System.out.println("No record Length");
-								}
 							} catch (IllegalSeednameException | BlockSizeException e) {
 								logger.debug("Invalid Format, Skipping Chunk.");
 								logger.error(e.getMessage());
                 m_bufferBytes = 0;
 							}
-							/*
-							 * firstBlockette = ((m_buffer[46] & 0xFF) << 8) |
-							 * (m_buffer[47] & 0xFF); if (m_bufferBytes <=
-							 * (firstBlockette + 6)) { logger.debug(
-							 * "First blockette should be within the first 256 bytes"
-							 * ); m_bufferBytes = 0; } else if
-							 * ((((m_buffer[firstBlockette] & 0xFF) << 8) |
-							 * (m_buffer[firstBlockette+1] & 0xFF)) != 1000) {
-							 * logger.debug(
-							 * "First record should be of type 1000, not type "
-							 * + (m_buffer[firstBlockette] & 0xFF));
-							 * m_bufferBytes = 0; } else { recordLength =
-							 * (int)(java.lang.Math.pow(2,s
-							 * m_buffer[firstBlockette + 6])); }
-							 */
 						}
 						else
 						{
