@@ -73,7 +73,7 @@ public class Blockette1001 extends Blockette implements Serializable{
 	 * @return The number of frames marked used in this B1001
 	 */
 	public int getFrameCount() {
-		return (int) buf[7];
+		return buf[7];
 	}
 
 	/**
@@ -82,7 +82,7 @@ public class Blockette1001 extends Blockette implements Serializable{
 	 * @return the microsecs correction from b1001
 	 */
 	public int getUSecs() {
-		return (int) buf[5];
+		return buf[5];
 	}
 
 	/**

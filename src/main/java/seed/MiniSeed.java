@@ -104,10 +104,10 @@ public class MiniSeed {
 	private final static int QUALITY_QUESTIONABLE_TIME = 1;
 	
 	/** The ms. */
-	private ByteBuffer ms;
+	private final ByteBuffer ms;
 	
 	/** Our copy of the input data wrapped by ms */
-	private byte[] buf;
+	private final byte[] buf;
 	
 	/** The cracked. */
 	private boolean cracked;
@@ -126,7 +126,7 @@ public class MiniSeed {
 	private static int recordCount;
 	
 	/** The serial number assigned this record */
-	private int recordNumber;
+	private final int recordNumber;
 
 	// components filled out by the crack() routine
 	/** The 12 charname in fixed header order SSSSSLLCCCNN */
@@ -320,7 +320,7 @@ public class MiniSeed {
 	private byte nframes; // in compressed data (Steim method only)
 
 	/** The dbg. */
-	private static boolean dbg = false;
+	private static final boolean dbg = false;
 
 	/**
 	 * Gets the blk2000s.
@@ -517,7 +517,7 @@ public class MiniSeed {
 		if (swapNeeded(buf))
 			bb.order(ByteOrder.LITTLE_ENDIAN);
 		bb.position(20);
-		return (int) bb.getShort();
+		return bb.getShort();
 	}
 
 	/**
@@ -532,7 +532,7 @@ public class MiniSeed {
 		if (swapNeeded(buf))
 			bb.order(ByteOrder.LITTLE_ENDIAN);
 		bb.position(22);
-		return (int) bb.getShort();
+		return bb.getShort();
 	}
 
 	/**
@@ -632,26 +632,26 @@ public class MiniSeed {
 			tmp.append(safeLetter(bb.get()));
 		bb.position(20);
 		short i2 = bb.getShort();
-		tmp.append(" " + i2 + " " + Util.toHex(i2));
+		tmp.append(" ").append(i2).append(" ").append(Util.toHex(i2));
 		i2 = bb.getShort();
-		tmp.append(" " + i2 + " " + Util.toHex(i2));
-		tmp.append(" " + bb.get() + ":" + bb.get() + ":" + bb.get());
+		tmp.append(" ").append(i2).append(" ").append(Util.toHex(i2));
+		tmp.append(" ").append(bb.get()).append(":").append(bb.get()).append(":").append(bb.get());
 		bb.get();
 		i2 = bb.getShort();
-		tmp.append("." + i2 + " " + Util.toHex(i2));
+		tmp.append(".").append(i2).append(" ").append(Util.toHex(i2));
 		i2 = bb.getShort();
-		tmp.append(" ns=" + i2);
+		tmp.append(" ns=").append(i2);
 		i2 = bb.getShort();
-		tmp.append(" rt=" + i2);
+		tmp.append(" rt=").append(i2);
 		i2 = bb.getShort();
-		tmp.append("*" + i2);
+		tmp.append("*").append(i2);
 		bb.position(39);
-		tmp.append(" nb=" + bb.get());
+		tmp.append(" nb=").append(bb.get());
 		bb.position(44);
 		i2 = bb.getShort();
-		tmp.append(" d=" + i2);
+		tmp.append(" d=").append(i2);
 		i2 = bb.getShort();
-		tmp.append(" b=" + i2);
+		tmp.append(" b=").append(i2);
 		return tmp.toString();
 	}
 
@@ -926,7 +926,7 @@ public class MiniSeed {
 						nblockettes = (byte) blk;
 						break;
 					}
-					ms.position((int) next);
+					ms.position(next);
 					switch (type) {
 					case 100: // Sample Rate Blockette
 						if (buf100 == null) {
@@ -1167,31 +1167,31 @@ public class MiniSeed {
 	@Override
 	public String toString() {
 		crack();
-		String rt = getRate() + "     ";
+		StringBuilder rt = new StringBuilder(getRate() + "     ");
 
-		rt = getSeedName() + " " + new String(seq) + " "
-				+ new String(indicator) + getTimeString() + " n="
-				+ (nsamp + "    ").substring(0, 5)
-				+ "rt="
-				+ rt.substring(0, 5)
-				+ " dt="
-				+ (dataOffset + "  ").substring(0, 3)
-				+
-				// " ln="+(recLength+"   ").substring(0,4)+
-				// " en="+(encoding+" ").substring(0,2)+
-				" off=" + (blocketteOffset + "   ").substring(0, 3) + " #f="
-				+ getUsedFrameCount() + " nb=" + nblockettes
-				+ (swap ? "S" : "");
+		rt = new StringBuilder(getSeedName() + " " + new String(seq) + " "
+        + new String(indicator) + getTimeString() + " n="
+        + (nsamp + "    ").substring(0, 5)
+        + "rt="
+        + rt.substring(0, 5)
+        + " dt="
+        + (dataOffset + "  ").substring(0, 3)
+        +
+        // " ln="+(recLength+"   ").substring(0,4)+
+        // " en="+(encoding+" ").substring(0,2)+
+        " off=" + (blocketteOffset + "   ").substring(0, 3) + " #f="
+        + getUsedFrameCount() + " nb=" + nblockettes
+        + (swap ? "S" : ""));
 		for (int i = 0; i < nblockettes; i++) {
 			if (blocketteList[i] == 1000)
-				rt += " " + b1000.toString();
+				rt.append(" ").append(b1000.toString());
 			else if (blocketteList[i] == 1001)
-				rt += b1001.toString();
+				rt.append(b1001.toString());
 			else
-				rt += " (" + blocketteList[i] + ")";
+				rt.append(" (").append(blocketteList[i]).append(")");
 		}
 		if (nblockettes < 2)
-			rt += " bsiz=" + recLength;
+			rt.append(" bsiz=").append(recLength);
 		String f = "";
 		if (order == 0)
 			f += "S";
@@ -1288,7 +1288,7 @@ public class MiniSeed {
 	 * @return # of samples
 	 */
 	public int getNsamp() {
-		return (int) nsamp;
+		return nsamp;
 	}
 
 	/**
@@ -1297,7 +1297,7 @@ public class MiniSeed {
 	 * @return # of data blockettes
 	 */
 	public int getNBlockettes() {
-		return (int) nblockettes;
+		return nblockettes;
 	}
 
 	/**
@@ -1849,7 +1849,7 @@ public class MiniSeed {
 	 * @return the offset to the data in bytes
 	 */
 	public int getDataOffset() {
-		return (int) dataOffset;
+		return dataOffset;
 	}
 
 	/**

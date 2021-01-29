@@ -52,6 +52,7 @@ package seed;
 import java.io.Serializable;
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -68,7 +69,7 @@ class Blockette2000 extends Blockette implements Serializable{
 	private static final long serialVersionUID = 1L;
 	static final short FIXED_LENGTH = 15;
 	private static final ByteOrder DEFAULT_WORD_ORDER = ByteOrder.BIG_ENDIAN;
-	private static final Charset TAG_CHARSET = Charset.forName("UTF-8");
+	private static final Charset TAG_CHARSET = StandardCharsets.UTF_8;
 
 	@Override
 	public short blocketteNumber() {
@@ -268,11 +269,11 @@ class Blockette2000 extends Blockette implements Serializable{
 	}
 
 	private static String tagsToTagString(Collection<String> tags) {
-		String tagString = "";
+		StringBuilder tagString = new StringBuilder();
 		for (String tag : tags) {
-			tagString += tag + "~";
+			tagString.append(tag).append("~");
 		}
-		return tagString;
+		return tagString.toString();
 	}
 
 	private static byte[] tagStringToByteArray(String tagString) {

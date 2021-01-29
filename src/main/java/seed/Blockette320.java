@@ -90,17 +90,17 @@ public class Blockette320 extends Blockette  implements Serializable {
 		bb.position(4); // Advance forward 4 bytes in buffer
 
 		// Scan blockette BTIME (10-Bytes) into java vars
-		int year = (int) bb.getShort(); // e.g., 1987
-		int dayOfYear = (int) bb.getShort(); // e.g., 1 = Jan. 1
-		int hour = (int) bb.get(); // Hour of day (0-23)
+		int year = bb.getShort(); // e.g., 1987
+		int dayOfYear = bb.getShort(); // e.g., 1 = Jan. 1
+		int hour = bb.get(); // Hour of day (0-23)
 		// int min = bb.get() & 0x000000ff; // Min of hour(0-59)
-		int min = (int) bb.get(); // Min of hour(0-59)
-		int sec = (int) bb.get(); // Sec of min (0-59, 60 for leap seconds)
+		int min = bb.get(); // Min of hour(0-59)
+		int sec = bb.get(); // Sec of min (0-59, 60 for leap seconds)
 		@SuppressWarnings("unused")
-		int unused = (int) bb.get(); // Unused for data (required for alignment)
+		int unused = bb.get(); // Unused for data (required for alignment)
 		// int seconds = (int)bb.getShort(); // .0001 seconds (0--9999)
 		// int seconds = bb.getShort() & 0x0000ffff; // .0001 seconds (0--9999)
-		int partialSeconds = (int) bb.getChar(); // .0001 seconds (0--9999)
+		int partialSeconds = bb.getChar(); // .0001 seconds (0--9999)
 
 		@SuppressWarnings("unused")
 		byte reserved = bb.get();

@@ -39,18 +39,18 @@ class Util {
 	 * @return The padded string to width
 	 */
 	static String leftPad(String s, int width) {
-		String tmp = "";
+		StringBuilder tmp = new StringBuilder();
 		int npad = width - s.length();
 		if (npad < 0)
-			tmp = s.substring(0, width);
+			tmp = new StringBuilder(s.substring(0, width));
 		else if (npad == 0)
-			tmp = s;
+			tmp = new StringBuilder(s);
 		else {
 			for (int i = 0; i < npad; i++)
-				tmp += " ";
-			tmp += s;
+				tmp.append(" ");
+			tmp.append(s);
 		}
-		return tmp;
+		return tmp.toString();
 	}
 
 	/**
