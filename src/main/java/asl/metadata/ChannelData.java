@@ -15,8 +15,7 @@ public class ChannelData {
 	private static final int CHANNEL_EPOCH_INFO_BLOCKETTE_NUMBER = 52;
 	private static final int CHANNEL_COMMENT_BLOCKETTE_NUMBER = 59;
 
-	private Hashtable<LocalDateTime, Blockette> comments;
-	private Hashtable<LocalDateTime, EpochData> epochs;
+  private Hashtable<LocalDateTime, EpochData> epochs;
 	private String location = null;
 	private String name = null;
 
@@ -25,7 +24,7 @@ public class ChannelData {
 	ChannelData(ChannelKey channelKey) {
 		this.location = channelKey.getLocation();
 		this.name = channelKey.getName();
-		comments = new Hashtable<>();
+    Hashtable<LocalDateTime, Blockette> comments = new Hashtable<>();
 		epochs = new Hashtable<>();
 	}
 
@@ -117,11 +116,7 @@ public class ChannelData {
 				if (endTimeStamp == null) { // This Epoch is open - we don't
 											// allow that here!
 					logger.error("Older Epoch has Open End Time (=null)");
-					// if (epochTime.getTimeInMillis() >=
-					// startTimeStamp.getTimeInMillis() ) {
-					// containsEpochTime = true;
-					// }
-					break;
+          break;
 				} else if (epochTime.compareTo(startTimeStamp) >= 0
 						&& epochTime.compareTo(endTimeStamp) <= 0) {
 					containsEpochTime = true;
@@ -131,20 +126,14 @@ public class ChannelData {
 		}
 
 		if (containsEpochTime) {
-			// System.out.format("----ChannelData %s-%s Epoch: [%s - %s] contains EpochTime=%s\n",getLocation(),
-			// getName(), startDateString,endDateString,epochDateString);
-			return startTimeStamp;
+      return startTimeStamp;
 		} else {
-			// System.out.format("----ChannelData EpochTime=%s was NOT FOUND!!\n",epochDateString);
 			return null;
 		}
 
 	}
 
 	void printEpochs() {
-		// TreeSet<Calendar> epochtimes = new TreeSet<Calendar>();
-		// epochtimes.addAll(epochs.keySet());
-
 		ArrayList<LocalDateTime> epochtimes = new ArrayList<>();
 		epochtimes.addAll(epochs.keySet());
 		Collections.sort(epochtimes);
@@ -152,7 +141,6 @@ public class ChannelData {
 		for (LocalDateTime timestamp : epochtimes) {
 			// timestamp is the Hashtable key and "should" be the same as
 			// EpochData.getStartTime()
-			// String startDate = EpochData.epochToDateString(timestamp);
 
 			EpochData epoch = epochs.get(timestamp);
 			LocalDateTime startTimeStamp = epoch.getStartTime();
@@ -160,10 +148,6 @@ public class ChannelData {
 			String startDateString = EpochData
 					.epochToDateString(startTimeStamp);
 			String endDateString = EpochData.epochToDateString(endTimeStamp);
-
-			System.out.format("----ChannelData Epoch: %s - %s\n",
-					startDateString, endDateString);
-			// blockette.print();
 		}
 	}
 

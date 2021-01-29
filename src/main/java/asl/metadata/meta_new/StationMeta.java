@@ -585,7 +585,7 @@ public class StationMeta implements Serializable {
 		blockette50.print();
 	}
 
-	/** 
+	/**
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
@@ -595,7 +595,7 @@ public class StationMeta implements Serializable {
 
 	/**
 	 * Add a set of location filters to the location whitelist if any exist
-	 * @param location
+	 * @param location locations to add to whitelist
 	 */
 	public void addToWhitelist(String... location) {
 		locationWhitelist.addAll(Arrays.asList(location));

@@ -63,10 +63,7 @@ public class BlocketteTimestamp {
 					} else if (secondParts.length == 1) { // "00"
 						second = Integer.parseInt(secondParts[0]);
 					} else { // Something has gone wrong !!!
-						// throw new
-						// RuntimeException("Dataless.parseTimestamp(): Error parsing Timestamp="
-						// + timestamp);
-						throw new TimestampFormatException(
+            throw new TimestampFormatException(
 								"parseTimestamp: Error parsing Timestamp="
 										+ timestampString);
 					}

@@ -3,7 +3,7 @@ package asl.metadata;
 /**
  * The Class StationKey.
  * This is basically a copy of {@link asl.metadata.Station}
- * This is used to tie stations in {@link asl.metadata.SeedVolume#stations}
+ * This is used to tie stations in {@link asl.metadata.SeedVolume}
  * 
  * @author James Holland - USGS
  * @author Joel Edwards - USGS

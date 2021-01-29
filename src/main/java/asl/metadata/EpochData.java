@@ -155,10 +155,7 @@ public class EpochData {
 	}
 
 	public int getNumberOfStages() {
-		// ArrayList<Integer> stageNumbers = new ArrayList<Integer>();
-		// stageNumbers.addAll(stages.keySet());
-		// Collections.sort(stageNumbers);
-		return stages.size();
+    return stages.size();
 	}
 
 	public LocalDateTime getStartTime() {

@@ -365,9 +365,7 @@ public class ChannelMeta extends MemberDigest implements Serializable,
 
 		double scale;
 		if (diff > 10) {
-			// System.out.println("== ChannelMeta.getResponse(): WARNING: Sensitivity != Stage1Gain * Stage2Gain "
-			// + "--> Use Sensitivity to scale!");
-			logger.warn("== getResponse WARNING: Sensitivity != Stage1Gain * Stage2Gain "
+      logger.warn("== getResponse WARNING: Sensitivity != Stage1Gain * Stage2Gain "
 					+ "--> Use Sensitivity to scale!");
 			scale = stage0Gain;
 		} else {
@@ -507,7 +505,7 @@ public class ChannelMeta extends MemberDigest implements Serializable,
 				if (stage.hasBlockette(58)) {
 					Blockette blockette = stage.getBlockette(58);
 					Gain = Double.parseDouble(blockette.getFieldValue(4, 0));
-					String temp[] = blockette.getFieldValue(5, 0).split(" ");
+					String[] temp = blockette.getFieldValue(5, 0).split(" ");
 					frequencyOfGain = Double.parseDouble(temp[0]);
 					// if (stageNumber == 0) { // Only stage 0 may consist of
 					// solely a B058 block

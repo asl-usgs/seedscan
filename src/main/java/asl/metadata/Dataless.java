@@ -152,7 +152,7 @@ class Dataless {
 											// "  SEED Format version: ..."
 
 			int blocketteNumber = Integer.parseInt(word.substring(1, 4));
-			String fieldIdentifier = word.substring(5, word.length());
+			String fieldIdentifier = word.substring(5);
 
 			Blockette blockette;
 			// If the blockette does not exists, or the attempt to add field
@@ -167,9 +167,7 @@ class Dataless {
                 blocketteMap.put(blocketteNumber, blockette);
                 blockettes.add(blockette);
                 blockette.addFieldData(fieldIdentifier, lineData);
-                // System.out.format("  Dataless.parse(): new blockette number=%d fieldIdentifier=%s\n",
-                // blocketteNumber, fieldIdentifier );
-            }
+      }
 		}
 	}
 

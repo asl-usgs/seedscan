@@ -96,7 +96,7 @@ public class Channel {
    * @return true if continuous, false otherwise
    */
   public static boolean isContinousChannel(String channelFlags) {
-    return channelFlags.substring(0, 1).equals("C")
+    return channelFlags.charAt(0) == 'C'
         || channelFlags.equals("G") || channelFlags.equals("H");
   }
 
@@ -136,11 +136,6 @@ public class Channel {
       // calls
       // Metric.createIdentifier --> MetricResult.createChannel --> new
       // Channel ("00-10", ...)
-      // if (!validLocationCode(location)) {
-      // throw new
-      // RuntimeException("Channel.setLocation: ERROR INVALID LOCATION CODE="
-      // + location);
-      // }
       this.location = location;
     } else {
       this.location = "--"; // If no location given, set location = "--"

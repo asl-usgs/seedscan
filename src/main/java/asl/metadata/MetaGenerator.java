@@ -117,12 +117,8 @@ public class MetaGenerator {
         }
         // Need to catch both IOException and InterruptedException
         catch (IOException e) {
-          // System.out.println("Error: IOException Description: " +
-          // e.getMessage());
           logger.error("IOException:", e);
         } catch (InterruptedException e) {
-          // System.out.println("Error: InterruptedException Description: "
-          // + e.getMessage());
           logger.error("InterruptedException:", e);
         }
 
