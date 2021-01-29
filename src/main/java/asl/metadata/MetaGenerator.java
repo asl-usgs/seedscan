@@ -57,7 +57,7 @@ public class MetaGenerator {
    * Each datalessDir/XX.dataless file is read into a separate SeedVolume keyed by network (e.g.,
    * XX)
    */
-  protected Hashtable<StationKey, SeedVolume> volumes = null;
+  protected Hashtable<StationKey, SeedVolume> volumes;
 
   /**
    * Private class meant to enable mock test class to inherit from this without running other
@@ -109,7 +109,7 @@ public class MetaGenerator {
           Process process = pb.start();
           BufferedReader reader = new BufferedReader(
               new InputStreamReader(process.getInputStream()));
-          String line = null;
+          String line;
           while ((line = reader.readLine()) != null) {
             strings.add(line);
           }
@@ -155,6 +155,7 @@ public class MetaGenerator {
     datalessFileRegex = datalessFileRegex.replace("${STATION}", "(?<station>[A-Z0-9]{1,5})");
     Pattern pattern = Pattern.compile(datalessFileRegex);
     Matcher matcher = pattern.matcher(filename);
+    //noinspection ResultOfMethodCallIgnored
     matcher.matches();
 
     return matcher.group("station");

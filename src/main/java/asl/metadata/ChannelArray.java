@@ -7,7 +7,7 @@ import java.util.List;
 
 public class ChannelArray {
 
-  private ArrayList<Channel> channels = null;
+  private ArrayList<Channel> channels;
 
   /**
    * Create an arbitrary length list of channels from a collection of Channels.

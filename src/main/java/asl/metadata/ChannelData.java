@@ -16,11 +16,9 @@ public class ChannelData {
 	private static final int CHANNEL_COMMENT_BLOCKETTE_NUMBER = 59;
 
   private final Hashtable<LocalDateTime, EpochData> epochs;
-	private String location = null;
-	private String name = null;
+	private final String location;
+	private final String name;
 
-	// constructor(s)
-	// public ChannelData(String location, String name)
 	ChannelData(ChannelKey channelKey) {
 		this.location = channelKey.getLocation();
 		this.name = channelKey.getName();
@@ -81,20 +79,15 @@ public class ChannelData {
 		Collections.reverse(epochtimes);
 		int nEpochs = epochtimes.size();
 
-		LocalDateTime startTimeStamp = null;
-		LocalDateTime endTimeStamp = null;
-		LocalDateTime timestamp = null;
-		EpochData epoch = null;
-
 		// epochs keys(=timestamps) are now sorted with the newest first
 		// most likely the first (=newest) epoch will be the one we want
 		// So check the first epoch for the epochTime and if it's not
 		// found (and nEpochs > 1), check the older epochs
 
-		timestamp = epochtimes.get(0);
-		epoch = epochs.get(timestamp);
-		startTimeStamp = epoch.getStartTime();
-		endTimeStamp = epoch.getEndTime();
+    LocalDateTime timestamp = epochtimes.get(0);
+    EpochData epoch = epochs.get(timestamp);
+    LocalDateTime startTimeStamp = epoch.getStartTime();
+    LocalDateTime endTimeStamp = epoch.getEndTime();
 		if (endTimeStamp == null) { // This Epoch is open
 			if (epochTime.compareTo(startTimeStamp) >= 0) {
 				containsEpochTime = true;

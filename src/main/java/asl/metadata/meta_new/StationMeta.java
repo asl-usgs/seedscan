@@ -54,10 +54,10 @@ public class StationMeta implements Serializable {
 			.getLogger(asl.metadata.meta_new.StationMeta.class);
 
 	/** The network code. */
-	private String network = null;
+	private final String network;
 	
 	/** The name code. */
-	private String name = null;
+	private final String name;
 	
 	/** The latitude. (degrees) */
 	private final double latitude;
@@ -82,13 +82,13 @@ public class StationMeta implements Serializable {
 	private final Set<String> locationWhitelist;
 	
 	/** The meta timestamp. */
-	private LocalDateTime metaTimestamp = null;
+	private final LocalDateTime metaTimestamp;
 	
 	/** The meta date. */
-	private String metaDate = null;
+	private final String metaDate;
 
 	/** The blockette50. */
-	private Blockette blockette50 = null;
+	private final Blockette blockette50;
 
 	/**
 	 * Instantiates a new station meta.
@@ -326,7 +326,7 @@ public class StationMeta implements Serializable {
 	 */
 	public Channel findChannel(String location, String band, String component) {
 
-		String name = null;
+		String name;
 		if (component.equals("1")) {
 			name = band + "1";
 			if (hasChannel(location, name)) { // Do we have LH1 ?
@@ -512,7 +512,7 @@ public class StationMeta implements Serializable {
 	 */
 	private synchronized void addRotatedChannel(String location, String derivedChannelName) {
 
-		String origChannelName = null;
+		String origChannelName;
 		double azimuth;
 
 		boolean found = false;

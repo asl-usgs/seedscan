@@ -19,8 +19,8 @@ public class StationData {
 	private final Hashtable<LocalDateTime, Blockette> comments;
 	private final Hashtable<LocalDateTime, Blockette> epochs;
 	private final Hashtable<ChannelKey, ChannelData> channels;
-	private String network = null;
-	private String name = null;
+	private final String network;
+	private final String name;
 
 	// Constructor(s)
 	public StationData(String network, String name) {
@@ -99,8 +99,8 @@ public class StationData {
 		Collections.sort(epochtimes);
 		Collections.reverse(epochtimes);
 
-		LocalDateTime startTimeStamp = null;
-		LocalDateTime endTimeStamp = null;
+		LocalDateTime startTimeStamp;
+		LocalDateTime endTimeStamp;
 
 		// Loop through Blockettes (B050) and pick out epoch end dates
     for (LocalDateTime epochtime : epochtimes) {

@@ -37,11 +37,11 @@ public class ChannelMeta extends MemberDigest implements Serializable,
 			.getLogger(asl.metadata.meta_new.ChannelMeta.class);
 	private static final long serialVersionUID = 3L;
 
-	private String name = null;
-	private String location = null;
+	private final String name;
+	private final String location;
 	private String instrumentType = null;
 	private String channelFlags = null;
-	private String metaDate = null; // This will be the readable date for
+	private final String metaDate; // This will be the readable date for
 									// metaTimestamp
 
 	private double sampleRate;
@@ -49,7 +49,7 @@ public class ChannelMeta extends MemberDigest implements Serializable,
 	private double dip;
 	private double azimuth;
 	private double depth;
-	private LocalDateTime metaTimestamp = null; // This should be same as the
+	private final LocalDateTime metaTimestamp; // This should be same as the
 											// stationMeta metaTimestamp
 	private boolean dayBreak = false; // This will be set to true if channelMeta
 										// changes during requested day
@@ -87,7 +87,7 @@ public class ChannelMeta extends MemberDigest implements Serializable,
 	}
 
 	private ChannelMeta copy(String name){
-		String useName = null;
+		String useName;
 		if (name != null) {
 			useName = name;
 		} else {
@@ -401,7 +401,7 @@ public class ChannelMeta extends MemberDigest implements Serializable,
 		if (invalidResponse()) {
 			throw new ChannelMetaException("getResponse: Invalid Response!");
 		}
-		Complex[] response = null;
+		Complex[] response;
 
 		// Set response = polezero response (with A0 factored in):
 		ResponseStage stage = stages.get(1);
@@ -623,8 +623,8 @@ public class ChannelMeta extends MemberDigest implements Serializable,
 
 				if (stage.hasBlockette(54)) {
 					Blockette blockette = stage.getBlockette(54);
-					String ResponseInUnits = null;
-					String ResponseOutUnits = null;
+					String ResponseInUnits;
+					String ResponseOutUnits;
 
 					String transferFunctionType = blockette.getFieldValue(3, 0);
 					char[] stageType = transferFunctionType.toCharArray();

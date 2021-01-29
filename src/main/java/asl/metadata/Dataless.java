@@ -184,7 +184,7 @@ class Dataless {
 		percent = 0.0;
 		lastPercent = 0.0;
 		StationData station = null;
-		ChannelData channel = null;
+		ChannelData channel;
 		EpochData epoch = null;
 
 		for (Blockette blockette : blockettes) {
@@ -246,9 +246,7 @@ class Dataless {
 				if (station == null) {
 					throw new BlocketteOutOfOrderException();
 				}
-				ChannelKey channelKey = null;
-
-				channelKey = new ChannelKey(blockette);
+				ChannelKey channelKey = new ChannelKey(blockette);
 
 				if (!station.hasChannel(channelKey)) {
 					channel = new ChannelData(channelKey);
