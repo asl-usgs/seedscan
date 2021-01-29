@@ -264,7 +264,7 @@ public class PlotMaker2 {
 
 		File dir = file.getParentFile();
 
-		Boolean allIsOkay = true;
+		boolean allIsOkay = true;
 
 		if (dir.exists()) { // Dir exists --> check write permissions
 			allIsOkay = dir.isDirectory() && dir.canWrite();

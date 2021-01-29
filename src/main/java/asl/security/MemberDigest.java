@@ -155,14 +155,12 @@ public abstract class MemberDigest implements Serializable {
 	public static ByteBuffer multiBuffer(Collection<ByteBuffer> digests) {
 		// If the digests collection is empty, we will end up returning null
 		ByteBuffer last = null;
-		ByteBuffer multi = null;
+		ByteBuffer multi;
 
 		for (ByteBuffer curr : digests) {
 			int last_len, curr_len;
 			byte[] last_array = null;
-			byte[] curr_array = null;
-
-			curr_array = curr.array();
+			byte[] curr_array = curr.array();
 			curr_len = curr_array.length;
 
 			// If this is the first digest, only its contents should be included
