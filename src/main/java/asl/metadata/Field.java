@@ -2,7 +2,6 @@ package asl.metadata;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +12,7 @@ public class Field implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	private final int fieldID;
-	private String description;
+	private final String description;
 	private final ArrayList<String> values;
 
 	public Field(int fieldID, String description) {
@@ -26,22 +25,13 @@ public class Field implements Serializable {
 		return fieldID;
 	}
 
-	// description
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
-	public String getDescription() {
+  public String getDescription() {
 		return description;
 	}
 
 	// values
 	public void addValue(String value) {
 		this.values.add(value);
-	}
-
-	public void addValues(Collection<String> values) {
-    this.values.addAll(values);
 	}
 
 	public String getValue(int index) {

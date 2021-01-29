@@ -87,18 +87,7 @@ public class SeedVolume {
 		return stations.get(key);
 	}
 
-	// volume info
-	/**
-	 * Sets the volume info.
-	 * 
-	 * @param volumeInfo
-	 *            the new volume info
-	 */
-	public void setVolumeInfo(Blockette volumeInfo) {
-		this.volumeInfo = volumeInfo;
-	}
-
-	/**
+  /**
 	 * Gets the volume info.
 	 * 
 	 * @return the volume info

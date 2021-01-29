@@ -188,14 +188,6 @@ public abstract class ResponseStage implements Comparable<ResponseStage>, Serial
 	}
 
 	/**
-	 * Prints the response stage as set in the overridden toString().
-	 * @see asl.metadata.meta_new.ResponseStage#toString()
-	 */
-	public void print() {
-		System.out.println(this);
-	}
-
-	/**
 	 * @see java.lang.Object#toString()
 	 */
 	@Override

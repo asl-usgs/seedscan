@@ -31,7 +31,7 @@ public class EpochData {
 			.getLogger(asl.metadata.EpochData.class);
 
 	private Blockette format = null;
-	private Blockette info;
+	private final Blockette info;
 	private final ArrayList<Blockette> misc;
 	private final Hashtable<Integer, StageData> stages;
 
@@ -55,7 +55,6 @@ public class EpochData {
 		}
 	}
 
-	// Constructors
 	public EpochData(Blockette info) {
 		this.info = info;
 		misc = new ArrayList<>();
@@ -108,11 +107,6 @@ public class EpochData {
 		this.info = info;
 		misc = new ArrayList<>();
 		stages = new Hashtable<>();
-	}
-
-	// Info
-	public void setInfo(Blockette info) {
-		this.info = info;
 	}
 
 	public Blockette getInfo() {

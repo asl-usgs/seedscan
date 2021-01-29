@@ -95,20 +95,6 @@ public class PoleZeroStage extends ResponseStage implements Cloneable, Serializa
 		return poles;
 	}
 
-	public void print() {
-		super.print();
-		System.out.println("-This is a pole-zero stage-");
-		System.out.format(" Number of Poles=%d\n", getNumberOfPoles());
-		for (int j = 0; j < getNumberOfPoles(); j++) {
-			System.out.println(poles.get(j));
-		}
-		System.out.format(" Number of Zeros=%d\n", getNumberOfZeros());
-		for (int j = 0; j < getNumberOfZeros(); j++) {
-			System.out.println(zeros.get(j));
-		}
-		System.out.format(" A0 Normalization=%f\n\n", getNormalization());
-	}
-
 	/*
 	 * Return complex response computed at given freqs[0,...length] Should
 	 * really check that length > 0

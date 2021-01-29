@@ -6,7 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This class represents Blockette 54, it however doesn't actually handle the
+ * This class represents Blockette 54 [JH really 57?], it however doesn't actually handle the
  * coefficients. It appears to do little aside from aiding in the creation of
  * MemberDigests.
  * 
@@ -19,7 +19,7 @@ class DigitalStage extends ResponseStage implements Cloneable, Serializable {
 			.getLogger(asl.metadata.meta_new.DigitalStage.class);
 	private static final long serialVersionUID = 1L;
 
-	private int decimationFactor = 1;
+	private final int decimationFactor = 1;
 	private double inputSampleRate;
 
 	/**

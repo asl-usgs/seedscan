@@ -995,9 +995,7 @@ public class MiniSeed {
 						break;
 					case 320: // Pseudo-random calibration
 						if (buf320 == null) {
-							// MTH:
-							// buf320=new byte[32];
-							buf320 = new byte[64];
+              buf320 = new byte[64];
 							bb320 = ByteBuffer.wrap(buf320);
 						}
 						ms.get(buf320);
