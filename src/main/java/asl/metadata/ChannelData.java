@@ -13,7 +13,6 @@ public class ChannelData {
 			.getLogger(asl.metadata.ChannelData.class);
 
 	private static final int CHANNEL_EPOCH_INFO_BLOCKETTE_NUMBER = 52;
-	private static final int CHANNEL_COMMENT_BLOCKETTE_NUMBER = 59;
 
   private final Hashtable<LocalDateTime, EpochData> epochs;
 	private final String location;
@@ -22,7 +21,6 @@ public class ChannelData {
 	ChannelData(ChannelKey channelKey) {
 		this.location = channelKey.getLocation();
 		this.name = channelKey.getName();
-    Hashtable<LocalDateTime, Blockette> comments = new Hashtable<>();
 		epochs = new Hashtable<>();
 	}
 
@@ -124,22 +122,4 @@ public class ChannelData {
 		}
 
 	}
-
-	void printEpochs() {
-    ArrayList<LocalDateTime> epochtimes = new ArrayList<>(epochs.keySet());
-		Collections.sort(epochtimes);
-
-		for (LocalDateTime timestamp : epochtimes) {
-			// timestamp is the Hashtable key and "should" be the same as
-			// EpochData.getStartTime()
-
-			EpochData epoch = epochs.get(timestamp);
-			LocalDateTime startTimeStamp = epoch.getStartTime();
-			LocalDateTime endTimeStamp = epoch.getEndTime();
-			String startDateString = EpochData
-					.epochToDateString(startTimeStamp);
-			String endDateString = EpochData.epochToDateString(endTimeStamp);
-		}
-	}
-
 }

@@ -57,7 +57,7 @@ public class MetaGenerator {
    * Each datalessDir/XX.dataless file is read into a separate SeedVolume keyed by network (e.g.,
    * XX)
    */
-  protected Hashtable<StationKey, SeedVolume> volumes;
+  protected final Hashtable<StationKey, SeedVolume> volumes;
 
   /**
    * Private class meant to enable mock test class to inherit from this without running other

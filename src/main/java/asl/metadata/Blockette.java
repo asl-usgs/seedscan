@@ -173,18 +173,4 @@ public class Blockette implements java.io.Serializable {
 		}
 	}
 
-	/**
-	 * Gets the blockette fields.
-	 * MTH: added this to return the fields hashtable for this blockette
-	 * 
-	 * This doesn't appear to be used any where.
-	 * 
-	 * @return the blockette's fields
-	 */
-	public Hashtable<Integer, Field> getFields() {
-		if (fields == null) {
-			logger.error("Blockette [{}] fields are null! ", this.number);
-		}
-		return fields;
-	}
 }

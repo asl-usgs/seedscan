@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Hashtable;
-import java.util.TreeSet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -131,44 +130,6 @@ public class StationData {
 						// blockette==null
 	}
 
-	// Loop through all station (=Blockette 050) epochs and print summary
-
-	public void printEpochs() {
-    TreeSet<LocalDateTime> epochtimes = new TreeSet<>(epochs.keySet());
-
-		for (LocalDateTime timestamp : epochtimes) {
-			String startDate = EpochData.epochToDateString(timestamp);
-
-			Blockette blockette = epochs.get(timestamp);
-			String timestampString = blockette.getFieldValue(14, 0);
-			String endDate = null;
-			if (!timestampString.equals("(null)")) {
-				try {
-					LocalDateTime endtimestamp = BlocketteTimestamp
-							.parseTimestamp(timestampString);
-					endDate = EpochData.epochToDateString(endtimestamp);
-				} catch (TimestampFormatException e) {
-					logger.error("printEpochs: Error converting timestampString={}",
-							timestampString);
-					logger.error(e.getLocalizedMessage());
-				}
-			}
-			logger.info("==StationData Epoch: {} - {}", startDate, endDate);
-		}
-	}
-
-	// Sort channels and print out
-	public void printChannels() {
-    TreeSet<ChannelKey> keys = new TreeSet<>(channels.keySet());
-
-		for (ChannelKey key : keys) {
-			System.out.println("==Channel:" + key);
-			ChannelData channel = channels.get(key);
-			channel.printEpochs();
-		}
-	}
-
-	// channels
 	public void addChannel(ChannelKey key, ChannelData data) {
 		channels.put(key, data);
 	}
