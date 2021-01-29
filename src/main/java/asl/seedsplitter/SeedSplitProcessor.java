@@ -8,8 +8,6 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.TreeSet;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import seed.BlockSizeException;
@@ -40,11 +38,6 @@ public class SeedSplitProcessor implements Runnable {
 	private final Hashtable<String, ArrayList<Integer>> m_qualityTable = new Hashtable<>();
 	private final Hashtable<String, ArrayList<Blockette320>> m_calTable = new Hashtable<>();
 
-	private Pattern m_patternNetwork = null;
-	private Pattern m_patternStation = null;
-	private Pattern m_patternLocation = null;
-	private Pattern m_patternChannel = null;
-
 	/**
 	 * Constructor.
 	 * 
@@ -70,46 +63,6 @@ public class SeedSplitProcessor implements Runnable {
 		m_table = table;
 		m_trees = new Hashtable<>();
 
-	}
-
-	/**
-	 * Filter pattern for the MiniSEED record's Network field.
-	 * 
-	 * @param pattern
-	 *            Filter pattern for the MiniSEED record's Network field.
-	 */
-	public void setNetworkPattern(Pattern pattern) {
-		m_patternNetwork = pattern;
-	}
-
-	/**
-	 * Filter pattern for the MiniSEED record's Station field.
-	 * 
-	 * @param pattern
-	 *            Filter pattern for the MiniSEED record's Station field.
-	 */
-	public void setStationPattern(Pattern pattern) {
-		m_patternStation = pattern;
-	}
-
-	/**
-	 * Filter pattern for the MiniSEED record's Location field.
-	 * 
-	 * @param pattern
-	 *            Filter pattern for the MiniSEED record's Location field.
-	 */
-	public void setLocationPattern(Pattern pattern) {
-		m_patternLocation = pattern;
-	}
-
-	/**
-	 * Filter pattern for the MiniSEED record's Channel field.
-	 * 
-	 * @param pattern
-	 *            Filter pattern for the MiniSEED record's Channel field.
-	 */
-	public void setChannelPattern(Pattern pattern) {
-		m_patternChannel = pattern;
 	}
 
 	/**
@@ -156,13 +109,10 @@ public class SeedSplitProcessor implements Runnable {
 
 		String seedstring;
 		// total number of bytes that have been received from the queue
-		long byteTotal = 0;
 		String key = null;
 		TreeSet<DataSet> tree;
 		Hashtable<String, DataSet> temps = new Hashtable<>();
 		Hashtable<String, Integer> recordCounts = new Hashtable<>();
-
-		Matcher matcher;
 
 		int kept = 0;
 		int discarded = 0;
@@ -172,10 +122,6 @@ public class SeedSplitProcessor implements Runnable {
 			progress: {
 				try {
 					block = m_queue.take();
-					// even if we don't end up using this data, it counts toward
-					// our progress
-					byteTotal += block.getLength();
-					byteTotal += block.getSkippedBytes();
 					recordBytes = block.getData();
 					if (block.isLast()) {
 						m_running = false;
@@ -187,39 +133,11 @@ public class SeedSplitProcessor implements Runnable {
 					} else { // MTH
 						seedstring = MiniSeed.crackSeedname(recordBytes);
 						network = seedstring.substring(0, 2).trim();
-						if (m_patternNetwork != null) {
-							matcher = m_patternNetwork.matcher(network);
-							if (!matcher.matches()) {
-								discarded++;
-								break progress;
-							}
-						}
-						station = seedstring.substring(2, 7).trim();
-						if (m_patternStation != null) {
-							matcher = m_patternStation.matcher(station);
-							if (!matcher.matches()) {
-								discarded++;
-								break progress;
-							}
-						}
-						location = seedstring.substring(10, 12).trim();
-						if (m_patternLocation != null) {
-							matcher = m_patternLocation.matcher(location);
-							if (!matcher.matches()) {
-								discarded++;
-								break progress;
-							}
-						}
-						channel = seedstring.substring(7, 10).trim();
-						if (m_patternChannel != null) {
-							matcher = m_patternChannel.matcher(channel);
-							if (!matcher.matches()) {
-								discarded++;
-								break progress;
-							}
-						}
+            station = seedstring.substring(2, 7).trim();
+            location = seedstring.substring(10, 12).trim();
+            channel = seedstring.substring(7, 10).trim();
 
-						// Set the default location codes
+            // Set the default location codes
 						if (location.equals("--") || location.equals("")) {
 							logger.debug("miniseed channel=[{}] location=[{}] was changed to [00]",
 											channel, location);

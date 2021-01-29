@@ -26,8 +26,7 @@ package asl.seedsplitter;
  */
 public class ByteBlock {
 	private byte[] m_data = null;
-	private int m_skippedBytes = 0;
-	private boolean m_fileEnd = false;
+  private boolean m_fileEnd = false;
 	private boolean m_lastBlock = false;
 
   /**
@@ -37,11 +36,9 @@ public class ByteBlock {
 	 *            The raw data.
 	 * @param length
 	 *            Length of the raw data.
-	 * @param skipped
-	 *            Number of bytes skipped when reading data.
-	 */
-	public ByteBlock(byte[] data, int length, int skipped) {
-		init(data, length, skipped, false, false);
+   */
+	public ByteBlock(byte[] data, int length) {
+		init(data, length, false, false);
 	}
 
 	/**
@@ -57,7 +54,7 @@ public class ByteBlock {
 	 *            This is the last data in a stream.
 	 */
 	public ByteBlock(byte[] data, int length, boolean fileEnd, boolean isLast) {
-		init(data, length, 0, fileEnd, isLast);
+		init(data, length, fileEnd, isLast);
 	}
 
   /**
@@ -67,22 +64,19 @@ public class ByteBlock {
 	 *            The raw data.
 	 * @param length
 	 *            Length of the raw data.
-	 * @param skipped
-	 *            Number of bytes skipped when reading data.
 	 * @param fileEnd
 	 *            End of the file has been reached.
 	 * @param isLast
 	 *            This is the last data in a stream.
 	 */
-	private void init(byte[] data, int length, int skipped, boolean fileEnd,
-			boolean isLast) {
+	private void init(byte[] data, int length, boolean fileEnd,
+      boolean isLast) {
 		if (length > 0) {
 			m_data = new byte[length];
 			System.arraycopy(data, 0, m_data, 0, length);
 		}
 		m_lastBlock = isLast;
 		m_fileEnd = fileEnd;
-		m_skippedBytes = skipped;
 	}
 
 	/**
@@ -94,26 +88,7 @@ public class ByteBlock {
 		return m_data;
 	}
 
-	/**
-	 * Returns the length of the buffer.
-	 * 
-	 * @return The length of the buffer.
-	 */
-	public int getLength() {
-		return (m_data == null) ? 0 : m_data.length;
-
-	}
-
-	/**
-	 * Returns the number of bytes skipped while reading.
-	 * 
-	 * @return The number of bytes skipped while reading.
-	 */
-	public int getSkippedBytes() {
-		return m_skippedBytes;
-	}
-
-	/**
+  /**
 	 * Indicates whether this is the last block in the sequence.
 	 * 
 	 * @return True if this is the last block in the sequence; otherwise false.

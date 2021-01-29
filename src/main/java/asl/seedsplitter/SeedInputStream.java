@@ -36,8 +36,7 @@ public class SeedInputStream implements Runnable {
 	private final LinkedBlockingQueue<ByteBlock> m_queue;
   private final byte[] m_buffer;
 	private int m_bufferBytes = 0;
-	private int m_skippedBytes = 0;
-	private final boolean m_indicateLast;
+  private final boolean m_indicateLast;
 	private final String m_digest_algorithm = "MD5";
 	private MessageDigest m_digest = null;
 
@@ -148,8 +147,7 @@ public class SeedInputStream implements Runnable {
 							} catch (IllegalSeednameException | BlockSizeException e) {
 								logger.debug("Invalid Format, Skipping Chunk.");
 								logger.error(e.getMessage());
-								m_skippedBytes += m_bufferBytes;
-								m_bufferBytes = 0;
+                m_bufferBytes = 0;
 							}
 							/*
 							 * firstBlockette = ((m_buffer[46] & 0xFF) << 8) |
@@ -169,8 +167,7 @@ public class SeedInputStream implements Runnable {
 						}
 						else
 						{
-							m_skippedBytes += m_bufferBytes;
-							m_bufferBytes = 0;
+              m_bufferBytes = 0;
 							logger.error(formatter
 									.format("Skipping bad indicator: 0x%x\n",
 											indicator).toString());
@@ -180,11 +177,10 @@ public class SeedInputStream implements Runnable {
 					m_bufferBytes += m_inputStream.read(m_buffer,
 							m_bufferBytes, recordLength - m_bufferBytes);
 					if (m_bufferBytes == recordLength) {
-						m_queue.put(new ByteBlock(m_buffer, recordLength,
-								m_skippedBytes));
+						m_queue.put(new ByteBlock(m_buffer, recordLength
+            ));
 						m_bufferBytes = 0;
-						m_skippedBytes = 0;
-					}
+          }
 				}
 			} catch (IOException e) {
 				logger.error("IOException:", e);

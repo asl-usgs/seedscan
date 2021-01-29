@@ -78,10 +78,6 @@ public class SeedSplitter {
     boolean finalFile = false;
 
 		SeedSplitProcessor processor = new SeedSplitProcessor(m_recordQueue);
-		processor.setNetworkPattern(null);
-		processor.setStationPattern(null);
-		processor.setLocationPattern(null);
-		processor.setChannelPattern(null);
 		Thread processorThread = new Thread(processor);
 		processorThread.start();
 		for (int i = 0; i < m_files.length; i++) {

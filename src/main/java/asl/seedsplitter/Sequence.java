@@ -334,7 +334,7 @@ public class Sequence extends MemberDigest implements Comparable<Sequence>, Seri
 		// below, which takes into account the remaining skipCount value.
 		while (skipCount >= BLOCK_SIZE) {
 			skipCount -= BLOCK_SIZE;
-			block = blocks.remove(0);
+			blocks.remove(0);
 		}
 
 		int blockCount = blocks.size();
