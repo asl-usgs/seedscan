@@ -20,7 +20,7 @@ import asl.metadata.ChannelArray;
 import asl.metadata.meta_new.ChannelMeta.ResponseUnits;
 import asl.metadata.meta_new.ChannelMetaException;
 import asl.seedscan.event.EventCMT;
-import asl.timeseries.MyFilter;
+import asl.timeseries.FloatConverter;
 import edu.sc.seis.seisFile.sac.SacHeader;
 import edu.sc.seis.seisFile.sac.SacTimeSeries;
 
@@ -170,9 +170,9 @@ public class EventCompareSynthetic extends Metric {
 							double delta = (double) hdr.getDelta();
 							double sampRate = 1./delta;
 							float[] fdata = sacSynthetics.getY();
-							double[] data = MyFilter.convertFloatsToDoubles(fdata);
+							double[] data = FloatConverter.convertFloatsToDoubles(fdata);
 							data = FilterUtils.bandFilter(data, sampRate, FREQUENCY2, FREQUENCY3, 2);
-							sacSynthetics.setY(MyFilter.convertDoublesToFloats(data));
+							sacSynthetics.setY(FloatConverter.convertDoublesToFloats(data));
 						} else {
 							logger.info("Did not find sac synthetic=[{}] in Hashtable", fileKey);
 							continue; // Try next event
