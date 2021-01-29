@@ -21,85 +21,85 @@ package asl.metadata.meta_new;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-
 import org.apache.commons.math3.complex.Complex;
 
 public class PolynomialStage extends ResponseStage implements Serializable {
-	private static final long serialVersionUID = 2L;
-	private double lowerFrequencyBound;
-	private double upperFrequencyBound;
-	private double lowerApproximationBound;
-	private double upperApproximationBound;
-	private final ArrayList<Complex> coefficients;
 
-	// private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 2L;
+  private double lowerFrequencyBound;
+  private double upperFrequencyBound;
+  private double lowerApproximationBound;
+  private double upperApproximationBound;
+  private final ArrayList<Complex> coefficients;
 
-	public PolynomialStage copy() {
-		return this;
-	}
+  // private static final long serialVersionUID = 1L;
 
-	// constructor(s)
-	PolynomialStage(int stageNumber, char stageType, double stageGain,
-			double stageFrequency) {
-		super(stageNumber, stageType, stageGain, stageFrequency);
-		coefficients = new ArrayList<>();
-	}
+  public PolynomialStage copy() {
+    return this;
+  }
 
-	void addCoefficient(Complex coefficient) {
-		coefficients.add(coefficient);
-	}
+  // constructor(s)
+  PolynomialStage(int stageNumber, char stageType, double stageGain,
+      double stageFrequency) {
+    super(stageNumber, stageType, stageGain, stageFrequency);
+    coefficients = new ArrayList<>();
+  }
 
-	public int getNumberOfCoefficients() {
-		return coefficients.size();
-	}
+  void addCoefficient(Complex coefficient) {
+    coefficients.add(coefficient);
+  }
 
-	public void setLowerFrequencyBound(double lowerBound) {
-		this.lowerFrequencyBound = lowerBound;
-	}
+  public int getNumberOfCoefficients() {
+    return coefficients.size();
+  }
 
-	public void setUpperFrequencyBound(double upperBound) {
-		this.upperFrequencyBound = upperBound;
-	}
+  public void setLowerFrequencyBound(double lowerBound) {
+    this.lowerFrequencyBound = lowerBound;
+  }
 
-	public void setLowerApproximationBound(double lowerBound) {
-		this.lowerApproximationBound = lowerBound;
-	}
+  public void setUpperFrequencyBound(double upperBound) {
+    this.upperFrequencyBound = upperBound;
+  }
 
-	public void setUpperApproximationBound(double upperBound) {
-		this.upperApproximationBound = upperBound;
-	}
+  public void setLowerApproximationBound(double lowerBound) {
+    this.lowerApproximationBound = lowerBound;
+  }
 
-	public double getLowerFrequencyBound() {
-		return lowerFrequencyBound;
-	}
+  public void setUpperApproximationBound(double upperBound) {
+    this.upperApproximationBound = upperBound;
+  }
 
-	public double getUpperFrequencyBound() {
-		return upperFrequencyBound;
-	}
+  public double getLowerFrequencyBound() {
+    return lowerFrequencyBound;
+  }
 
-	public double getLowerApproximationBound() {
-		return lowerApproximationBound;
-	}
+  public double getUpperFrequencyBound() {
+    return upperFrequencyBound;
+  }
 
-	public double getUpperApproximationBound() {
-		return upperApproximationBound;
-	}
+  public double getLowerApproximationBound() {
+    return lowerApproximationBound;
+  }
 
-	public double[] getRealPolynomialCoefficients() {
-		int numberOfCoefficients = getNumberOfCoefficients();
-		// double[] values = new double[numberOfCoefficients + 4];
-		double[] values = new double[numberOfCoefficients];
-		int i = 0;
-		for (; i < numberOfCoefficients; i++) {
-			values[i] = coefficients.get(i).getReal(); // Only expecting REAL
-													// coeffs for now ...
-		}
+  public double getUpperApproximationBound() {
+    return upperApproximationBound;
+  }
+
+  public double[] getRealPolynomialCoefficients() {
+    int numberOfCoefficients = getNumberOfCoefficients();
+    // double[] values = new double[numberOfCoefficients + 4];
+    double[] values = new double[numberOfCoefficients];
+    int i = 0;
+    for (; i < numberOfCoefficients; i++) {
+      values[i] = coefficients.get(i).getReal(); // Only expecting REAL
+      // coeffs for now ...
+    }
 		/*
 		  This is a proto where we pack the bound limits in with the coeffs ..
 		  values[i] = getLowerApproximationBound(); values[++i] =
 		  getUpperApproximationBound(); values[++i] = getLowerFrequencyBound();
 		  values[++i] = getUpperFrequencyBound();
 		 */
-		return values;
-	}
+    return values;
+  }
 }

@@ -41,74 +41,73 @@
 
 package seed;
 
+import asl.util.Time;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
-import asl.util.Time;
-
 /**
  * This class represents the Blockette 320 from the SEED standard V2.4
- * 
+ *
  * @author Mike Hagerty mhagerty@bc.edu
  */
-public class Blockette320 extends Blockette  implements Serializable {
-	/**
-	 * Serial Version UID
-	 */
-	private static final long serialVersionUID = 2L;
-	private String calInputChannel = null;
-	private long calDuration = 0L;
-	private double calPeakAmp = 0.;
-	private double calRefAmp = 0.;
-	private LocalDateTime timestamp = null;
-	private String calNoiseType = null;
-	private String calCoupling = null;
-	private String calFilter = null;
-	private byte calFlags;
+public class Blockette320 extends Blockette implements Serializable {
 
-	@Override
-	public short blocketteNumber() {
-		return 320;
-	}
+  /**
+   * Serial Version UID
+   */
+  private static final long serialVersionUID = 2L;
+  private String calInputChannel = null;
+  private long calDuration = 0L;
+  private double calPeakAmp = 0.;
+  private double calRefAmp = 0.;
+  private LocalDateTime timestamp = null;
+  private String calNoiseType = null;
+  private String calCoupling = null;
+  private String calFilter = null;
+  private byte calFlags;
 
-	/**
-	 * Creates a new instance of Blockette320
-	 * 
-	 * @param b
-	 *            - The raw bytes from an existing blockette 320
-	 */
-	public Blockette320(byte[] b) {
-		super(b);
-		scanCalibrationBlockette();
-	}
+  @Override
+  public short blocketteNumber() {
+    return 320;
+  }
 
-	private void scanCalibrationBlockette() {
-		// int type = (int)bb.getShort(); // =320
-		// int next = (int)bb.getShort();
-		bb.position(4); // Advance forward 4 bytes in buffer
+  /**
+   * Creates a new instance of Blockette320
+   *
+   * @param b - The raw bytes from an existing blockette 320
+   */
+  public Blockette320(byte[] b) {
+    super(b);
+    scanCalibrationBlockette();
+  }
 
-		// Scan blockette BTIME (10-Bytes) into java vars
-		int year = bb.getShort(); // e.g., 1987
-		int dayOfYear = bb.getShort(); // e.g., 1 = Jan. 1
-		int hour = bb.get(); // Hour of day (0-23)
-		// int min = bb.get() & 0x000000ff; // Min of hour(0-59)
-		int min = bb.get(); // Min of hour(0-59)
-		int sec = bb.get(); // Sec of min (0-59, 60 for leap seconds)
-		@SuppressWarnings("unused")
-		int unused = bb.get(); // Unused for data (required for alignment)
-		// int seconds = (int)bb.getShort(); // .0001 seconds (0--9999)
-		// int seconds = bb.getShort() & 0x0000ffff; // .0001 seconds (0--9999)
-		int partialSeconds = bb.getChar(); // .0001 seconds (0--9999)
+  private void scanCalibrationBlockette() {
+    // int type = (int)bb.getShort(); // =320
+    // int next = (int)bb.getShort();
+    bb.position(4); // Advance forward 4 bytes in buffer
 
-		@SuppressWarnings("unused")
-		byte reserved = bb.get();
-		byte calFlags = bb.get();
+    // Scan blockette BTIME (10-Bytes) into java vars
+    int year = bb.getShort(); // e.g., 1987
+    int dayOfYear = bb.getShort(); // e.g., 1 = Jan. 1
+    int hour = bb.get(); // Hour of day (0-23)
+    // int min = bb.get() & 0x000000ff; // Min of hour(0-59)
+    int min = bb.get(); // Min of hour(0-59)
+    int sec = bb.get(); // Sec of min (0-59, 60 for leap seconds)
+    @SuppressWarnings("unused")
+    int unused = bb.get(); // Unused for data (required for alignment)
+    // int seconds = (int)bb.getShort(); // .0001 seconds (0--9999)
+    // int seconds = bb.getShort() & 0x0000ffff; // .0001 seconds (0--9999)
+    int partialSeconds = bb.getChar(); // .0001 seconds (0--9999)
 
-		LocalDate localDate = LocalDate.ofYearDay(year, dayOfYear);
-		LocalTime localTime = LocalTime.of(hour, min, sec, partialSeconds *10000);
-		this.timestamp = LocalDateTime.of(localDate,localTime);
+    @SuppressWarnings("unused")
+    byte reserved = bb.get();
+    byte calFlags = bb.get();
+
+    LocalDate localDate = LocalDate.ofYearDay(year, dayOfYear);
+    LocalTime localTime = LocalTime.of(hour, min, sec, partialSeconds * 10000);
+    this.timestamp = LocalDateTime.of(localDate, localTime);
 
 		/*
 		  byte calFlags = 1<<4; if (calFlags & 0x10) --> bit 4 set = calFlags =
@@ -118,92 +117,92 @@ public class Blockette320 extends Blockette  implements Serializable {
 		  0x01<<ibit) == calFlags) { if ((calFlags & 1<<ibit) == calFlags) { }
 		  else { } }
 		 */
-		// Save duration in millisecs
-		// int duration = bb.getInt()/10000; // number of .0001 second ticks for
-		// the duration of calibration
-		int duration = bb.getInt() / 10; // number of .0001 second ticks for the
-											// duration of calibration
-		float peakAmp = bb.getFloat(); // Peak-to-peak amplitude of steps
-		// Get Channel with Calibration Input
-		char[] charBuf = new char[3];
-		for (int i = 0; i < 3; i++) {
-			charBuf[i] = (char) bb.get();
-		}
-		String channel = new String(charBuf);
-		bb.get();
-		// Get Reference Amplitude
-		int refAmp = bb.getInt(); // Ref Amp is an unsigned long, 32-bit
-		// Get Coupling, Rolloff and Noise type (all = ASCII strings)
-		charBuf = new char[12];
-		for (int i = 0; i < 12; i++) {
-			charBuf[i] = (char) bb.get();
-		}
-		String coupling = new String(charBuf);
+    // Save duration in millisecs
+    // int duration = bb.getInt()/10000; // number of .0001 second ticks for
+    // the duration of calibration
+    int duration = bb.getInt() / 10; // number of .0001 second ticks for the
+    // duration of calibration
+    float peakAmp = bb.getFloat(); // Peak-to-peak amplitude of steps
+    // Get Channel with Calibration Input
+    char[] charBuf = new char[3];
+    for (int i = 0; i < 3; i++) {
+      charBuf[i] = (char) bb.get();
+    }
+    String channel = new String(charBuf);
+    bb.get();
+    // Get Reference Amplitude
+    int refAmp = bb.getInt(); // Ref Amp is an unsigned long, 32-bit
+    // Get Coupling, Rolloff and Noise type (all = ASCII strings)
+    charBuf = new char[12];
+    for (int i = 0; i < 12; i++) {
+      charBuf[i] = (char) bb.get();
+    }
+    String coupling = new String(charBuf);
 
-		charBuf = new char[12];
-		for (int i = 0; i < 12; i++) {
-			charBuf[i] = (char) bb.get();
+    charBuf = new char[12];
+    for (int i = 0; i < 12; i++) {
+      charBuf[i] = (char) bb.get();
 			/*
 			  char c = (char)bb.get(); if (Character.isLetterOrDigit(c)) {
 			  charBuf[i] = (char) bb.get(); } else { charBuf[i] = ' '; }
 			 */
-		}
-		String rolloff = new String(charBuf);
+    }
+    String rolloff = new String(charBuf);
 
-		charBuf = new char[8];
-		for (int i = 0; i < 8; i++) {
-			charBuf[i] = (char) bb.get();
-		}
-		String noiseType = new String(charBuf);
+    charBuf = new char[8];
+    for (int i = 0; i < 8; i++) {
+      charBuf[i] = (char) bb.get();
+    }
+    String noiseType = new String(charBuf);
 
-		this.calInputChannel = channel;
-		this.calDuration = duration;
-		this.calPeakAmp = peakAmp;
-		this.calRefAmp = (float) refAmp;
-		this.calNoiseType = noiseType;
-		this.calCoupling = coupling;
-		this.calFilter = rolloff;
-		this.calFlags = calFlags;
+    this.calInputChannel = channel;
+    this.calDuration = duration;
+    this.calPeakAmp = peakAmp;
+    this.calRefAmp = (float) refAmp;
+    this.calNoiseType = noiseType;
+    this.calCoupling = coupling;
+    this.calFilter = rolloff;
+    this.calFlags = calFlags;
 
-	}
+  }
 
-	public String toString() {
+  public String toString() {
 
-		return "\n== Random Calibration Blockette\n" +
-				String.format("==   Start Time:%s\n", timestamp.toString()) +
-				String.format("==   Calibration Duration: %d\n",
-						calDuration / 1000) + // Convert millisecs --> secs for printing
-				String.format(
-						"==   Noise Type [%s]  Calibration Amplitude:%f\n",
-						calNoiseType, calPeakAmp) +
-				String.format("==   Calibration Input Channel:%s\n",
-						calInputChannel) +
-				String.format("==   Reference Amplitude:%f\n", calRefAmp) +
-				String.format("==   Coupling Method:%s\n", calCoupling) +
-				String.format(
-						"==   Filtering Type:%s          Calibration Flags:[%02x]\n",
-						calFilter, calFlags) +
-				"====================================";
-	}
+    return "\n== Random Calibration Blockette\n" +
+        String.format("==   Start Time:%s\n", timestamp.toString()) +
+        String.format("==   Calibration Duration: %d\n",
+            calDuration / 1000) + // Convert millisecs --> secs for printing
+        String.format(
+            "==   Noise Type [%s]  Calibration Amplitude:%f\n",
+            calNoiseType, calPeakAmp) +
+        String.format("==   Calibration Input Channel:%s\n",
+            calInputChannel) +
+        String.format("==   Reference Amplitude:%f\n", calRefAmp) +
+        String.format("==   Coupling Method:%s\n", calCoupling) +
+        String.format(
+            "==   Filtering Type:%s          Calibration Flags:[%02x]\n",
+            calFilter, calFlags) +
+        "====================================";
+  }
 
-	public long getCalibrationEpoch() {
-		return Time.calculateEpochMilliSeconds(timestamp);
-	}
+  public long getCalibrationEpoch() {
+    return Time.calculateEpochMilliSeconds(timestamp);
+  }
 
-	public LocalDateTime getCalibrationTimeStamp() {
-		return timestamp;
-	}
+  public LocalDateTime getCalibrationTimeStamp() {
+    return timestamp;
+  }
 
-	public long getCalibrationDuration() {
-		return calDuration;
-	}
+  public long getCalibrationDuration() {
+    return calDuration;
+  }
 
-	public String getCalInputChannel() {
-		return calInputChannel;
-	}
+  public String getCalInputChannel() {
+    return calInputChannel;
+  }
 
-	public double getCalPeakAmp() {
-		return calPeakAmp;
-	}
+  public double getCalPeakAmp() {
+    return calPeakAmp;
+  }
 
 }

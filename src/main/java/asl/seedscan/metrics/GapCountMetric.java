@@ -1,126 +1,125 @@
 package asl.seedscan.metrics;
 
-import java.nio.ByteBuffer;
-import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import asl.metadata.Channel;
 import asl.seedsplitter.DataSet;
 import asl.util.Time;
+import java.nio.ByteBuffer;
+import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class GapCountMetric extends Metric {
-	private static final Logger logger = LoggerFactory
-			.getLogger(asl.seedscan.metrics.GapCountMetric.class);
 
-	@Override
-	public long getVersion() {
-		return 1;
-	}
+  private static final Logger logger = LoggerFactory
+      .getLogger(asl.seedscan.metrics.GapCountMetric.class);
 
-	@Override
-	public String getName() {
-		return "GapCountMetric";
-	}
+  @Override
+  public long getVersion() {
+    return 1;
+  }
 
-	public void process() {
-		logger.info("-Enter- [ Station {} ] [ Day {} ]", getStation(), getDay());
+  @Override
+  public String getName() {
+    return "GapCountMetric";
+  }
 
-		String station = getStation();
-		String day = getDay();
-		String metric = getName();
+  public void process() {
+    logger.info("-Enter- [ Station {} ] [ Day {} ]", getStation(), getDay());
 
-		// Get a sorted list of continuous channels for this stationMeta and
-		// loop over:
-		List<Channel> channels = stationMeta.getContinuousChannels();
+    String station = getStation();
+    String day = getDay();
+    String metric = getName();
 
-		for (Channel channel : channels) {
-			if (!metricData.hasChannelData(channel)) {
-				logger.warn(
-						"No data found for station:[{}] channel:[{}] day:[{}] --> Skip metric",
-						getStation(), channel, getDay());
-				continue;
-			}
+    // Get a sorted list of continuous channels for this stationMeta and
+    // loop over:
+    List<Channel> channels = stationMeta.getContinuousChannels();
 
-			ByteBuffer digest = metricData.valueDigestChanged(channel,
-					createIdentifier(channel), getForceUpdate());
+    for (Channel channel : channels) {
+      if (!metricData.hasChannelData(channel)) {
+        logger.warn(
+            "No data found for station:[{}] channel:[{}] day:[{}] --> Skip metric",
+            getStation(), channel, getDay());
+        continue;
+      }
 
-			if (digest == null) { // means oldDigest == newDigest and we don't
-									// need to recompute the metric
-				logger.info(
-						"Digest unchanged station:[{}] channel:[{}] day:[{}] --> Skip metric",
-						getStation(), channel, day);
-				continue;
-			}
+      ByteBuffer digest = metricData.valueDigestChanged(channel,
+          createIdentifier(channel), getForceUpdate());
 
-			double result = computeMetric(channel, station, day, metric);
+      if (digest == null) { // means oldDigest == newDigest and we don't
+        // need to recompute the metric
+        logger.info(
+            "Digest unchanged station:[{}] channel:[{}] day:[{}] --> Skip metric",
+            getStation(), channel, day);
+        continue;
+      }
 
-			if (result == NO_RESULT) {
-				// Do nothing --> skip to next channel
-				logger.warn("NO_RESULT for station={} channel={} day={}",
-						getStation(), channel, day);
-			} else {
-				metricResult.addResult(channel, result, digest);
-			}
-		}// end foreach channel
-	} // end process()
+      double result = computeMetric(channel, station, day, metric);
 
-	@Override
-	public String getSimpleDescription() {
-		return "Returns the number of gaps found between data records for a sensor's full-day trace.";
-	}
+      if (result == NO_RESULT) {
+        // Do nothing --> skip to next channel
+        logger.warn("NO_RESULT for station={} channel={} day={}",
+            getStation(), channel, day);
+      } else {
+        metricResult.addResult(channel, result, digest);
+      }
+    }// end foreach channel
+  } // end process()
 
-	@Override
-	public String getLongDescription() {
-		return "This metric compares the start and end times of consecutive data records from a seed "
-				+ "file for a sensor's full-day data. If these records are more than a sample apart in "
-				+ "time, then that is counted as a gap. The total number of gaps found is reported. "
-				+ "Some metrics require a gapless trace, so if this value is positive, other metrics will "
-				+ "have an empty result.";
-	}
+  @Override
+  public String getSimpleDescription() {
+    return "Returns the number of gaps found between data records for a sensor's full-day trace.";
+  }
 
-	private double computeMetric(Channel channel, String station, String day,
-			String metric) {
+  @Override
+  public String getLongDescription() {
+    return "This metric compares the start and end times of consecutive data records from a seed "
+        + "file for a sensor's full-day data. If these records are more than a sample apart in "
+        + "time, then that is counted as a gap. The total number of gaps found is reported. "
+        + "Some metrics require a gapless trace, so if this value is positive, other metrics will "
+        + "have an empty result.";
+  }
 
-		List<DataSet> datasets = metricData.getChannelData(channel);
-		if (datasets == null) { // No data --> Skip this channel
-			logger.error(
-					"No datasets found for station=[{}] channel=[{}] day=[{}] --> Skip Metric",
-					station, channel, day);
-			return NO_RESULT;
-		}
+  private double computeMetric(Channel channel, String station, String day,
+      String metric) {
 
-		// First count any interior gaps (= gaps that aren't at the
-		// beginning/end of the day)
-		int gapCount = datasets.size() - 1;
+    List<DataSet> datasets = metricData.getChannelData(channel);
+    if (datasets == null) { // No data --> Skip this channel
+      logger.error(
+          "No datasets found for station=[{}] channel=[{}] day=[{}] --> Skip Metric",
+          station, channel, day);
+      return NO_RESULT;
+    }
 
-		long firstSetStartTime = datasets.get(0).getStartTime(); // time in
-																	// microsecs
-																	// since
-																	// epoch
-		long interval = datasets.get(0).getInterval(); // sample dt in microsecs
+    // First count any interior gaps (= gaps that aren't at the
+    // beginning/end of the day)
+    int gapCount = datasets.size() - 1;
 
-		long expectedStartTime = Time.calculateEpochMicroSeconds(stationMeta.getTimestamp());
-		// double gapThreshold = interval / 2.;
-		double gapThreshold = interval / 1.;
+    long firstSetStartTime = datasets.get(0).getStartTime(); // time in
+    // microsecs
+    // since
+    // epoch
+    long interval = datasets.get(0).getInterval(); // sample dt in microsecs
 
-		// Check for possible gap at the beginning of the day
-		if ((firstSetStartTime - expectedStartTime) > gapThreshold) {
-			gapCount++;
-		}
+    long expectedStartTime = Time.calculateEpochMicroSeconds(stationMeta.getTimestamp());
+    // double gapThreshold = interval / 2.;
+    double gapThreshold = interval / 1.;
 
-		long expectedEndTime = expectedStartTime + 86400000000L; // end of day
-																	// in
-																	// microsecs
-		long lastSetEndTime = datasets.get(datasets.size() - 1).getEndTime();
+    // Check for possible gap at the beginning of the day
+    if ((firstSetStartTime - expectedStartTime) > gapThreshold) {
+      gapCount++;
+    }
 
-		// Check for possible gap at the end of the day
-		// We expect a full day to be 24:00:00 - one sample = (86400 - dt) secs
-		if ((expectedEndTime - lastSetEndTime) > interval) {
-			gapCount++;
-		}
+    long expectedEndTime = expectedStartTime + 86400000000L; // end of day
+    // in
+    // microsecs
+    long lastSetEndTime = datasets.get(datasets.size() - 1).getEndTime();
 
-		return (double) gapCount;
-	} // end computeMetric()
+    // Check for possible gap at the end of the day
+    // We expect a full day to be 24:00:00 - one sample = (86400 - dt) secs
+    if ((expectedEndTime - lastSetEndTime) > interval) {
+      gapCount++;
+    }
+
+    return gapCount;
+  } // end computeMetric()
 }

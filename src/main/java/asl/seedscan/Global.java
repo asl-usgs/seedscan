@@ -59,9 +59,10 @@ public abstract class Global {
    * Load a configuration file into the global state.
    *
    * @param configPath dataDir to the configuration file.
-   * @throws MetricException if an exception is encountered generated the available metric list
+   * @throws MetricException       if an exception is encountered generated the available metric
+   *                               list
    * @throws FileNotFoundException if the file is not found or readable
-   * @throws JAXBException if the configuration cannot be marshalled
+   * @throws JAXBException         if the configuration cannot be marshalled
    */
   static void loadConfig(String configPath)
       throws MetricException, FileNotFoundException, JAXBException {

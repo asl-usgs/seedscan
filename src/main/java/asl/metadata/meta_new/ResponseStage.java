@@ -3,209 +3,224 @@ package asl.metadata.meta_new;
 import java.io.Serializable;
 
 /**
- * Every response stage type will contain generic info from SEED Blockette B058
- * (e.g., Stage Gain, Frequency of Gain) here.
- * 
- * In addition, info that is unique to a particular stage type will be stored in
- * the child class for that type (PoleZeroStage, PolynomialStage, etc.)
- * 
- * Stage Type SEED Blockette(s) Child Class A [Analog Response rad/sec] B053
- * PoleZeroStage B [Analog Response Hz] B053 PoleZeroStage P [Polynomial] B062
- * PolynomialStage D [Digital] B054, B057 DigitalStage
- * 
+ * Every response stage type will contain generic info from SEED Blockette B058 (e.g., Stage Gain,
+ * Frequency of Gain) here.
+ * <p>
+ * In addition, info that is unique to a particular stage type will be stored in the child class for
+ * that type (PoleZeroStage, PolynomialStage, etc.)
+ * <p>
+ * Stage Type SEED Blockette(s) Child Class A [Analog Response rad/sec] B053 PoleZeroStage B [Analog
+ * Response Hz] B053 PoleZeroStage P [Polynomial] B062 PolynomialStage D [Digital] B054, B057
+ * DigitalStage
+ *
  * @author Mike Hagerty hagertmb@bc.edu
  */
 public abstract class ResponseStage implements Comparable<ResponseStage>, Serializable {
 
-	/** The Constant serialVersionUID. */
-	private static final long serialVersionUID = 1L;
-	
-	/** The stage number. */
-	protected final int stageNumber;
-	
-	/** The stage type. */
-	protected final char stageType;
-	
-	/** The stage gain. */
-	protected final double stageGain;
-	
-	/** The stage gain frequency. */
-	protected final double stageGainFrequency;
-	
-	/** The input units. */
-	private int inputUnits;
-	
-	/** The input units string. */
-	protected String inputUnitsString;
-	
-	/** The output units string. */
-	protected String outputUnitsString;
+  /**
+   * The Constant serialVersionUID.
+   */
+  private static final long serialVersionUID = 1L;
 
-	/**
-	 * Copy the response stage.
-	 *
-	 * @return the response stage
-	 */
-	abstract public ResponseStage copy();
+  /**
+   * The stage number.
+   */
+  protected final int stageNumber;
 
-	// constructor(s)
-	/**
-	 * Instantiates a new response stage.
-	 *
-	 * @param number the number
-	 * @param type the type
-	 * @param gain the gain
-	 * @param frequency the frequency
-	 */
-	ResponseStage(int number, char type, double gain, double frequency) {
-		stageNumber = number;
-		stageType = type;
-		stageGain = gain;
-		stageGainFrequency = frequency;
-	}
+  /**
+   * The stage type.
+   */
+  protected final char stageType;
 
-	/**
-	 * Set inputUnits of this stage: 0 = Unknown 1 = Displacement (m) 2 =
-	 * Velocity (m/s) 3 = Acceleration (m/s^2) 4 = Pressure (Pa) 5 = Pressure
-	 * (KPa) 6 = Magnetic Flux Density (Teslas - T) 7 = Magnetic Flux Density
-	 * (nanoTeslas - NT) 8 = Degrees Centigrade (C) 9 = Degrees Orientation
-	 * 0-360 (theta) 10 = Volts (V).
-	 * 
-	 * The input string is normalized to lower case before comparison.
-	 * 
-	 * TODO: Passing magic numbers is not good, These should be replaced with an enum.
-	 *
-	 * @param inputUnitsString the string containing the input units
-	 */
-	public void setInputUnits(String inputUnitsString) {
-		this.inputUnitsString = inputUnitsString.toLowerCase();
+  /**
+   * The stage gain.
+   */
+  protected final double stageGain;
 
-		if (this.inputUnitsString.contains("displacement")) {
-			inputUnits = 1;
-		} else if (this.inputUnitsString.contains("velocity")) {
-			inputUnits = 2;
-		} else if (this.inputUnitsString.contains("acceleration")
-				|| this.inputUnitsString.contains("m/s**2".toLowerCase())) {
-			inputUnits = 3;
-		} else if (this.inputUnitsString.contains("pressure")) {
-			if (this.inputUnitsString.contains("kpa")) {
-				inputUnits = 5;
-			} else {
-				inputUnits = 4;
-			}
-		} else if (this.inputUnitsString.contains("magnetic")) {
-			if (this.inputUnitsString.contains("nanoteslas")) {
-				inputUnits = 7;
-			} else {
-				inputUnits = 6;
-			}
-		} else if (this.inputUnitsString.contains("degrees")) {
-			if (this.inputUnitsString.contains("centigrade")) {
-				inputUnits = 8;
-			} else {
-				inputUnits = 9;
-			}
-		} else if (this.inputUnitsString.contains("volts")) {
-			inputUnits = 10;
-		} else { // We didn't find anything
-			inputUnits = 0;
-		}
+  /**
+   * The stage gain frequency.
+   */
+  protected final double stageGainFrequency;
 
-	}
+  /**
+   * The input units.
+   */
+  private int inputUnits;
 
-	/**
-	 * Sets the output unit string.
-	 *
-	 * @param outputUnitsString the new output units, this is normalized to lower case
-	 */
-	public void setOutputUnits(String outputUnitsString) {
-		this.outputUnitsString = outputUnitsString.toLowerCase();
-	}
+  /**
+   * The input units string.
+   */
+  protected String inputUnitsString;
 
-	/**
-	 * Gets the input units.
-	 * 
-	 * @see asl.metadata.meta_new.ResponseStage#setInputUnits(String)
-	 *
-	 * @return the input units
-	 */
-	public int getInputUnits() {
-		return inputUnits;
-	}
+  /**
+   * The output units string.
+   */
+  protected String outputUnitsString;
 
-	/**
-	 * Gets the input units string.
-	 *
-	 * @return the input units string
-	 */
-	public String getInputUnitsString() {
-		return inputUnitsString;
-	}
+  /**
+   * Copy the response stage.
+   *
+   * @return the response stage
+   */
+  abstract public ResponseStage copy();
 
-	/**
-	 * Gets the output units string.
-	 *
-	 * @return the output units string
-	 */
-	public String getOutputUnitsString() {
-		return outputUnitsString;
-	}
+  // constructor(s)
 
-	/**
-	 * Gets the stage gain frequency.
-	 *
-	 * @return the stage gain frequency
-	 */
-	public double getStageGainFrequency() {
-		return stageGainFrequency;
-	}
+  /**
+   * Instantiates a new response stage.
+   *
+   * @param number    the number
+   * @param type      the type
+   * @param gain      the gain
+   * @param frequency the frequency
+   */
+  ResponseStage(int number, char type, double gain, double frequency) {
+    stageNumber = number;
+    stageType = type;
+    stageGain = gain;
+    stageGainFrequency = frequency;
+  }
 
-	/**
-	 * Gets the stage number.
-	 *
-	 * @return the stage number
-	 */
-	public int getStageNumber() {
-		return stageNumber;
-	}
+  /**
+   * Set inputUnits of this stage: 0 = Unknown 1 = Displacement (m) 2 = Velocity (m/s) 3 =
+   * Acceleration (m/s^2) 4 = Pressure (Pa) 5 = Pressure (KPa) 6 = Magnetic Flux Density (Teslas -
+   * T) 7 = Magnetic Flux Density (nanoTeslas - NT) 8 = Degrees Centigrade (C) 9 = Degrees
+   * Orientation 0-360 (theta) 10 = Volts (V).
+   * <p>
+   * The input string is normalized to lower case before comparison.
+   * <p>
+   * TODO: Passing magic numbers is not good, These should be replaced with an enum.
+   *
+   * @param inputUnitsString the string containing the input units
+   */
+  public void setInputUnits(String inputUnitsString) {
+    this.inputUnitsString = inputUnitsString.toLowerCase();
 
-	/**
-	 * Gets the stage type.
-	 *
-	 * @return the stage type
-	 */
-	public char getStageType() {
-		return stageType;
-	}
+    if (this.inputUnitsString.contains("displacement")) {
+      inputUnits = 1;
+    } else if (this.inputUnitsString.contains("velocity")) {
+      inputUnits = 2;
+    } else if (this.inputUnitsString.contains("acceleration")
+        || this.inputUnitsString.contains("m/s**2".toLowerCase())) {
+      inputUnits = 3;
+    } else if (this.inputUnitsString.contains("pressure")) {
+      if (this.inputUnitsString.contains("kpa")) {
+        inputUnits = 5;
+      } else {
+        inputUnits = 4;
+      }
+    } else if (this.inputUnitsString.contains("magnetic")) {
+      if (this.inputUnitsString.contains("nanoteslas")) {
+        inputUnits = 7;
+      } else {
+        inputUnits = 6;
+      }
+    } else if (this.inputUnitsString.contains("degrees")) {
+      if (this.inputUnitsString.contains("centigrade")) {
+        inputUnits = 8;
+      } else {
+        inputUnits = 9;
+      }
+    } else if (this.inputUnitsString.contains("volts")) {
+      inputUnits = 10;
+    } else { // We didn't find anything
+      inputUnits = 0;
+    }
 
-	/**
-	 * Gets the stage gain.
-	 *
-	 * @return the stage gain
-	 */
-	public double getStageGain() {
-		return stageGain;
-	}
+  }
 
-	/**
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString() {
-		return String.format(
-				"Stage:%d  [Type='%1s'] Gain=%.2f FreqOfGain=%.2f\n",
-				stageNumber, stageType, stageGain, stageGainFrequency) +
-				String.format("Units In:[%s]  Units Out:[%s]\n",
-						inputUnitsString, outputUnitsString);
-	}
+  /**
+   * Sets the output unit string.
+   *
+   * @param outputUnitsString the new output units, this is normalized to lower case
+   */
+  public void setOutputUnits(String outputUnitsString) {
+    this.outputUnitsString = outputUnitsString.toLowerCase();
+  }
 
-	/**
-	 * @see java.lang.Comparable#compareTo(java.lang.Object)
-	 */
-	@Override
-	public int compareTo(ResponseStage stage) {
+  /**
+   * Gets the input units.
+   *
+   * @return the input units
+   * @see asl.metadata.meta_new.ResponseStage#setInputUnits(String)
+   */
+  public int getInputUnits() {
+    return inputUnits;
+  }
+
+  /**
+   * Gets the input units string.
+   *
+   * @return the input units string
+   */
+  public String getInputUnitsString() {
+    return inputUnitsString;
+  }
+
+  /**
+   * Gets the output units string.
+   *
+   * @return the output units string
+   */
+  public String getOutputUnitsString() {
+    return outputUnitsString;
+  }
+
+  /**
+   * Gets the stage gain frequency.
+   *
+   * @return the stage gain frequency
+   */
+  public double getStageGainFrequency() {
+    return stageGainFrequency;
+  }
+
+  /**
+   * Gets the stage number.
+   *
+   * @return the stage number
+   */
+  public int getStageNumber() {
+    return stageNumber;
+  }
+
+  /**
+   * Gets the stage type.
+   *
+   * @return the stage type
+   */
+  public char getStageType() {
+    return stageType;
+  }
+
+  /**
+   * Gets the stage gain.
+   *
+   * @return the stage gain
+   */
+  public double getStageGain() {
+    return stageGain;
+  }
+
+  /**
+   * @see java.lang.Object#toString()
+   */
+  @Override
+  public String toString() {
+    return String.format(
+        "Stage:%d  [Type='%1s'] Gain=%.2f FreqOfGain=%.2f\n",
+        stageNumber, stageType, stageGain, stageGainFrequency) +
+        String.format("Units In:[%s]  Units Out:[%s]\n",
+            inputUnitsString, outputUnitsString);
+  }
+
+  /**
+   * @see java.lang.Comparable#compareTo(java.lang.Object)
+   */
+  @Override
+  public int compareTo(ResponseStage stage) {
     // Stage numbers must be the same
     return Integer.compare(this.getStageNumber(), stage.getStageNumber());
-	}
+  }
 
 }

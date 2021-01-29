@@ -21,89 +21,80 @@ package asl.seedsplitter;
 
 /**
  * @author Joel Edwards
- * 
- *         The ByteBlock class wraps blocks of data read from a stream.
+ * <p>
+ * The ByteBlock class wraps blocks of data read from a stream.
  */
 public class ByteBlock {
-	private byte[] m_data = null;
+
+  private byte[] m_data = null;
   private boolean m_fileEnd = false;
-	private boolean m_lastBlock = false;
+  private boolean m_lastBlock = false;
 
   /**
-	 * Constructor.
-	 * 
-	 * @param data
-	 *            The raw data.
-	 * @param length
-	 *            Length of the raw data.
+   * Constructor.
+   *
+   * @param data   The raw data.
+   * @param length Length of the raw data.
    */
-	public ByteBlock(byte[] data, int length) {
-		init(data, length, false, false);
-	}
-
-	/**
-	 * Constructor.
-	 * 
-	 * @param data
-	 *            The raw data.
-	 * @param length
-	 *            Length of the raw data.
-	 * @param fileEnd
-	 *            End of the file has been reached.
-	 * @param isLast
-	 *            This is the last data in a stream.
-	 */
-	public ByteBlock(byte[] data, int length, boolean fileEnd, boolean isLast) {
-		init(data, length, fileEnd, isLast);
-	}
+  public ByteBlock(byte[] data, int length) {
+    init(data, length, false, false);
+  }
 
   /**
-	 * Hidden initializer called by all constructors.
-	 * 
-	 * @param data
-	 *            The raw data.
-	 * @param length
-	 *            Length of the raw data.
-	 * @param fileEnd
-	 *            End of the file has been reached.
-	 * @param isLast
-	 *            This is the last data in a stream.
-	 */
-	private void init(byte[] data, int length, boolean fileEnd,
+   * Constructor.
+   *
+   * @param data    The raw data.
+   * @param length  Length of the raw data.
+   * @param fileEnd End of the file has been reached.
+   * @param isLast  This is the last data in a stream.
+   */
+  public ByteBlock(byte[] data, int length, boolean fileEnd, boolean isLast) {
+    init(data, length, fileEnd, isLast);
+  }
+
+  /**
+   * Hidden initializer called by all constructors.
+   *
+   * @param data    The raw data.
+   * @param length  Length of the raw data.
+   * @param fileEnd End of the file has been reached.
+   * @param isLast  This is the last data in a stream.
+   */
+  private void init(byte[] data, int length, boolean fileEnd,
       boolean isLast) {
-		if (length > 0) {
-			m_data = new byte[length];
-			System.arraycopy(data, 0, m_data, 0, length);
-		}
-		m_lastBlock = isLast;
-		m_fileEnd = fileEnd;
-	}
-
-	/**
-	 * Returns the data buffer.
-	 * 
-	 * @return The data buffer.
-	 */
-	public byte[] getData() {
-		return m_data;
-	}
+    if (length > 0) {
+      m_data = new byte[length];
+      System.arraycopy(data, 0, m_data, 0, length);
+    }
+    m_lastBlock = isLast;
+    m_fileEnd = fileEnd;
+  }
 
   /**
-	 * Indicates whether this is the last block in the sequence.
-	 * 
-	 * @return True if this is the last block in the sequence; otherwise false.
-	 */
-	public boolean isLast() {
-		return m_lastBlock;
-	}
+   * Returns the data buffer.
+   *
+   * @return The data buffer.
+   */
+  public byte[] getData() {
+    return m_data;
+  }
 
-	/**
-	 * Indicates whether the end of the file has been reached.
-	 * 
-	 * @return True if the end of the file has been reached; otherwise false.
-	 */
-	public boolean isEnd() {
-		return m_fileEnd;
-	}
+  /**
+   * Indicates whether this is the last block in the sequence.
+   *
+   * @return True if this is the last block in the sequence; otherwise false.
+   */
+  public boolean isLast() {
+    return m_lastBlock;
+  }
+
+  /**
+   * Indicates whether the end of the file has been reached.
+   *
+   * @return True if the end of the file has been reached; otherwise false.
+   */
+  public boolean isEnd() {
+    return m_fileEnd;
+  }
 
 }

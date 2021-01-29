@@ -22,68 +22,68 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Hashtable;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class EpochData {
-	private static final Logger logger = LoggerFactory
-			.getLogger(asl.metadata.EpochData.class);
 
-	private Blockette format = null;
-	private final Blockette info;
-	private final ArrayList<Blockette> misc;
-	private final Hashtable<Integer, StageData> stages;
+  private static final Logger logger = LoggerFactory
+      .getLogger(asl.metadata.EpochData.class);
 
-	// MTH:
-	private LocalDateTime startTimestamp = null;
-	private LocalDateTime endTimestamp = null;
-	private double dip;
-	private double azimuth;
-	private double depth;
-	private double elevation;
-	private double sampleRate;
-	private String instrumentType;
-	private String channelFlags;
+  private Blockette format = null;
+  private final Blockette info;
+  private final ArrayList<Blockette> misc;
+  private final Hashtable<Integer, StageData> stages;
 
-	public static String epochToDateString(LocalDateTime date) {
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy:DDD");
-		if (date != null) {
-			return date.format(formatter);
-		} else {
-			return "(null)";
-		}
-	}
+  // MTH:
+  private LocalDateTime startTimestamp = null;
+  private LocalDateTime endTimestamp = null;
+  private double dip;
+  private double azimuth;
+  private double depth;
+  private double elevation;
+  private double sampleRate;
+  private String instrumentType;
+  private String channelFlags;
 
-	public EpochData(Blockette info) {
-		this.info = info;
-		misc = new ArrayList<>();
-		stages = new Hashtable<>();
-		String startDateString = info.getFieldValue(22, 0);
-		String endDateString = info.getFieldValue(23, 0);
-		if (!startDateString.equals("(null)")) {
-			try {
-				startTimestamp = BlocketteTimestamp
-						.parseTimestamp(startDateString);
-			} catch (TimestampFormatException e) {
-				logger.error("TimestampFormatException:", e);
-			}
-		}
-		if (!endDateString.equals("(null)")) {
-			try {
-				endTimestamp = BlocketteTimestamp.parseTimestamp(endDateString);
-			} catch (TimestampFormatException e) {
-				logger.error("TimestampFormatException:", e);
-			}
-		}
+  public static String epochToDateString(LocalDateTime date) {
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy:DDD");
+    if (date != null) {
+      return date.format(formatter);
+    } else {
+      return "(null)";
+    }
+  }
 
-		this.elevation = Double.parseDouble(info.getFieldValue(12, 0));
-		this.depth = Double.parseDouble(info.getFieldValue(13, 0));
-		this.azimuth = Double.parseDouble(info.getFieldValue(14, 0));
-		this.dip = Double.parseDouble(info.getFieldValue(15, 0));
-		this.sampleRate = Double.parseDouble(info.getFieldValue(18, 0));
-		this.instrumentType = info.getFieldValue(6, 0);
-		this.channelFlags = info.getFieldValue(21, 0);
+  public EpochData(Blockette info) {
+    this.info = info;
+    misc = new ArrayList<>();
+    stages = new Hashtable<>();
+    String startDateString = info.getFieldValue(22, 0);
+    String endDateString = info.getFieldValue(23, 0);
+    if (!startDateString.equals("(null)")) {
+      try {
+        startTimestamp = BlocketteTimestamp
+            .parseTimestamp(startDateString);
+      } catch (TimestampFormatException e) {
+        logger.error("TimestampFormatException:", e);
+      }
+    }
+    if (!endDateString.equals("(null)")) {
+      try {
+        endTimestamp = BlocketteTimestamp.parseTimestamp(endDateString);
+      } catch (TimestampFormatException e) {
+        logger.error("TimestampFormatException:", e);
+      }
+    }
+
+    this.elevation = Double.parseDouble(info.getFieldValue(12, 0));
+    this.depth = Double.parseDouble(info.getFieldValue(13, 0));
+    this.azimuth = Double.parseDouble(info.getFieldValue(14, 0));
+    this.dip = Double.parseDouble(info.getFieldValue(15, 0));
+    this.sampleRate = Double.parseDouble(info.getFieldValue(18, 0));
+    this.instrumentType = info.getFieldValue(6, 0);
+    this.channelFlags = info.getFieldValue(21, 0);
 
 		/*
 		  MTH: This is what Blockette B052 looks like: B052F04 Channel: HNZ
@@ -100,89 +100,91 @@ public class EpochData {
 		  B052F23 End date: (null) B052F24 Update flag: N ... B030F03 Format
 		  Name: Steim2 Integer Compression Format B030F05 Data family: 50
 		 */
-	}
+  }
 
-	public EpochData(Blockette format, Blockette info) {
-		this.format = format;
-		this.info = info;
-		misc = new ArrayList<>();
-		stages = new Hashtable<>();
-	}
+  public EpochData(Blockette format, Blockette info) {
+    this.format = format;
+    this.info = info;
+    misc = new ArrayList<>();
+    stages = new Hashtable<>();
+  }
 
-	public Blockette getInfo() {
-		return info;
-	}
+  public Blockette getInfo() {
+    return info;
+  }
 
-	// Format
-	public void setFormat(Blockette format) {
-		this.format = format;
-	}
+  // Format
+  public void setFormat(Blockette format) {
+    this.format = format;
+  }
 
-	public Blockette getFormat() {
-		return format;
-	}
+  public Blockette getFormat() {
+    return format;
+  }
 
-	// Misc Blockettes
-	public void addMiscBlockette(Blockette blockette) {
-		misc.add(blockette);
-	}
+  // Misc Blockettes
+  public void addMiscBlockette(Blockette blockette) {
+    misc.add(blockette);
+  }
 
-	public ArrayList<Blockette> getMiscBlockettes() {
-		return misc;
-	}
+  public ArrayList<Blockette> getMiscBlockettes() {
+    return misc;
+  }
 
-	// Stages
-	public void addStage(Integer stageID, StageData data) {
-		stages.put(stageID, data);
-	}
+  // Stages
+  public void addStage(Integer stageID, StageData data) {
+    stages.put(stageID, data);
+  }
 
-	public boolean hasStage(Integer stageID) {
-		return stages.containsKey(stageID);
-	}
+  public boolean hasStage(Integer stageID) {
+    return stages.containsKey(stageID);
+  }
 
-	public StageData getStage(Integer stageID) {
-		return stages.get(stageID);
-	}
+  public StageData getStage(Integer stageID) {
+    return stages.get(stageID);
+  }
 
-	public Hashtable<Integer, StageData> getStages() {
-		return stages;
-	}
+  public Hashtable<Integer, StageData> getStages() {
+    return stages;
+  }
 
-	public int getNumberOfStages() {
+  public int getNumberOfStages() {
     return stages.size();
-	}
+  }
 
-	public LocalDateTime getStartTime() {
-		return startTimestamp;
-	}
+  public LocalDateTime getStartTime() {
+    return startTimestamp;
+  }
 
-	public LocalDateTime getEndTime() {
-		return endTimestamp;
-	}
+  public LocalDateTime getEndTime() {
+    return endTimestamp;
+  }
 
-	public double getDip() {
-		return dip;
-	}
+  public double getDip() {
+    return dip;
+  }
 
-	public double getDepth() {
-		return depth;
-	}
+  public double getDepth() {
+    return depth;
+  }
 
-	public double getAzimuth() {
-		return azimuth;
-	}
+  public double getAzimuth() {
+    return azimuth;
+  }
 
-	public double getSampleRate() {
-		return sampleRate;
-	}
+  public double getSampleRate() {
+    return sampleRate;
+  }
 
-	public String getInstrumentType() {
-		return instrumentType;
-	}
+  public String getInstrumentType() {
+    return instrumentType;
+  }
 
-	public String getChannelFlags() {
-		return channelFlags;
-	}
+  public String getChannelFlags() {
+    return channelFlags;
+  }
 
-	public double getElevation() { return elevation; }
+  public double getElevation() {
+    return elevation;
+  }
 }

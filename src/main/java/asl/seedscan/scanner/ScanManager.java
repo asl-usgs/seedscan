@@ -24,9 +24,8 @@ public class ScanManager {
   private Thread scanThread;
 
   /**
-   * Pool of threads for scanning. Must remain private to restrict how it is
-   * used. Because it is implemented with a PriorityBlockingQueue its tasks
-   * must also implement Comparable.
+   * Pool of threads for scanning. Must remain private to restrict how it is used. Because it is
+   * implemented with a PriorityBlockingQueue its tasks must also implement Comparable.
    */
   private final ThreadPoolExecutor threadPool;
 
@@ -37,7 +36,7 @@ public class ScanManager {
     this.metaGenerator = metaGenerator;
 
     int threadCount = Runtime.getRuntime().availableProcessors() - 1;
-    if(threadCount < 2){
+    if (threadCount < 2) {
       threadCount = 2;
     }
     logger.info("Number of Threads to Use = [{}]", threadCount);
@@ -49,9 +48,8 @@ public class ScanManager {
   }
 
   /**
-   * Begins the scan process. This blocks indefinitely while scans are being
-   * performed.
-   *
+   * Begins the scan process. This blocks indefinitely while scans are being performed.
+   * <p>
    * This method can only be called once.
    *
    * @throws IllegalStateException if multiple calls to scan were initiated.
@@ -82,8 +80,8 @@ public class ScanManager {
         /*We want to wait a little bit so as to not overload the db with getScan requests.*/
         Thread.sleep(queryWaitTime);
         /*Update incase available processors changes.
-				 * This is not a constant, but can vary with the OS according to Oracle Javadoc.
-				 */
+         * This is not a constant, but can vary with the OS according to Oracle Javadoc.
+         */
         if (Runtime.getRuntime().availableProcessors() > this.threadPool.getCorePoolSize()
             && Runtime.getRuntime().availableProcessors() > 0) {
           this.threadPool.setCorePoolSize(Runtime.getRuntime().availableProcessors());
@@ -98,10 +96,10 @@ public class ScanManager {
   }
 
   public void addTask(ScanWorker task) {
-		/* We cannot use .submit() because of issues when wrapping the Runnable
-		 * into a FutureTask. Our PriorityQueue requires our task to be
-		 * Comparable while FutureTasks are not.
-		 */
+    /* We cannot use .submit() because of issues when wrapping the Runnable
+     * into a FutureTask. Our PriorityQueue requires our task to be
+     * Comparable while FutureTasks are not.
+     */
     threadPool.execute(task);
   }
 

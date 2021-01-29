@@ -4,79 +4,78 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Hashtable;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class StationData {
-	private static final Logger logger = LoggerFactory
-			.getLogger(asl.metadata.StationData.class);
 
-	private static final int STATION_EPOCH_BLOCKETTE_NUMBER = 50;
+  private static final Logger logger = LoggerFactory
+      .getLogger(asl.metadata.StationData.class);
 
-	private final Hashtable<LocalDateTime, Blockette> epochs;
-	private final Hashtable<ChannelKey, ChannelData> channels;
-	private final String network;
-	private final String name;
+  private static final int STATION_EPOCH_BLOCKETTE_NUMBER = 50;
 
-	public StationData(String network, String name) {
-		epochs = new Hashtable<>();
-		channels = new Hashtable<>();
-		this.name = name;
-		this.network = network;
-	}
+  private final Hashtable<LocalDateTime, Blockette> epochs;
+  private final Hashtable<ChannelKey, ChannelData> channels;
+  private final String network;
+  private final String name;
 
-	public String getNetwork() {
-		return network;
-	}
+  public StationData(String network, String name) {
+    epochs = new Hashtable<>();
+    channels = new Hashtable<>();
+    this.name = name;
+    this.network = network;
+  }
 
-	public String getName() {
-		return name;
-	}
+  public String getNetwork() {
+    return network;
+  }
 
-	public LocalDateTime addEpoch(Blockette blockette)
-			throws TimestampFormatException, WrongBlocketteException,
-			MissingBlocketteDataException {
-		if (blockette.getNumber() != STATION_EPOCH_BLOCKETTE_NUMBER) {
-			throw new WrongBlocketteException();
-		}
+  public String getName() {
+    return name;
+  }
 
-		String timestampString = blockette.getFieldValue(13, 0);
-		if (timestampString == null) {
-			throw new MissingBlocketteDataException();
-		}
-		
-		LocalDateTime timestamp = BlocketteTimestamp
-				.parseTimestamp(timestampString);
-		epochs.put(timestamp, blockette);
-		return timestamp;
-	}
+  public LocalDateTime addEpoch(Blockette blockette)
+      throws TimestampFormatException, WrongBlocketteException,
+      MissingBlocketteDataException {
+    if (blockette.getNumber() != STATION_EPOCH_BLOCKETTE_NUMBER) {
+      throw new WrongBlocketteException();
+    }
 
-	public boolean hasEpoch(LocalDateTime timestamp) {
-		return epochs.containsKey(timestamp);
-	}
+    String timestampString = blockette.getFieldValue(13, 0);
+    if (timestampString == null) {
+      throw new MissingBlocketteDataException();
+    }
 
-	public Blockette getEpoch(LocalDateTime timestamp) {
-		return epochs.get(timestamp);
-	}
+    LocalDateTime timestamp = BlocketteTimestamp
+        .parseTimestamp(timestampString);
+    epochs.put(timestamp, blockette);
+    return timestamp;
+  }
 
-	/**
-	 * Epoch index ----------- ONLY THIS EPOCH! 0 newest startTimestamp - newest
-	 * endTimestamp (may be "null") 1 ... - ... 2 ... - ... . ... - ... n-1
-	 * oldest startTimestamp - oldest endTimestamp
-	 **/
+  public boolean hasEpoch(LocalDateTime timestamp) {
+    return epochs.containsKey(timestamp);
+  }
 
-	// Return the correct Blockette 050 for the requested epochTime
-	// Return null if epochTime not contained
-	public Blockette getBlockette(LocalDateTime epochTime) {
+  public Blockette getEpoch(LocalDateTime timestamp) {
+    return epochs.get(timestamp);
+  }
+
+  /**
+   * Epoch index ----------- ONLY THIS EPOCH! 0 newest startTimestamp - newest endTimestamp (may be
+   * "null") 1 ... - ... 2 ... - ... . ... - ... n-1 oldest startTimestamp - oldest endTimestamp
+   **/
+
+  // Return the correct Blockette 050 for the requested epochTime
+  // Return null if epochTime not contained
+  public Blockette getBlockette(LocalDateTime epochTime) {
     ArrayList<LocalDateTime> epochtimes = new ArrayList<>(epochs.keySet());
-		Collections.sort(epochtimes);
-		Collections.reverse(epochtimes);
+    Collections.sort(epochtimes);
+    Collections.reverse(epochtimes);
 
-		LocalDateTime startTimeStamp;
-		LocalDateTime endTimeStamp;
+    LocalDateTime startTimeStamp;
+    LocalDateTime endTimeStamp;
 
-		// Loop through Blockettes (B050) and pick out epoch end dates
+    // Loop through Blockettes (B050) and pick out epoch end dates
     for (LocalDateTime epochtime : epochtimes) {
       endTimeStamp = null;
       startTimeStamp = epochtime;
@@ -101,24 +100,24 @@ public class StationData {
         return blockette;
       }
     }
-		return null; // If we made it to here than we are returning
-						// blockette==null
-	}
+    return null; // If we made it to here than we are returning
+    // blockette==null
+  }
 
-	public void addChannel(ChannelKey key, ChannelData data) {
-		channels.put(key, data);
-	}
+  public void addChannel(ChannelKey key, ChannelData data) {
+    channels.put(key, data);
+  }
 
-	public boolean hasChannel(ChannelKey key) {
-		return channels.containsKey(key);
-	}
+  public boolean hasChannel(ChannelKey key) {
+    return channels.containsKey(key);
+  }
 
-	public ChannelData getChannel(ChannelKey key) {
-		return channels.get(key);
-	}
+  public ChannelData getChannel(ChannelKey key) {
+    return channels.get(key);
+  }
 
-	public Hashtable<ChannelKey, ChannelData> getChannels() {
-		return channels;
-	}
+  public Hashtable<ChannelKey, ChannelData> getChannels() {
+    return channels;
+  }
 
 }

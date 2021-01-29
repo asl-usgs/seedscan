@@ -1,18 +1,17 @@
 package seed;
 
 /**
- * A type of exception specific to problems encountered with data offsets being
- * larger than data block sizes
- * 
+ * A type of exception specific to problems encountered with data offsets being larger than data
+ * block sizes
+ *
  * @author agonzales
- * 
  */
 
 public class BlockSizeException extends Exception {
 
-	private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-	BlockSizeException(String s) {
-		super(s);
-	}
+  BlockSizeException(String s) {
+    super(s);
+  }
 }

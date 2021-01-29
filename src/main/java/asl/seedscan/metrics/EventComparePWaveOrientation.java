@@ -24,16 +24,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This metric compares the p-wave arrival of data to a synthetic source to
- * determine the azimuthal orientation of the sensor.
- *
- * Specifically, this comparison is done between the phase of the p-wave as
- * detected by a horizontal sensor and its rotational pair (i.e., LHN and LHE),
- * comparing the event azimuth to the determined back-azimuth.
- *
- * Because of how back-azimuth is calculated, we determine the specific quadrant of
- * the back-azimuth (and thus the actual sensor orientation) by comparing the signs of
- * the detected for all 3 sensor components (that is, including the vertical).
+ * This metric compares the p-wave arrival of data to a synthetic source to determine the azimuthal
+ * orientation of the sensor.
+ * <p>
+ * Specifically, this comparison is done between the phase of the p-wave as detected by a horizontal
+ * sensor and its rotational pair (i.e., LHN and LHE), comparing the event azimuth to the determined
+ * back-azimuth.
+ * <p>
+ * Because of how back-azimuth is calculated, we determine the specific quadrant of the back-azimuth
+ * (and thus the actual sensor orientation) by comparing the signs of the detected for all 3 sensor
+ * components (that is, including the vertical).
  */
 public class EventComparePWaveOrientation extends Metric {
 
@@ -63,7 +63,7 @@ public class EventComparePWaveOrientation extends Metric {
   /**
    * Determine if a channel meets the needed criteria.
    *
-   * @param channel Channel to be tested.
+   * @param channel      Channel to be tested.
    * @param allowedBands List of allowed bands in String format
    * @return True if filtered out, False if not
    */
@@ -200,7 +200,8 @@ public class EventComparePWaveOrientation extends Metric {
 
     // now to get the synthetics data
     SortedSet<String> eventKeys = new TreeSet<>(eventCMTs.keySet());
-    outerLoop: for (String key : eventKeys) {
+    outerLoop:
+    for (String key : eventKeys) {
 
       EventCMT eventMeta = eventCMTs.get(key);
       double eventLatitude = eventMeta.getLatitude();
@@ -501,7 +502,7 @@ public class EventComparePWaveOrientation extends Metric {
   }
 
   /**
-   * @param secs seconds
+   * @param secs       seconds
    * @param sampleRate sample rate in hertz
    * @return number samples in a given time period.
    */

@@ -18,108 +18,107 @@
  */
 package asl.seedscan.metrics;
 
+import asl.metadata.Channel;
 import java.nio.ByteBuffer;
 import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import asl.metadata.Channel;
-
 public class TimingQualityMetric extends Metric {
-	private static final Logger logger = LoggerFactory
-			.getLogger(asl.seedscan.metrics.TimingQualityMetric.class);
 
-	@Override
-	public long getVersion() {
-		return 1;
-	}
+  private static final Logger logger = LoggerFactory
+      .getLogger(asl.seedscan.metrics.TimingQualityMetric.class);
 
-	@Override
-	public String getName() {
-		return "TimingQualityMetric";
-	}
+  @Override
+  public long getVersion() {
+    return 1;
+  }
 
-	public void process() {
-		logger.info("-Enter- [ Station {} ] [ Day {} ]", getStation(), getDay());
+  @Override
+  public String getName() {
+    return "TimingQualityMetric";
+  }
 
-		// Get a sorted list of continuous channels for this stationMeta and
-		// loop over:
-		List<Channel> channels = stationMeta.getContinuousChannels();
+  public void process() {
+    logger.info("-Enter- [ Station {} ] [ Day {} ]", getStation(), getDay());
 
-		for (Channel channel : channels) {
-			if (!metricData.hasChannelData(channel)) {
-				// logger.warn("No data found for channel[{}] --> Skip metric",
-				// channel);
-				continue;
-			}
+    // Get a sorted list of continuous channels for this stationMeta and
+    // loop over:
+    List<Channel> channels = stationMeta.getContinuousChannels();
 
-			ByteBuffer digest = metricData.valueDigestChanged(channel,
-					createIdentifier(channel), getForceUpdate());
+    for (Channel channel : channels) {
+      if (!metricData.hasChannelData(channel)) {
+        // logger.warn("No data found for channel[{}] --> Skip metric",
+        // channel);
+        continue;
+      }
 
-			if (digest == null) { // means oldDigest == newDigest and we don't
-				// need to recompute the metric
-				logger.info(
-						"Digest unchanged station:[{}] channel:[{}] day:[{}] --> Skip metric",
-						getStation(), channel, getDay());
-				continue;
-			}
+      ByteBuffer digest = metricData.valueDigestChanged(channel,
+          createIdentifier(channel), getForceUpdate());
 
-			double result = computeMetric(channel);
+      if (digest == null) { // means oldDigest == newDigest and we don't
+        // need to recompute the metric
+        logger.info(
+            "Digest unchanged station:[{}] channel:[{}] day:[{}] --> Skip metric",
+            getStation(), channel, getDay());
+        continue;
+      }
 
-			if (result == NO_RESULT) {
-				// Do nothing --> skip to next channel
-				logger.warn("NO_RESULT for station={} channel={} day={}",
-						getStation(), channel, getDay());
-			} else {
-				metricResult.addResult(channel, result, digest);
-			}
-		}// end foreach channel
-	} // end process()
+      double result = computeMetric(channel);
 
-	@Override
-	public String getSimpleDescription() {
-		return "Returns the average of the blockette 1001 timing records for the day";
-	}
+      if (result == NO_RESULT) {
+        // Do nothing --> skip to next channel
+        logger.warn("NO_RESULT for station={} channel={} day={}",
+            getStation(), channel, getDay());
+      } else {
+        metricResult.addResult(channel, result, digest);
+      }
+    }// end foreach channel
+  } // end process()
 
-	@Override
-	public String getLongDescription() {
-		return "This metric takes the timing records for each blockette 1001 from a day's SEED data "
-				+ "and returns the average of these values.";
-	}
+  @Override
+  public String getSimpleDescription() {
+    return "Returns the average of the blockette 1001 timing records for the day";
+  }
 
-	private double computeMetric(Channel channel) {
+  @Override
+  public String getLongDescription() {
+    return "This metric takes the timing records for each blockette 1001 from a day's SEED data "
+        + "and returns the average of these values.";
+  }
 
-		if (!metricData.hasChannelData(channel)) {
-			return NO_RESULT;
-		}
+  private double computeMetric(Channel channel) {
 
-		List<Integer> qualities = metricData.getChannelTimingQualityData(channel);
+    if (!metricData.hasChannelData(channel)) {
+      return NO_RESULT;
+    }
 
-		if (qualities == null) {
-			return NO_RESULT;
-		}
+    List<Integer> qualities = metricData.getChannelTimingQualityData(channel);
 
-		int totalQuality = 0;
-		int totalPoints = 0;
+    if (qualities == null) {
+      return NO_RESULT;
+    }
 
-		for (int i = 0; i < qualities.size(); i++) {
-			totalQuality += qualities.get(i);
-			totalPoints++;
-		}
+    int totalQuality = 0;
+    int totalPoints = 0;
 
-		double averageQuality = 0.;
+    for (int i = 0; i < qualities.size(); i++) {
+      totalQuality += qualities.get(i);
+      totalPoints++;
+    }
 
-		if (totalPoints > 0) {
-			averageQuality = (double) totalQuality / (double) totalPoints;
-		} else {
-			logger.warn(
-					"TimingQualityMetric: We have NO timing quality measurements for channel={} day={}",
-					channel, getDay());
-			return NO_RESULT;
-		}
+    double averageQuality = 0.;
 
-		return averageQuality;
+    if (totalPoints > 0) {
+      averageQuality = (double) totalQuality / (double) totalPoints;
+    } else {
+      logger.warn(
+          "TimingQualityMetric: We have NO timing quality measurements for channel={} day={}",
+          channel, getDay());
+      return NO_RESULT;
+    }
 
-	} // end computeMetric()
+    return averageQuality;
+
+  } // end computeMetric()
 }

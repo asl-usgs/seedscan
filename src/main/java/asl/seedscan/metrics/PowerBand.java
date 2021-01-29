@@ -21,19 +21,19 @@ package asl.seedscan.metrics;
 
 public class PowerBand {
 
-	private final double low;
-	private final double high;
+  private final double low;
+  private final double high;
 
-	public PowerBand(double low, double high) {
-		this.low = low;
-		this.high = high;
-	}
+  public PowerBand(double low, double high) {
+    this.low = low;
+    this.high = high;
+  }
 
-	public double getLow() {
-		return low;
-	}
+  public double getLow() {
+    return low;
+  }
 
-	public double getHigh() {
-		return high;
-	}
+  public double getHigh() {
+    return high;
+  }
 }

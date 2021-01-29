@@ -70,7 +70,7 @@ public class MetaGenerator {
   /**
    * Look in datalessDir for all files of form XX.dataless where XX = network {II, IU, NE, etc.}
    *
-   * @param datalessDir path to dataless seed files, read from config.xml
+   * @param datalessDir   path to dataless seed files, read from config.xml
    * @param networkSubset the network subset to parse
    */
   public MetaGenerator(String datalessDir, String datalessFilePattern, List<String> networkSubset) {
@@ -295,14 +295,15 @@ public class MetaGenerator {
    * getStationMeta Calls getStationData to get the metadata for all epochs for this station, Then
    * scans through the epochs to find and return the requested epoch metadata.
    *
-   * @param station The station for which metadata is requested
+   * @param station   The station for which metadata is requested
    * @param timestamp The (epoch) timestamp for which metadata is requested
-   *
-   * ChannelData - Contains all Blockettes for a particular channel, for ALL epochs EpochData -
-   * Constains all Blockettes for a particular channel, for the REQUESTED epoch only. ChannelMeta -
-   * Our (minimal) internal format of the channel response. Contains the first 3 (0, 1, 2) response
-   * stages for the REQUESTED epoch only. ChannelMeta.setDayBreak() = true if we detect a change in
-   * metadata on the requested timestamp day.
+   *                  <p>
+   *                  ChannelData - Contains all Blockettes for a particular channel, for ALL epochs
+   *                  EpochData - Constains all Blockettes for a particular channel, for the
+   *                  REQUESTED epoch only. ChannelMeta - Our (minimal) internal format of the
+   *                  channel response. Contains the first 3 (0, 1, 2) response stages for the
+   *                  REQUESTED epoch only. ChannelMeta.setDayBreak() = true if we detect a change
+   *                  in metadata on the requested timestamp day.
    */
 
   public StationMeta getStationMeta(Station station, LocalDateTime timestamp) {

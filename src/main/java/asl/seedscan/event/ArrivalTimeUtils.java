@@ -13,7 +13,8 @@ public class ArrivalTimeUtils {
 
   private static final Logger logger = LoggerFactory.getLogger(ArrivalTimeUtils.class);
 
-  public static long getPArrivalTime(EventCMT eventCMT, StationMeta stationMeta, String callingMetric)
+  public static long getPArrivalTime(EventCMT eventCMT, StationMeta stationMeta,
+      String callingMetric)
       throws ArrivalTimeException {
     // we include the logger so we can figure out which metric is throwing up the error
     double eventLatitude = eventCMT.getLatitude();
@@ -54,6 +55,7 @@ public class ArrivalTimeUtils {
   }
 
   public static class ArrivalTimeException extends Exception {
+
     private static final long serialVersionUID = 6851116640460104395L;
 
     ArrivalTimeException(String message) {

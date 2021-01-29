@@ -17,7 +17,7 @@ public class Channel {
    * Instantiates a new channel.
    *
    * @param location the location
-   * @param channel the channel
+   * @param channel  the channel
    */
   public Channel(String location, String channel) {
     setLocation(location);
@@ -30,11 +30,11 @@ public class Channel {
 
   /**
    * Validates the Location Code as being either numbers or -- and 2 characters.
-   *
-   * Note that this does not validate to SEED Convention. Chapter 8 "Fixed Section of Data Header"<br>
-   * Seed Convention allows Upper Case and Numerals with left space justification.
-   * We do not permit this in DQA.
-   *
+   * <p>
+   * Note that this does not validate to SEED Convention. Chapter 8 "Fixed Section of Data
+   * Header"<br> Seed Convention allows Upper Case and Numerals with left space justification. We do
+   * not permit this in DQA.
+   * <p>
    * TODO: Determine what validation is actually required.
    *
    * @param location two character string
@@ -68,12 +68,11 @@ public class Channel {
   }
 
   /**
-   * Validates with instrument codes that Seedscan supports. EG Seismometers:
-   * H,L,G,M,N, and Other: D,F,I,K,R,W,C,E
-   *
-   * Note: I (James) am not sure who picked this list, but we should consider
-   * just allowing any valid code. Metrics can determine themselves if they
-   * work on a given type of instrument.
+   * Validates with instrument codes that Seedscan supports. EG Seismometers: H,L,G,M,N, and Other:
+   * D,F,I,K,R,W,C,E
+   * <p>
+   * Note: I (James) am not sure who picked this list, but we should consider just allowing any
+   * valid code. Metrics can determine themselves if they work on a given type of instrument.
    *
    * @param instrument 1 character Instrument Code
    * @return true if a valid instrument code false if not
@@ -88,9 +87,8 @@ public class Channel {
   }
 
   /**
-   * Returns true if the channelFlags indicate a continuous channel.
-   * If first char is C, it is continous.
-   * If it is only a G or H, then we guess it is continous.
+   * Returns true if the channelFlags indicate a continuous channel. If first char is C, it is
+   * continous. If it is only a G or H, then we guess it is continous.
    *
    * @param channelFlags Channel flags used to test for Continous
    * @return true if continuous, false otherwise
@@ -102,9 +100,8 @@ public class Channel {
 
   /**
    * Returns true if it is a derived channel
-   *
-   * Standard channels are exactly 3 characters EG LH1.
-   * Derived channels are more EG LHED
+   * <p>
+   * Standard channels are exactly 3 characters EG LH1. Derived channels are more EG LHED
    *
    * @return true if derived channel
    */
@@ -113,8 +110,7 @@ public class Channel {
   }
 
   /**
-   * Checks for valid seismometer orientation code.
-   * Doesn't allow ABC or TR.
+   * Checks for valid seismometer orientation code. Doesn't allow ABC or TR.
    *
    * @param orientation 1 character OrientationCode
    * @return true if valid false if invalid
@@ -167,9 +163,9 @@ public class Channel {
   }
 
   /**
-   * Returns a Channel that should be orthogonal to the input Channel.
-   * This channel may not exist or may not have data associated.
-   * If the channel is a combined channel EG LH1-LH1, it returns null.
+   * Returns a Channel that should be orthogonal to the input Channel. This channel may not exist or
+   * may not have data associated. If the channel is a combined channel EG LH1-LH1, it returns
+   * null.
    *
    * @return orthogonal Channel to this channel OR null if unable to determine one.
    */
@@ -241,8 +237,9 @@ public class Channel {
     }
     if (location == null) {
       return other.location == null;
-    } else
+    } else {
       return location.equals(other.location);
+    }
   }
 
   public String getLocation() {

@@ -16,14 +16,14 @@ public class ChannelArray {
    */
   public ChannelArray(Collection<Channel> channelsIn) {
     channels = new ArrayList<>();
-    for (Channel channel : channelsIn){
+    for (Channel channel : channelsIn) {
       channels.add(new Channel(channel.getLocation(), channel.getChannel()));
     }
   }
 
   /**
-   * Create triplet of Channels from Location Code and Channel Codes.
-   * Created channels will share the location.
+   * Create triplet of Channels from Location Code and Channel Codes. Created channels will share
+   * the location.
    *
    * @param location location code EG 00
    * @param channel1 channel code EG LH1
@@ -39,8 +39,8 @@ public class ChannelArray {
   }
 
   /**
-   * Create Channel Array with a single Channel.
-   * Used when testing individual channels for rotation in MetricData
+   * Create Channel Array with a single Channel. Used when testing individual channels for rotation
+   * in MetricData
    *
    * @param location location code EG 10
    * @param channel1 channel code EG LHED
@@ -52,8 +52,7 @@ public class ChannelArray {
   }
 
   /**
-   * Create pair of channels from Channel objects.
-   * Location may differ between Channels
+   * Create pair of channels from Channel objects. Location may differ between Channels
    *
    * @param channelA first Channel
    * @param channelB second Channel

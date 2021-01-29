@@ -9,10 +9,8 @@ import asl.util.Logging;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileNotFoundException;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.Arrays;
 import javax.xml.bind.JAXBException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,14 +29,14 @@ public class SeedScan {
   /**
    * The logger.
    */
-  private static Logger logger = LoggerFactory.getLogger(asl.seedscan.SeedScan.class);
+  private static final Logger logger = LoggerFactory.getLogger(asl.seedscan.SeedScan.class);
 
   /**
    * The main method for seedscan.
    *
    * @param args command line arguments.
    */
-  public static void main(String args[]) {
+  public static void main(String[] args) {
     /* Some components like JFreeChart try to behave like a GUI, this fixes
      that*/
     System.setProperty("java.awt.headless", "true");

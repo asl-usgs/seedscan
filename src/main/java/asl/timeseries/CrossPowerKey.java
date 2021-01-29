@@ -21,53 +21,58 @@ package asl.timeseries;
 import asl.metadata.Channel;
 
 public class CrossPowerKey {
-	private final String key;
 
-	public CrossPowerKey(Channel a, Channel b) {
-		String aKey = a.toString();
-		String bKey = b.toString();
-		if (aKey.compareTo(bKey) < 0) {
-			key = aKey + bKey;
-		} else {
-			key = bKey + aKey;
-		}
-	}
+  private final String key;
 
-	public String getKey() {
-		return key;
-	}
+  public CrossPowerKey(Channel a, Channel b) {
+    String aKey = a.toString();
+    String bKey = b.toString();
+    if (aKey.compareTo(bKey) < 0) {
+      key = aKey + bKey;
+    } else {
+      key = bKey + aKey;
+    }
+  }
 
-	@Override
-	public String toString() {
-		return key;
-	}
+  public String getKey() {
+    return key;
+  }
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#hashCode()
-	 */
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((key == null) ? 0 : key.hashCode());
-		return result;
-	}
+  @Override
+  public String toString() {
+    return key;
+  }
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (!(obj instanceof CrossPowerKey))
-			return false;
-		CrossPowerKey other = (CrossPowerKey) obj;
-		if (key == null) {
+  /* (non-Javadoc)
+   * @see java.lang.Object#hashCode()
+   */
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((key == null) ? 0 : key.hashCode());
+    return result;
+  }
+
+  /* (non-Javadoc)
+   * @see java.lang.Object#equals(java.lang.Object)
+   */
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (!(obj instanceof CrossPowerKey)) {
+      return false;
+    }
+    CrossPowerKey other = (CrossPowerKey) obj;
+    if (key == null) {
       return other.key == null;
-		} else
+    } else {
       return key.equals(other.key);
+    }
   }
 }

@@ -1,14 +1,5 @@
 package asl.seedscan.metrics;
 
-import asl.util.Logging;
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.nio.ByteBuffer;
-import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import asl.metadata.Channel;
 import asl.metadata.ChannelArray;
 import asl.plotmaker.PlotMaker2;
@@ -16,256 +7,258 @@ import asl.plotmaker.PlotMakerException;
 import asl.plotmaker.Trace;
 import asl.plotmaker.TraceException;
 import asl.timeseries.CrossPower;
+import asl.util.Logging;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.nio.ByteBuffer;
+import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CoherencePBM extends PowerBandMetric {
-	private static final Logger logger = LoggerFactory
-			.getLogger(asl.seedscan.metrics.CoherencePBM.class);
 
-	@Override
-	public long getVersion() {
-		return 1;
-	}
+  private static final Logger logger = LoggerFactory
+      .getLogger(asl.seedscan.metrics.CoherencePBM.class);
 
-	@Override
-	public String getBaseName() {
-		return "CoherencePBM";
-	}
+  @Override
+  public long getVersion() {
+    return 1;
+  }
 
-	private PlotMaker2 plotMaker = null;
+  @Override
+  public String getBaseName() {
+    return "CoherencePBM";
+  }
 
-	public CoherencePBM()
-	{
-		super();
-		addArgument("base-channel");
-	}
-	
-	public void process() {
-		logger.info("-Enter- [ Station {} ] [ Day {} ]", getStation(), getDay());
+  private PlotMaker2 plotMaker = null;
 
-		String station = getStation();
-		String day = getDay();
-		String metric = getName();
-		// completeCompute tracks if all results are computed this affects
-		// plotting.
-		boolean completeCompute = true;
+  public CoherencePBM() {
+    super();
+    addArgument("base-channel");
+  }
 
-		List<Channel> channels = stationMeta.getRotatableChannels();
-		String[] basechannel;
-		String basePreSplit = null;
-		try {
-			basePreSplit = get("base-channel");
-		} catch (NoSuchFieldException ignored) {
-		}
-		if(basePreSplit == null){
-			basePreSplit = "00-LH";
-			logger.info("No base channel for Coherence using: " + basePreSplit);
-		}
-		basechannel = basePreSplit.split("-");
+  public void process() {
+    logger.info("-Enter- [ Station {} ] [ Day {} ]", getStation(), getDay());
 
-		for(Channel channel : channels)
-		{	
-			String channelLoc = channel.toString().split("-")[0];
-			String channelVal = channel.toString().split("-")[1];
-			String regex = "^"+basechannel[1]+".*";
-			if(channelVal.matches(regex) && !channelLoc.equals(basechannel[0]) &&
-					weHaveChannels(basechannel[0], basechannel[1]) &&
-					weHaveChannels(channelLoc, basechannel[1]))
-			{
-				Channel channelX = new Channel(basechannel[0], channelVal);
-				Channel channelY = new Channel(channelLoc, channelVal);
-				
-				ChannelArray channelArray = new ChannelArray(channelX, channelY);
+    String station = getStation();
+    String day = getDay();
+    String metric = getName();
+    // completeCompute tracks if all results are computed this affects
+    // plotting.
+    boolean completeCompute = true;
 
-				ByteBuffer digest = metricData.valueDigestChanged(channelArray,
-						createIdentifier(channelX, channelY), getForceUpdate());
+    List<Channel> channels = stationMeta.getRotatableChannels();
+    String[] basechannel;
+    String basePreSplit = null;
+    try {
+      basePreSplit = get("base-channel");
+    } catch (NoSuchFieldException ignored) {
+    }
+    if (basePreSplit == null) {
+      basePreSplit = "00-LH";
+      logger.info("No base channel for Coherence using: " + basePreSplit);
+    }
+    basechannel = basePreSplit.split("-");
 
-				double srateX = metricData.getChannelData(channelX).get(0).getSampleRate();
-				double srateY = metricData.getChannelData(channelY).get(0).getSampleRate();
-				
-				if(srateX == srateY)
-				{
-					if (digest == null) { // means oldDigest == newDigest and we don't
-						// need to recompute the metric
-						logger.info(
-								"Digest unchanged station:[{}] day:[{}] channelX=[{}] channelY=[{}]--> Skip metric",
-								getStation(), getDay(), channelX, channelY);
-						completeCompute = false;
-						continue;
-					}
-	
-					try { // computeMetric (MetricException)
-						double result = computeMetric(channelX, channelY, station, day,
-								metric);
-						if (result != NO_RESULT) {
-							metricResult.addResult(channelX, channelY, result, digest);
-						}
-					} catch (MetricException | TraceException | PlotMakerException e) {
-						logger.error(Logging.prettyExceptionWithCause(e));
-					}
+    for (Channel channel : channels) {
+      String channelLoc = channel.toString().split("-")[0];
+      String channelVal = channel.toString().split("-")[1];
+      String regex = "^" + basechannel[1] + ".*";
+      if (channelVal.matches(regex) && !channelLoc.equals(basechannel[0]) &&
+          weHaveChannels(basechannel[0], basechannel[1]) &&
+          weHaveChannels(channelLoc, basechannel[1])) {
+        Channel channelX = new Channel(basechannel[0], channelVal);
+        Channel channelY = new Channel(channelLoc, channelVal);
 
-				}
-				else
-				{
-					logger.info("computePSD(): srateX = {} != srateY = {}", srateX, srateY);
-					completeCompute = false; 
-					continue; 
-				}
-	
-				if (getMakePlots() && completeCompute) {
-					final String pngName = String.format("%s.%s.png", getOutputDir(),
-							"coher");
-					plotMaker.writePlot(pngName);
-				}
-			}
-		}
-		
-	} // end process()
+        ChannelArray channelArray = new ChannelArray(channelX, channelY);
 
-	@Override
-	public String getSimpleDescription() {
-		return "Computes the coherence between two channels' PSDs over the given period range (s)";
-	}
+        ByteBuffer digest = metricData.valueDigestChanged(channelArray,
+            createIdentifier(channelX, channelY), getForceUpdate());
 
-	@Override
-	public String getLongDescription() {
-		return "This metric computes the full-day PSD and cross-power between two matching channels at "
-				+ "different  locations (i.e., 00-LHZ vs. 10-LHZ) over the specified period range "
-				+ "(in seconds). The formula for coherence is P_ab^2 / (P_aa * P_bb), where the subscripts "
-				+ "represent which sensors are inputted into the cross-power function. This coherence "
-				+ "result is what is published for the metric. Data sample rates must match.";
-	}
+        double srateX = metricData.getChannelData(channelX).get(0).getSampleRate();
+        double srateY = metricData.getChannelData(channelY).get(0).getSampleRate();
 
-	private double computeMetric(Channel channelX, Channel channelY,
-			String station, String day, String metric) throws MetricException,
-			PlotMakerException, TraceException {
-		// Compute/Get the 1-sided psd[f] using Peterson's algorithm (24 hrs, 13
-		// segments, etc.)
+        if (srateX == srateY) {
+          if (digest == null) { // means oldDigest == newDigest and we don't
+            // need to recompute the metric
+            logger.info(
+                "Digest unchanged station:[{}] day:[{}] channelX=[{}] channelY=[{}]--> Skip metric",
+                getStation(), getDay(), channelX, channelY);
+            completeCompute = false;
+            continue;
+          }
 
-		CrossPower crossPower = getCrossPower(channelX, channelX);
-		double[] Gxx = crossPower.getSpectrum();
-		double dfX = crossPower.getSpectrumDeltaF();
+          try { // computeMetric (MetricException)
+            double result = computeMetric(channelX, channelY, station, day,
+                metric);
+            if (result != NO_RESULT) {
+              metricResult.addResult(channelX, channelY, result, digest);
+            }
+          } catch (MetricException | TraceException | PlotMakerException e) {
+            logger.error(Logging.prettyExceptionWithCause(e));
+          }
 
-		crossPower = getCrossPower(channelY, channelY);
-		double[] Gyy = crossPower.getSpectrum();
-		double dfY = crossPower.getSpectrumDeltaF();
+        } else {
+          logger.info("computePSD(): srateX = {} != srateY = {}", srateX, srateY);
+          completeCompute = false;
+          continue;
+        }
 
-		crossPower = getCrossPower(channelX, channelY);
-		double[] Gxy = crossPower.getSpectrum();
+        if (getMakePlots() && completeCompute) {
+          final String pngName = String.format("%s.%s.png", getOutputDir(),
+              "coher");
+          plotMaker.writePlot(pngName);
+        }
+      }
+    }
 
-		if (dfX != dfY) { // Oops - spectra have different frequency sampling!
-			throw new MetricException(String
-					.format("station=[%s] channelX[%s] channelY=[%s] day=[%s]: "
-									+ "dfX != dfY --> Can't continue\n",
-							station, channelX, channelY, day));
-		}
+  } // end process()
 
-		if (Gxx.length != Gyy.length || Gxx.length != Gxy.length) { // Something's
-			// wrong ...
-			throw new MetricException(String
-					.format("station=[%s] channelX=[%s] channelY=[%s] day=[%s]: "
-									+ "Gxx.length != Gyy.length --> Can't continue\n",
-							station, channelX, channelY, day));
-		}
-		// nf = number of positive frequencies + DC (nf = nfft/2 + 1, [f: 0, df,
-		// 2df, ...,nfft/2*df] )
-		int nf = Gxx.length;
-		double freq[] = new double[nf];
-		double gamma[] = new double[nf];
+  @Override
+  public String getSimpleDescription() {
+    return "Computes the coherence between two channels' PSDs over the given period range (s)";
+  }
 
-		// Compute gamma[f] and fill freq array
-		for (int k = 0; k < nf; k++) {
-			freq[k] = (double) k * dfX;
-			gamma[k] = (Gxy[k] * Gxy[k]) / (Gxx[k] * Gyy[k]);
-			gamma[k] = Math.sqrt(gamma[k]);
-		}
-		gamma[0] = 0;
-		// Timeseries.timeoutXY(freq, gamma, "Gamma");
-		// Timeseries.timeoutXY(freq, Gxx, "Gxx");
-		// Timeseries.timeoutXY(freq, Gyy, "Gyy");
-		// Timeseries.timeoutXY(freq, Gxy, "Gxy");
+  @Override
+  public String getLongDescription() {
+    return "This metric computes the full-day PSD and cross-power between two matching channels at "
+        + "different  locations (i.e., 00-LHZ vs. 10-LHZ) over the specified period range "
+        + "(in seconds). The formula for coherence is P_ab^2 / (P_aa * P_bb), where the subscripts "
+        + "represent which sensors are inputted into the cross-power function. This coherence "
+        + "result is what is published for the metric. Data sample rates must match.";
+  }
 
-		// Convert gamma[f] to gamma[T]
-		// Reverse freq[] --> per[] where per[0]=shortest T and
-		// per[nf-2]=longest T:
+  private double computeMetric(Channel channelX, Channel channelY,
+      String station, String day, String metric) throws MetricException,
+      PlotMakerException, TraceException {
+    // Compute/Get the 1-sided psd[f] using Peterson's algorithm (24 hrs, 13
+    // segments, etc.)
 
-		double[] per = new double[nf];
-		double[] gammaPer = new double[nf];
+    CrossPower crossPower = getCrossPower(channelX, channelX);
+    double[] Gxx = crossPower.getSpectrum();
+    double dfX = crossPower.getSpectrumDeltaF();
 
-		// per[nf-1] = 1/freq[0] = 1/0 = inf --> set manually:
-		per[nf - 1] = 0;
-		for (int k = 0; k < nf - 1; k++) {
-			per[k] = 1. / freq[nf - k - 1];
-			gammaPer[k] = gamma[nf - k - 1];
-		}
-		double Tmin = per[0]; // Should be = 1/fNyq = 2/fs = 0.1 for fs=20Hz
-		double Tmax = per[nf - 2]; // Should be = 1/df = Ndt
+    crossPower = getCrossPower(channelY, channelY);
+    double[] Gyy = crossPower.getSpectrum();
+    double dfY = crossPower.getSpectrumDeltaF();
 
-		PowerBand band = getPowerBand();
-		double lowPeriod = band.getLow();
-		double highPeriod = band.getHigh();
+    crossPower = getCrossPower(channelX, channelY);
+    double[] Gxy = crossPower.getSpectrum();
 
-		if (!checkPowerBand(lowPeriod, highPeriod, Tmin, Tmax)) {
-			logger.info(
-					"{} powerBand Error: Skipping channel:{} day:{}",
-					getName(), channelX, getDay());
-			return NO_RESULT;
-		}
+    if (dfX != dfY) { // Oops - spectra have different frequency sampling!
+      throw new MetricException(String
+          .format("station=[%s] channelX[%s] channelY=[%s] day=[%s]: "
+                  + "dfX != dfY --> Can't continue\n",
+              station, channelX, channelY, day));
+    }
 
-		// Compute average Coherence within the requested period band:
-		double averageValue = 0;
-		int nPeriods = 0;
-		for (int k = 0; k < per.length; k++) {
-			if (per[k] > highPeriod) {
-				break;
-			} else if (per[k] >= lowPeriod) {
-				averageValue += gammaPer[k];
-				nPeriods++;
-			}
-		}
+    if (Gxx.length != Gyy.length || Gxx.length != Gxy.length) { // Something's
+      // wrong ...
+      throw new MetricException(String
+          .format("station=[%s] channelX=[%s] channelY=[%s] day=[%s]: "
+                  + "Gxx.length != Gyy.length --> Can't continue\n",
+              station, channelX, channelY, day));
+    }
+    // nf = number of positive frequencies + DC (nf = nfft/2 + 1, [f: 0, df,
+    // 2df, ...,nfft/2*df] )
+    int nf = Gxx.length;
+    double[] freq = new double[nf];
+    double[] gamma = new double[nf];
 
-		if (nPeriods == 0) {
-			throw new MetricException(String
-					.format("station=[%s] channelX=[%s] channelY=[%s] day=[%s]: "
-									+ "Requested band [%f - %f] contains NO periods --> divide by zero!\n",
-							station, channelX, channelY, day, lowPeriod,
-							highPeriod));
-		}
-		averageValue /= (double) nPeriods;
+    // Compute gamma[f] and fill freq array
+    for (int k = 0; k < nf; k++) {
+      freq[k] = (double) k * dfX;
+      gamma[k] = (Gxy[k] * Gxy[k]) / (Gxx[k] * Gyy[k]);
+      gamma[k] = Math.sqrt(gamma[k]);
+    }
+    gamma[0] = 0;
+    // Timeseries.timeoutXY(freq, gamma, "Gamma");
+    // Timeseries.timeoutXY(freq, Gxx, "Gxx");
+    // Timeseries.timeoutXY(freq, Gyy, "Gyy");
+    // Timeseries.timeoutXY(freq, Gxy, "Gxy");
 
-		if (getMakePlots()) { // Output files like 2012160.IU_ANMO.00-LHZ.png =
-			// psd
+    // Convert gamma[f] to gamma[T]
+    // Reverse freq[] --> per[] where per[0]=shortest T and
+    // per[nf-2]=longest T:
 
-			if (plotMaker == null) {
-				String plotTitle = String.format("%04d%03d [ %s ] Coherence",
-						metricResult.getDate().getYear(), metricResult
-								.getDate().getDayOfYear(),
-						metricResult.getStation());
-				plotMaker = new PlotMaker2(plotTitle);
-				plotMaker.initialize3Panels();
-			}
-			int iPanel = 0;
-			Color color = Color.red;
+    double[] per = new double[nf];
+    double[] gammaPer = new double[nf];
 
-			BasicStroke stroke = new BasicStroke(2.0f);
+    // per[nf-1] = 1/freq[0] = 1/0 = inf --> set manually:
+    per[nf - 1] = 0;
+    for (int k = 0; k < nf - 1; k++) {
+      per[k] = 1. / freq[nf - k - 1];
+      gammaPer[k] = gamma[nf - k - 1];
+    }
+    double Tmin = per[0]; // Should be = 1/fNyq = 2/fs = 0.1 for fs=20Hz
+    double Tmax = per[nf - 2]; // Should be = 1/df = Ndt
 
-			switch (channelX.getChannel()) {
-				case "LHZ":
-					iPanel = 0;
-					break;
-				case "LHND":
-					iPanel = 1;
-					break;
-				case "LHED":
-					iPanel = 2;
-					break;
-			}
+    PowerBand band = getPowerBand();
+    double lowPeriod = band.getLow();
+    double highPeriod = band.getHigh();
 
-			String channelLabel = MetricResult.createResultId(channelX,
-					channelY);
-			plotMaker.addTraceToPanel(new Trace(per, gammaPer,
-						channelLabel, color, stroke), iPanel);
-		}
+    if (!checkPowerBand(lowPeriod, highPeriod, Tmin, Tmax)) {
+      logger.info(
+          "{} powerBand Error: Skipping channel:{} day:{}",
+          getName(), channelX, getDay());
+      return NO_RESULT;
+    }
 
-		return averageValue;
-	} // end computeMetric()
+    // Compute average Coherence within the requested period band:
+    double averageValue = 0;
+    int nPeriods = 0;
+    for (int k = 0; k < per.length; k++) {
+      if (per[k] > highPeriod) {
+        break;
+      } else if (per[k] >= lowPeriod) {
+        averageValue += gammaPer[k];
+        nPeriods++;
+      }
+    }
+
+    if (nPeriods == 0) {
+      throw new MetricException(String
+          .format("station=[%s] channelX=[%s] channelY=[%s] day=[%s]: "
+                  + "Requested band [%f - %f] contains NO periods --> divide by zero!\n",
+              station, channelX, channelY, day, lowPeriod,
+              highPeriod));
+    }
+    averageValue /= nPeriods;
+
+    if (getMakePlots()) { // Output files like 2012160.IU_ANMO.00-LHZ.png =
+      // psd
+
+      if (plotMaker == null) {
+        String plotTitle = String.format("%04d%03d [ %s ] Coherence",
+            metricResult.getDate().getYear(), metricResult
+                .getDate().getDayOfYear(),
+            metricResult.getStation());
+        plotMaker = new PlotMaker2(plotTitle);
+        plotMaker.initialize3Panels();
+      }
+      int iPanel = 0;
+      Color color = Color.red;
+
+      BasicStroke stroke = new BasicStroke(2.0f);
+
+      switch (channelX.getChannel()) {
+        case "LHZ":
+          iPanel = 0;
+          break;
+        case "LHND":
+          iPanel = 1;
+          break;
+        case "LHED":
+          iPanel = 2;
+          break;
+      }
+
+      String channelLabel = MetricResult.createResultId(channelX,
+          channelY);
+      plotMaker.addTraceToPanel(new Trace(per, gammaPer,
+          channelLabel, color, stroke), iPanel);
+    }
+
+    return averageValue;
+  } // end computeMetric()
 } // end class

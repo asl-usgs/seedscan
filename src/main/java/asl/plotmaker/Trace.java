@@ -26,48 +26,49 @@ import java.awt.Stroke;
  * @author Mike Hagerty hagertmb@bc.edu
  */
 public class Trace {
-	private final double[] xdata;
-	private final double[] ydata;
-	private final String traceName;
-	private final Color traceColor;
-	private final Stroke stroke;
 
-	// constructor(s)
-	public Trace(double[] x, double[] y, String name, Color color, Stroke stroke)
-			throws TraceException {
-		if (x.length <= 0 || y.length <= 0) {
-			throw new TraceException("Either x[] or y[] is empty!");
-		}
-		if (x.length != y.length) {
-			throw new TraceException("x.length != y.length !");
-		}
-		this.xdata = new double[x.length];
-		System.arraycopy(x, 0, this.xdata, 0, x.length);
-		this.ydata = new double[y.length];
-		System.arraycopy(y, 0, this.ydata, 0, y.length);
-		this.traceColor = color;
-		this.traceName = name;
-		this.stroke = stroke;
-	}
+  private final double[] xdata;
+  private final double[] ydata;
+  private final String traceName;
+  private final Color traceColor;
+  private final Stroke stroke;
 
-	public String getName() {
-		return traceName;
-	}
+  // constructor(s)
+  public Trace(double[] x, double[] y, String name, Color color, Stroke stroke)
+      throws TraceException {
+    if (x.length <= 0 || y.length <= 0) {
+      throw new TraceException("Either x[] or y[] is empty!");
+    }
+    if (x.length != y.length) {
+      throw new TraceException("x.length != y.length !");
+    }
+    this.xdata = new double[x.length];
+    System.arraycopy(x, 0, this.xdata, 0, x.length);
+    this.ydata = new double[y.length];
+    System.arraycopy(y, 0, this.ydata, 0, y.length);
+    this.traceColor = color;
+    this.traceName = name;
+    this.stroke = stroke;
+  }
 
-	public Color getColor() {
-		return traceColor;
-	}
+  public String getName() {
+    return traceName;
+  }
 
-	public Stroke getStroke() {
-		return stroke;
-	}
+  public Color getColor() {
+    return traceColor;
+  }
 
-	public double[] getxData() {
-		return xdata;
-	}
+  public Stroke getStroke() {
+    return stroke;
+  }
 
-	public double[] getyData() {
-		return ydata;
-	}
+  public double[] getxData() {
+    return xdata;
+  }
+
+  public double[] getyData() {
+    return ydata;
+  }
 
 }

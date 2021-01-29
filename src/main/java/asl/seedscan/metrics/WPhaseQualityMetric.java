@@ -16,6 +16,8 @@ import asl.timeseries.CrossPower;
 import asl.timeseries.InterpolatedNHNM;
 import asl.utils.NumericUtils;
 import edu.sc.seis.TauP.SphericalCoords;
+import edu.sc.seis.seisFile.sac.SacHeader;
+import edu.sc.seis.seisFile.sac.SacTimeSeries;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,20 +34,16 @@ import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import edu.sc.seis.seisFile.sac.SacHeader;
-import edu.sc.seis.seisFile.sac.SacTimeSeries;
 
 /**
- * Calculates the quality of data relative to an event if it is a feasible candidate for
- * use in synthetic generation. This performs several of the prescreening steps as specified
- * in Duputel, Rivera, Kanamori, Hayes (2012), "W phase source inversion for
- * moderate to large earthquakes", Geophysical Journal International.
- * The methods are taken from section 3.2 in particular.
- *
- * In addition, response inversion is performed by a recursive method specified in
- * Kanamori and Rivera (2008), "Source inversion of W-Phase: speeding up seismic tsunami warning",
- * Geophysical Journal International.
- *
+ * Calculates the quality of data relative to an event if it is a feasible candidate for use in
+ * synthetic generation. This performs several of the prescreening steps as specified in Duputel,
+ * Rivera, Kanamori, Hayes (2012), "W phase source inversion for moderate to large earthquakes",
+ * Geophysical Journal International. The methods are taken from section 3.2 in particular.
+ * <p>
+ * In addition, response inversion is performed by a recursive method specified in Kanamori and
+ * Rivera (2008), "Source inversion of W-Phase: speeding up seismic tsunami warning", Geophysical
+ * Journal International.
  */
 public class WPhaseQualityMetric extends Metric {
 
@@ -113,7 +111,7 @@ public class WPhaseQualityMetric extends Metric {
       basePreSplit = "XX-LX";
       logger.info("No base channel for W Phase Quality, using: " + basePreSplit);
     }
-    String [] basechannel = basePreSplit.split("-");
+    String[] basechannel = basePreSplit.split("-");
 
     List<Channel> channels = stationMeta.getRotatableChannels();
     List<Channel> validChannels = new LinkedList<>();
@@ -142,7 +140,7 @@ public class WPhaseQualityMetric extends Metric {
       }
     }
 
-    if (validChannels.size() == 0){
+    if (validChannels.size() == 0) {
       // Bail, no valid channels.
       return;
     }
@@ -160,7 +158,8 @@ public class WPhaseQualityMetric extends Metric {
       return;
     }
 
-    Map<ChannelKey, ResultIncrementer> results = computeMetric(validChannels, eventCMTs, basechannel);
+    Map<ChannelKey, ResultIncrementer> results = computeMetric(validChannels, eventCMTs,
+        basechannel);
     for (ChannelKey channelKey : results.keySet()) {
       Channel channel = channelKey.toChannel();
 
@@ -193,7 +192,7 @@ public class WPhaseQualityMetric extends Metric {
   }
 
   private Map<ChannelKey, ResultIncrementer> computeMetric(Collection<Channel> channels,
-      Hashtable<String, EventCMT> eventCMTs, String[] basechannel){
+      Hashtable<String, EventCMT> eventCMTs, String[] basechannel) {
 
     // the logic in this method is a bit weird because we have a series of filtering operations
     // that remove some data a couple steps into the operation -- and then have to do a test
@@ -423,11 +422,12 @@ public class WPhaseQualityMetric extends Metric {
   }
 
   /**
-   * Ensure that the crosspower for the data meets the noise screening requirements (i.e.,
-   * data is overall lower than the NHNM from the range 1mHz, 10mHz range).
-   * If the value is positive then the noise screening is considered failed.
+   * Ensure that the crosspower for the data meets the noise screening requirements (i.e., data is
+   * overall lower than the NHNM from the range 1mHz, 10mHz range). If the value is positive then
+   * the noise screening is considered failed.
+   *
    * @param psd PSD data over (positive) frequency range (index 0 = 0Hz)
-   * @param df Change in frequency between PSD values
+   * @param df  Change in frequency between PSD values
    * @return Total difference between PSD and NHNM over frequency range
    */
   static double passesPSDNoiseScreening(double[] psd, double df) {
@@ -440,7 +440,7 @@ public class WPhaseQualityMetric extends Metric {
     upperBound = Math.min(upperBound, psd.length);
     psd = Arrays.copyOfRange(psd, lowerBound, upperBound);
     double[] freqs = new double[upperBound - lowerBound];
-    assert(psd.length == freqs.length);
+    assert (psd.length == freqs.length);
     for (int i = lowerBound; i < upperBound; ++i) {
       int arrayIndex = i - lowerBound;
       freqs[arrayIndex] = df * i;
@@ -464,11 +464,12 @@ public class WPhaseQualityMetric extends Metric {
   }
 
   /**
-   * Perform the misfit screening step as described in Duputel, Rivera, et. al (2012).
-   * Sum of squared difference between the synth and corrected sensor traces divided by the
-   * sum of squared synth data points. Returns false if this value is < 3.
-   * Will return true if the synthetic data is 0., though this is not an expected input.
-   * @param synthData Synthetic data derived from event specification
+   * Perform the misfit screening step as described in Duputel, Rivera, et. al (2012). Sum of
+   * squared difference between the synth and corrected sensor traces divided by the sum of squared
+   * synth data points. Returns false if this value is < 3. Will return true if the synthetic data
+   * is 0., though this is not an expected input.
+   *
+   * @param synthData   Synthetic data derived from event specification
    * @param channelData Processed (filtered) channel data over the given range.
    * @return True if the synthetic data is within our expected error range.
    */
@@ -477,11 +478,12 @@ public class WPhaseQualityMetric extends Metric {
   }
 
   /**
-   * Perform the misfit screening step as described in Duputel, Rivera, et. al (2012).
-   * Sum of squared difference between the synth and corrected sensor traces divided by the
-   * sum of squared synth data points. Returns false if this value is < 3.
-   * Will return true if the synthetic data is 0., though this is not an expected input.
-   * @param synthData Synthetic data derived from event specification
+   * Perform the misfit screening step as described in Duputel, Rivera, et. al (2012). Sum of
+   * squared difference between the synth and corrected sensor traces divided by the sum of squared
+   * synth data points. Returns false if this value is < 3. Will return true if the synthetic data
+   * is 0., though this is not an expected input.
+   *
+   * @param synthData   Synthetic data derived from event specification
    * @param channelData Processed (filtered) channel data over the given range.
    * @return True if the synthetic data is within our expected error range.
    */
@@ -498,10 +500,11 @@ public class WPhaseQualityMetric extends Metric {
   }
 
   /**
-   * Perform trapezoid integration on set of data with equal space.
-   * Meant to match CUMTRAPZ functions in matlab or numpy
+   * Perform trapezoid integration on set of data with equal space. Meant to match CUMTRAPZ
+   * functions in matlab or numpy
+   *
    * @param toIntegrate Y values of some function
-   * @param deltaT spacing between each value
+   * @param deltaT      spacing between each value
    * @return integrated function by trapezoid rule
    */
   static double[] performIntegrationByTrapezoid(double[] toIntegrate, double deltaT) {
@@ -509,18 +512,19 @@ public class WPhaseQualityMetric extends Metric {
     integration[0] = 0;
     for (int i = 1; i < integration.length; ++i) {
       // cumulative sum plus the function of linear slope between
-      integration[i] = integration[i-1] + deltaT * ((toIntegrate[i] + toIntegrate[i-1]) / (2));
+      integration[i] = integration[i - 1] + deltaT * ((toIntegrate[i] + toIntegrate[i - 1]) / (2));
     }
     return integration;
   }
 
   /**
-   * Produces a response filter in the time domain given a channel's timeseries data.
-   * Derived from formula given in Kanamori and Rivera (2008).
-   * @param y Timeseries data
-   * @param deltaT Sample interval of data (seconds)
+   * Produces a response filter in the time domain given a channel's timeseries data. Derived from
+   * formula given in Kanamori and Rivera (2008).
+   *
+   * @param y          Timeseries data
+   * @param deltaT     Sample interval of data (seconds)
    * @param cornerFreq Corner frequency of response (for matching to closest nominal of 120 or 360)
-   * @param gain Gain value taken from sensitivity of resp (stage 0 gain)
+   * @param gain       Gain value taken from sensitivity of resp (stage 0 gain)
    * @return Timeseries data with response deconvolution done
    */
   static double[] getRecursiveFilter(double[] y, double deltaT, double cornerFreq, double gain) {
@@ -530,13 +534,13 @@ public class WPhaseQualityMetric extends Metric {
     // corner frequencies are expected to be either 120 or 360
     double w = Math.abs(CORNER_FREQ_120 - cornerFreq) < Math.abs(CORNER_FREQ_360 - cornerFreq) ?
         CORNER_FREQ_120 : CORNER_FREQ_360;
-    double c0 = 1/(gain * deltaT);
+    double c0 = 1 / (gain * deltaT);
     double c1 = -2 * (1 + (h * w * deltaT)) / (gain * deltaT);
     double c2 = (1 + 2 * h * w * deltaT + Math.pow(w * deltaT, 2)) / (gain * deltaT);
     // based on the algorithm described in Kanamori, Rivera 2008 about phase inversion
     // first two values are fixed at 0
     for (int i = 2; i < length; ++i) {
-      filter[i] = filter[i-2] + c0 * y[i-2] + c1 * y[i-1] + c2 * y[i];
+      filter[i] = filter[i - 2] + c0 * y[i - 2] + c1 * y[i - 1] + c2 * y[i];
     }
 
     return filter;
@@ -544,23 +548,25 @@ public class WPhaseQualityMetric extends Metric {
 
   /**
    * Returns true if response-derived damping and corner frequency are within the acceptable error
-   * bound {@link #PERCENT_CUTOFF} of nominal responses.
-   * The values are respectively compared to {@link #DAMPING_CONSTANT} and
-   * either {@link #CORNER_FREQ_120} or {@link #CORNER_FREQ_360} as appropriate.
+   * bound {@link #PERCENT_CUTOFF} of nominal responses. The values are respectively compared to
+   * {@link #DAMPING_CONSTANT} and either {@link #CORNER_FREQ_120} or {@link #CORNER_FREQ_360} as
+   * appropriate.
+   *
    * @param w Corner frequency derived from response
    * @param h Damping value derived from response
    * @return True if the values are within the acceptable error compared to the nominal values.
    */
   static boolean passesResponseCheck(double w, double h) {
     double hError = 100 * Math.abs(h - DAMPING_CONSTANT) / Math.abs(DAMPING_CONSTANT);
-    double wError120 =  100 * Math.abs(w - CORNER_FREQ_120) / Math.abs(CORNER_FREQ_120);
-    double wError360 =  100 * Math.abs(w - CORNER_FREQ_360) / Math.abs(CORNER_FREQ_360);
+    double wError120 = 100 * Math.abs(w - CORNER_FREQ_120) / Math.abs(CORNER_FREQ_120);
+    double wError360 = 100 * Math.abs(w - CORNER_FREQ_360) / Math.abs(CORNER_FREQ_360);
     // make sure both freq and damping are within error threshold
     return hError < PERCENT_CUTOFF && (wError120 < PERCENT_CUTOFF || wError360 < PERCENT_CUTOFF);
   }
 
   /**
    * Derive the corner frequency and damping from the channel's response's first pole and zero.
+   *
    * @param channelMeta metadata for the channel under analysis
    * @return Pair with the corner frequency and damping parameters as first and second value
    */
@@ -588,6 +594,7 @@ public class WPhaseQualityMetric extends Metric {
 
   /**
    * Get the interpolated NHNM over a set of frequencies for PSD comparison
+   *
    * @param frequencies Range of PSD frequencies to compare with NHNM
    * @return NHNM values evaluated at each frequency
    */
@@ -604,8 +611,10 @@ public class WPhaseQualityMetric extends Metric {
   }
 
   private class ResultIncrementer {
+
     private int numerator;
     private int denominator;
+
     public ResultIncrementer() {
       numerator = 0;
       denominator = 0;
@@ -615,9 +624,11 @@ public class WPhaseQualityMetric extends Metric {
       ++numerator;
       ++denominator;
     }
+
     public void addInvalidCase() {
       ++denominator;
     }
+
     public double getResult() {
       if (denominator == 0) {
         return NO_RESULT;

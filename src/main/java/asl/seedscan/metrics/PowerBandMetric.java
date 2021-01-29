@@ -22,78 +22,80 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class PowerBandMetric extends Metric {
-	private static final Logger logger = LoggerFactory
-			.getLogger(asl.seedscan.metrics.PowerBandMetric.class);
 
-	public PowerBandMetric() {
-		super();
-		addArgument("lower-limit");
-		addArgument("upper-limit");
-	}
+  private static final Logger logger = LoggerFactory
+      .getLogger(asl.seedscan.metrics.PowerBandMetric.class);
 
-	public final PowerBand getPowerBand() {
-		PowerBand band = null;
-		try {
-			band = new PowerBand(Double.parseDouble(get("lower-limit")),
-					Double.parseDouble(get("upper-limit")));
-		} catch (NoSuchFieldException ex) {
-			logger.error("NoSuchFieldException:", ex);
-		}
-		return band;
-	}
+  public PowerBandMetric() {
+    super();
+    addArgument("lower-limit");
+    addArgument("upper-limit");
+  }
 
-	protected abstract String getBaseName();
+  public final PowerBand getPowerBand() {
+    PowerBand band = null;
+    try {
+      band = new PowerBand(Double.parseDouble(get("lower-limit")),
+          Double.parseDouble(get("upper-limit")));
+    } catch (NoSuchFieldException ex) {
+      logger.error("NoSuchFieldException:", ex);
+    }
+    return band;
+  }
 
-	public final String getName() {
-		PowerBand band = getPowerBand();
-		// This gives a runtime error: I think it will left-justify by default
-		// anyway ...
-		// return getBaseName() + String.format("-%0.6f-%0.6f", band.getLow(),
-		// band.getHigh());
-		return getBaseName()
-				+ String.format(":%s-%s", smartNumberFormat(band.getLow(), 6),
-						smartNumberFormat(band.getHigh(), 6));
-	}
+  protected abstract String getBaseName();
 
-	private static String smartNumberFormat(double value, int precision) {
-		String formatted;
-		formatted = String.format(String.format("%%.%df", precision), value);
-		int clipCount = 0;
-		for (int i = formatted.length() - 1; i >= 0; i--) {
-			char c = formatted.charAt(i);
-			if (c == '0') {
-				clipCount++;
-			} else {
-				if (c == '.') {
-					clipCount++;
-				}
-				break;
-			}
-		}
-		if (clipCount > 0) {
-			formatted = formatted.substring(0, formatted.length() - clipCount);
-		}
-		return formatted;
-	}
+  public final String getName() {
+    PowerBand band = getPowerBand();
+    // This gives a runtime error: I think it will left-justify by default
+    // anyway ...
+    // return getBaseName() + String.format("-%0.6f-%0.6f", band.getLow(),
+    // band.getHigh());
+    return getBaseName()
+        + String.format(":%s-%s", smartNumberFormat(band.getLow(), 6),
+        smartNumberFormat(band.getHigh(), 6));
+  }
 
-	protected static boolean checkPowerBand(double lowPeriod,
-			double highPeriod, double Tmin, double Tmax) {
+  private static String smartNumberFormat(double value, int precision) {
+    String formatted;
+    formatted = String.format(String.format("%%.%df", precision), value);
+    int clipCount = 0;
+    for (int i = formatted.length() - 1; i >= 0; i--) {
+      char c = formatted.charAt(i);
+      if (c == '0') {
+        clipCount++;
+      } else {
+        if (c == '.') {
+          clipCount++;
+        }
+        break;
+      }
+    }
+    if (clipCount > 0) {
+      formatted = formatted.substring(0, formatted.length() - clipCount);
+    }
+    return formatted;
+  }
 
-		if (lowPeriod >= highPeriod) {
-			logger.warn(String
-					.format("checkPowerBand: Requested band [%f - %f] has lowPeriod >= highPeriod\n",
-							lowPeriod, highPeriod));
-			return false;
-		}
-		// Make sure that we only compare to Noise Model within the range of
-		// useable periods/frequencies for this channel
-		if (lowPeriod < Tmin || highPeriod > Tmax) {
+  protected static boolean checkPowerBand(double lowPeriod,
+      double highPeriod, double Tmin, double Tmax) {
 
-			logger.warn("checkPowerBand: Requested band [{} - {}] lies outside channel's Useable band [{} - {}]",
-							lowPeriod, highPeriod, Tmin, Tmax);
-			return false;
-		}
+    if (lowPeriod >= highPeriod) {
+      logger.warn(String
+          .format("checkPowerBand: Requested band [%f - %f] has lowPeriod >= highPeriod\n",
+              lowPeriod, highPeriod));
+      return false;
+    }
+    // Make sure that we only compare to Noise Model within the range of
+    // useable periods/frequencies for this channel
+    if (lowPeriod < Tmin || highPeriod > Tmax) {
 
-		return true;
-	}
+      logger.warn(
+          "checkPowerBand: Requested band [{} - {}] lies outside channel's Useable band [{} - {}]",
+          lowPeriod, highPeriod, Tmin, Tmax);
+      return false;
+    }
+
+    return true;
+  }
 }

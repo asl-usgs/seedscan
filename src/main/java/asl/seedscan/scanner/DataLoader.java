@@ -32,8 +32,8 @@ public abstract class DataLoader {
   // Class to assign seedplitter object and seedsplitter table
   private static class SplitterObject {
 
-    private SeedSplitter splitter;
-    private Hashtable<String, ArrayList<DataSet>> table;
+    private final SeedSplitter splitter;
+    private final Hashtable<String, ArrayList<DataSet>> table;
 
     private SplitterObject(SeedSplitter splitter, Hashtable<String, ArrayList<DataSet>> table) {
       this.splitter = splitter;
@@ -44,7 +44,7 @@ public abstract class DataLoader {
   // Class to run Future task (seedplitter.doInBackground())
   private static class Task implements Callable<Hashtable<String, ArrayList<DataSet>>> {
 
-    private SeedSplitter splitter;
+    private final SeedSplitter splitter;
 
     private Task(SeedSplitter splitter) {
       this.splitter = splitter;
@@ -58,8 +58,7 @@ public abstract class DataLoader {
   }
 
   /**
-   * SeedSplitter function: processing times greater than 3 min. will move to
-   * the next day
+   * SeedSplitter function: processing times greater than 3 min. will move to the next day
    */
   private static SplitterObject executeSplitter(File[] files, int timeout, LocalDate timestamp)
       throws TimeoutException, ExecutionException, InterruptedException {
@@ -84,7 +83,7 @@ public abstract class DataLoader {
   /**
    * Return a MetricData object for the station + timestamp
    *
-   * @param date The date to load
+   * @param date    The date to load
    * @param station Station to load
    * @param manager ScanManager that contains metadata and database for the MetricData
    * @return complete MetricData object for station day.

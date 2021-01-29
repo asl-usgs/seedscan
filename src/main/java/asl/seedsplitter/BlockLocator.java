@@ -33,7 +33,7 @@ public class BlockLocator {
 
     ArrayList<ContiguousBlock> blockList = _buildFirstList(dataLists.get(0));
     for (ArrayList<DataSet> dataList : dataLists) {
-        blockList = _buildDependentList(dataList, blockList);
+      blockList = _buildDependentList(dataList, blockList);
     }
 
     return blockList;
@@ -66,8 +66,8 @@ public class BlockLocator {
    *                  blocks.
    * @param blockList The previous list of contiguous data blocks.
    * @return A new list of contiguous data blocks.
-   * @throws MetricException If the sample rate of any of the DataSets does not match
-   *                                        with those of the ContiguousBlocks.
+   * @throws MetricException If the sample rate of any of the DataSets does not match with those of
+   *                         the ContiguousBlocks.
    */
   private static ArrayList<ContiguousBlock> _buildDependentList(
       ArrayList<DataSet> dataList, ArrayList<ContiguousBlock> blockList)

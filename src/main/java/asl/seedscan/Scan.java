@@ -1,126 +1,126 @@
 package asl.seedscan;
 
+import asl.seedscan.metrics.MetricWrapper;
 import java.util.ArrayList;
 
-import asl.seedscan.metrics.MetricWrapper;
-
 class Scan {
-	private String scanName = null;
-	private String pathPattern;
-	private String datalessDir;
-	private String eventsDir;
-	private String plotsDir;
-	private int startDay;
-	private int daysToScan;
-	private int startDate;
-	private ArrayList<MetricWrapper> metrics;
 
-	private ScanFilter networks = null;
-	private ScanFilter stations = null;
-	private ScanFilter locations = null;
-	private ScanFilter channels = null;
+  private final String scanName = null;
+  private String pathPattern;
+  private String datalessDir;
+  private String eventsDir;
+  private String plotsDir;
+  private int startDay;
+  private int daysToScan;
+  private int startDate;
+  private ArrayList<MetricWrapper> metrics;
 
-	public String getName() {
-		return scanName;
-	}
+  private ScanFilter networks = null;
+  private ScanFilter stations = null;
+  private ScanFilter locations = null;
+  private ScanFilter channels = null;
 
-	// (seed file) path pattern
-	public void setPathPattern(String pathPattern) {
-		this.pathPattern = pathPattern;
-	}
+  public String getName() {
+    return scanName;
+  }
 
-	public String getPathPattern() {
-		return pathPattern;
-	}
+  // (seed file) path pattern
+  public void setPathPattern(String pathPattern) {
+    this.pathPattern = pathPattern;
+  }
 
-	// dataless seed dir
-	public void setDatalessDir(String datalessDir) {
-		this.datalessDir = datalessDir;
-	}
+  public String getPathPattern() {
+    return pathPattern;
+  }
 
-	public String getDatalessDir() {
-		return datalessDir;
-	}
+  // dataless seed dir
+  public void setDatalessDir(String datalessDir) {
+    this.datalessDir = datalessDir;
+  }
 
-	public void setPlotsDir(String plotsDir) {
-		this.plotsDir = plotsDir;
-	}
+  public String getDatalessDir() {
+    return datalessDir;
+  }
 
-	public String getPlotsDir() {
-		return plotsDir;
-	}
+  public void setPlotsDir(String plotsDir) {
+    this.plotsDir = plotsDir;
+  }
 
-	public void setEventsDir(String eventsDir) {
-		this.eventsDir = eventsDir;
-	}
+  public String getPlotsDir() {
+    return plotsDir;
+  }
 
-	public String getEventsDir() {
-		return eventsDir;
-	}
+  public void setEventsDir(String eventsDir) {
+    this.eventsDir = eventsDir;
+  }
 
-	public ArrayList<MetricWrapper> getMetrics() {
-		return metrics;
-	}
+  public String getEventsDir() {
+    return eventsDir;
+  }
 
-	public void setStartDate(int startDate) {
-		this.startDate = startDate;
-	}
+  public ArrayList<MetricWrapper> getMetrics() {
+    return metrics;
+  }
 
-	// start depth
-	public void setStartDay(int startDay) {
-		this.startDay = startDay;
-	}
+  public void setStartDate(int startDate) {
+    this.startDate = startDate;
+  }
 
-	public int getStartDay() {
-		return startDay;
-	}
+  // start depth
+  public void setStartDay(int startDay) {
+    this.startDay = startDay;
+  }
 
-	public int getStartDate() {
-		return startDate;
-	}
+  public int getStartDay() {
+    return startDay;
+  }
 
-	// scan depth
-	public void setDaysToScan(int daysToScan) {
-		this.daysToScan = daysToScan;
-	}
+  public int getStartDate() {
+    return startDate;
+  }
 
-	public int getDaysToScan() {
-		return daysToScan;
-	}
+  // scan depth
+  public void setDaysToScan(int daysToScan) {
+    this.daysToScan = daysToScan;
+  }
 
-	// network filter
-	public void setNetworks(ScanFilter networks) {
-		this.networks = networks;
-	}
+  public int getDaysToScan() {
+    return daysToScan;
+  }
 
-	public ScanFilter getNetworks() {
-		return networks;
-	}
+  // network filter
+  public void setNetworks(ScanFilter networks) {
+    this.networks = networks;
+  }
 
-	// station filter
-	public void setStations(ScanFilter stations) {
-		this.stations = stations;
-	}
+  public ScanFilter getNetworks() {
+    return networks;
+  }
 
-	public ScanFilter getStations() {
-		return stations;
-	}
+  // station filter
+  public void setStations(ScanFilter stations) {
+    this.stations = stations;
+  }
 
-	// location filter
-	public void setLocations(ScanFilter locations) {
-		this.locations = locations;
-	}
+  public ScanFilter getStations() {
+    return stations;
+  }
 
-	public ScanFilter getLocations() {
-		return locations;
-	}
+  // location filter
+  public void setLocations(ScanFilter locations) {
+    this.locations = locations;
+  }
 
-	// channel filter
-	public void setChannels(ScanFilter channels) {
-		this.channels = channels;
-	}
+  public ScanFilter getLocations() {
+    return locations;
+  }
 
-	public ScanFilter getChannels() {
-		return channels;
-	}
+  // channel filter
+  public void setChannels(ScanFilter channels) {
+    this.channels = channels;
+  }
+
+  public ScanFilter getChannels() {
+    return channels;
+  }
 }

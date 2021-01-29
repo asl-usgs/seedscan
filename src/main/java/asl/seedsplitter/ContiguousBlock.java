@@ -21,64 +21,61 @@ package asl.seedsplitter;
 
 /**
  * @author Joel D. Edwards
- * 
- *         A simple class containing start and end times for contiguous data
- *         blocks.
+ * <p>
+ * A simple class containing start and end times for contiguous data blocks.
  */
 public class ContiguousBlock {
-	private final long m_startTime;
-	private final long m_endTime;
-	private final long m_interval;
 
-	/**
-	 * Constructor.
-	 * 
-	 * @param startTime
-	 *            The start time of this time series.
-	 * @param endTime
-	 *            The end time of this time series.
-	 * @param interval
-	 *            The interval (1/sample-rate) of this time series.
-	 */
-	public ContiguousBlock(long startTime, long endTime, long interval) {
-		m_startTime = startTime;
-		m_endTime = endTime;
-		m_interval = interval;
-	}
+  private final long m_startTime;
+  private final long m_endTime;
+  private final long m_interval;
 
-	/**
-	 * Returns the number of microseconds between the start and end time.
-	 * 
-	 * @return The number of microseconds between the start and end time.
-	 */
-	public long getRange() {
-		return m_endTime - m_startTime;
-	}
+  /**
+   * Constructor.
+   *
+   * @param startTime The start time of this time series.
+   * @param endTime   The end time of this time series.
+   * @param interval  The interval (1/sample-rate) of this time series.
+   */
+  public ContiguousBlock(long startTime, long endTime, long interval) {
+    m_startTime = startTime;
+    m_endTime = endTime;
+    m_interval = interval;
+  }
 
-	/**
-	 * Returns the start time.
-	 * 
-	 * @return The start time.
-	 */
-	public long getStartTime() {
-		return m_startTime;
-	}
+  /**
+   * Returns the number of microseconds between the start and end time.
+   *
+   * @return The number of microseconds between the start and end time.
+   */
+  public long getRange() {
+    return m_endTime - m_startTime;
+  }
 
-	/**
-	 * Returns the end time.
-	 * 
-	 * @return The end time.
-	 */
-	public long getEndTime() {
-		return m_endTime;
-	}
+  /**
+   * Returns the start time.
+   *
+   * @return The start time.
+   */
+  public long getStartTime() {
+    return m_startTime;
+  }
 
-	/**
-	 * Returns the interval.
-	 * 
-	 * @return The interval.
-	 */
-	public long getInterval() {
-		return m_interval;
-	}
+  /**
+   * Returns the end time.
+   *
+   * @return The end time.
+   */
+  public long getEndTime() {
+    return m_endTime;
+  }
+
+  /**
+   * Returns the interval.
+   *
+   * @return The interval.
+   */
+  public long getInterval() {
+    return m_interval;
+  }
 }

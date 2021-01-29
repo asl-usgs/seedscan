@@ -11,13 +11,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Gets a count of the pulse detection count by counting the number of returned points that match
- * a user-specified lower bound for coefficient and amplitude values of the cross-correlation of
- * a channel's data with a step function. If at least one point matching those restrictions in a
+ * Gets a count of the pulse detection count by counting the number of returned points that match a
+ * user-specified lower bound for coefficient and amplitude values of the cross-correlation of a
+ * channel's data with a step function. If at least one point matching those restrictions in a
  * contiguous list of points exists, then that list is counted as a pulse.
+ *
  * @see PulseDetectionMetric (The backend for pulse enumeration)
- * @see asl.seedscan.metrics.PulseDetectionMetric.PulseDetectionData (Specification for the
- * list of (list of) contiguous pulse values)
+ * @see asl.seedscan.metrics.PulseDetectionMetric.PulseDetectionData (Specification for the list of
+ * (list of) contiguous pulse values)
  */
 public class PulseDetectionCountMetric extends PulseDetectionMetric {
 
@@ -96,13 +97,13 @@ public class PulseDetectionCountMetric extends PulseDetectionMetric {
     for (Channel channel : stationMeta.getChannelArray(preSplitBands, true, true)) {
       ChannelKey key = new ChannelKey(channel);
 
-        ByteBuffer digest = metricData.valueDigestChanged(channel, createIdentifier(channel),
-                getForceUpdate());
-        if (digest == null) {
-            logger.info("Digest unchanged station:[{}] channel:[{}] day:[{}] --> Skip metric",
-                    getStation(), channel, getDay());
-            continue;
-        }
+      ByteBuffer digest = metricData.valueDigestChanged(channel, createIdentifier(channel),
+          getForceUpdate());
+      if (digest == null) {
+        logger.info("Digest unchanged station:[{}] channel:[{}] day:[{}] --> Skip metric",
+            getStation(), channel, getDay());
+        continue;
+      }
 
       // only calculate a new result if the map is currently unpopulated
       if (!pulseDetectionResultMap.containsKey(key)) {

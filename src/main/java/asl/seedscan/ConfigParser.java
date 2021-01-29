@@ -1,5 +1,6 @@
 package asl.seedscan;
 
+import asl.seedscan.config.ConfigT;
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.File;
@@ -9,7 +10,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Collection;
-
 import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
@@ -18,18 +18,14 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
-import asl.seedscan.config.ConfigT;
-
 /**
  * The Class ConfigParser.
- *
- * Reads the XSD schema used by JAXB and confirms that config.xml is properly
- * formatted.
+ * <p>
+ * Reads the XSD schema used by JAXB and confirms that config.xml is properly formatted.
  */
 class ConfigParser {
 
@@ -90,7 +86,7 @@ class ConfigParser {
    * @param configFile configuration File
    * @return parse ConfigT
    * @throws FileNotFoundException if the file is not found or readable
-   * @throws JAXBException if the configuration cannot be marshalled
+   * @throws JAXBException         if the configuration cannot be marshalled
    */
   ConfigT parseConfig(File configFile) throws FileNotFoundException, JAXBException {
     ConfigT cfg = null;

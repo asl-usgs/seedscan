@@ -18,6 +18,7 @@ import asl.seedscan.scanner.ScanManager;
 import asl.timeseries.CrossPower;
 import asl.timeseries.CrossPowerKey;
 import asl.util.Logging;
+import edu.sc.seis.seisFile.sac.SacTimeSeries;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
@@ -25,7 +26,6 @@ import java.util.Hashtable;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import edu.sc.seis.seisFile.sac.SacTimeSeries;
 
 /**
  * The Class Scan.
@@ -58,7 +58,7 @@ public class StationScan extends ScanWorker {
   /**
    * Start the first day of the scan
    *
-   * @param manager The managing object
+   * @param manager      The managing object
    * @param databaseScan The correct database for results.
    */
   StationScan(ScanManager manager, DatabaseScan databaseScan) {
@@ -71,10 +71,10 @@ public class StationScan extends ScanWorker {
   /**
    * Scan a specified day with provided metricData
    *
-   * @param manager The managing object
+   * @param manager      The managing object
    * @param databaseScan The correct database for results.
-   * @param date The day to scan
-   * @param metricData The days preloaded MetricData. Can be null
+   * @param date         The day to scan
+   * @param metricData   The days preloaded MetricData. Can be null
    */
   StationScan(ScanManager manager, DatabaseScan databaseScan, LocalDate date,
       MetricData metricData) {
@@ -88,7 +88,7 @@ public class StationScan extends ScanWorker {
   /**
    * Load the scan data independently of the run method. This allows better testing.
    */
-  void loadScanData(){
+  void loadScanData() {
     // CMT Event loader - use to load events for each day
     EventLoader eventLoader = new EventLoader(Global.getEventsDir());
 
@@ -108,8 +108,8 @@ public class StationScan extends ScanWorker {
     if (eventCMTs != null) {
       eventSynthetics = eventLoader.getDaySynthetics(currentDate, station);
 
-      for( String key : eventCMTs.keySet()){
-        if (eventCMTs.get(key).getCalendar().get(Calendar.HOUR_OF_DAY) < 4 ){
+      for (String key : eventCMTs.keySet()) {
+        if (eventCMTs.get(key).getCalendar().get(Calendar.HOUR_OF_DAY) < 4) {
           eventNearStartOfDay = true;
         }
       }
@@ -121,11 +121,10 @@ public class StationScan extends ScanWorker {
     }
     nextMetricData = DataLoader.getMetricData(currentDate.plusDays(1), station, manager);
 
-
     if (currentMetricData != null) {
       // This doesn't mean nextMetricData isn't null!
       currentMetricData.setNextMetricData(nextMetricData);
-      if (eventNearStartOfDay){
+      if (eventNearStartOfDay) {
         // This doesn't use previously loaded data. It reloads metricdata for the day.
         previousMetricData = DataLoader.getMetricData(currentDate.minusDays(1), station, manager);
         currentMetricData.setPreviousMetricData(previousMetricData);
@@ -153,10 +152,10 @@ public class StationScan extends ScanWorker {
         Hashtable<CrossPowerKey, CrossPower> crossPowerMap = null;
         Map<ChannelKey, PulseDetectionData> pulseDetectionMap = null;
 
-				/*
+        /*
          * TODO: The contents of this for loop should be extracted out into a task and run in the pool.
-				 * Skipping adding tests for it now.
-				 */
+         * Skipping adding tests for it now.
+         */
         for (MetricWrapper wrapper : Global.getMetrics()) {
           Metric metric = wrapper.getNewInstance();
           metric.setBaseOutputDir(Global.getPlotsDir());
@@ -210,7 +209,8 @@ public class StationScan extends ScanWorker {
       }
 
     } catch (Exception e) {
-      String message = "Scan Date: " + this.currentDate + "\n" + Logging.prettyExceptionWithCause(e);
+      String message =
+          "Scan Date: " + this.currentDate + "\n" + Logging.prettyExceptionWithCause(e);
       logger.error(message);
       manager.database
           .insertScanMessage(databaseScan.parentScanID, station.getNetwork(), station.getStation(),

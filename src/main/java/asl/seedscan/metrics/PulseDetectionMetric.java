@@ -29,57 +29,55 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Metric to implement the backend for pulse detection operations.
- * The backend is used as a base for count and max peak metrics for these pulses.
- * Peak detection is done by taking timeseries data and getting ground motion
- * cross-correlation with a pulse. Checks are done to make sure the returned pulse aren't actual
- * seismic phenomena, and then collect the retained pulses for reporting by the implementing metric.
- *
- * The full procedure is as follows:
- * Full day data (plus some additional data crossing the day boundary if available) is
- * detrended, tapered, and has its response removed and placed into acceleration.
- * The data is then low-pass filtered and its correlation with a pulse is taken, which is used
- * to identify potential pulses.
- * Points from here are filtered out by exclusion criterion.
- * The first is an envelope constraint,
- * which takes a window over each point of data, gets the mean of each 1/3-percentile of it,
- * and checks that the differences of two points equidistant from that point have the same sign.
- * The second is a sharpness constraint,
- * which checks that the magnitude of a 60-second windowed average at a given point is at least
- * 4 times the magnitude of a 900-second windowed average (magnitude meaning sign is ignored).
- *
+ * Metric to implement the backend for pulse detection operations. The backend is used as a base for
+ * count and max peak metrics for these pulses. Peak detection is done by taking timeseries data and
+ * getting ground motion cross-correlation with a pulse. Checks are done to make sure the returned
+ * pulse aren't actual seismic phenomena, and then collect the retained pulses for reporting by the
+ * implementing metric.
+ * <p>
+ * The full procedure is as follows: Full day data (plus some additional data crossing the day
+ * boundary if available) is detrended, tapered, and has its response removed and placed into
+ * acceleration. The data is then low-pass filtered and its correlation with a pulse is taken, which
+ * is used to identify potential pulses. Points from here are filtered out by exclusion criterion.
+ * The first is an envelope constraint, which takes a window over each point of data, gets the mean
+ * of each 1/3-percentile of it, and checks that the differences of two points equidistant from that
+ * point have the same sign. The second is a sharpness constraint, which checks that the magnitude
+ * of a 60-second windowed average at a given point is at least 4 times the magnitude of a
+ * 900-second windowed average (magnitude meaning sign is ignored).
+ * <p>
  * Points that are able to pass this filtering then get collected as a list of pulses, and those
  * values can then be filtered by constraints on the correlation and amplitude in a class that
  * implements a specific metric on that data such as pulse count or the peak amplitude.
- *
+ * <p>
  * In order to prevent redundant calculation between metrics, we cache the results of these metrics
  * in a custom format, so one round of calculation allows us to determine both the largest pulse and
  * the total number of pulses that match the filtering criteria.
- *
  */
 public abstract class PulseDetectionMetric extends Metric {
 
   private static final Logger logger = LoggerFactory.getLogger(PulseDetectionMetric.class);
 
   /**
-   * Map from ChannelKeys to the pulse detection data, a list of lists of paired
-   * correlations with their associated amplitudes.
+   * Map from ChannelKeys to the pulse detection data, a list of lists of paired correlations with
+   * their associated amplitudes.
    */
   protected Map<ChannelKey, PulseDetectionData> pulseDetectionResultMap;
 
   /**
    * Method to pass the pulse detection data from one implementing metric to another
-   * @return Pulse Detection Data, a list of lists of amplitude-correlation pairs, see
-   * {@link PulseDetectionData}
+   *
+   * @return Pulse Detection Data, a list of lists of amplitude-correlation pairs, see {@link
+   * PulseDetectionData}
    */
   public Map<ChannelKey, PulseDetectionData> getPulseDetectionData() {
     return pulseDetectionResultMap;
   }
 
   /**
-   * Method to pass in pulse detection data from a metric that has already calculated results for
-   * a station. If the implementing metric runs over a channel not in the key set, then it will
-   * create a new result for that channel and add it to the map.
+   * Method to pass in pulse detection data from a metric that has already calculated results for a
+   * station. If the implementing metric runs over a channel not in the key set, then it will create
+   * a new result for that channel and add it to the map.
+   *
    * @param cached Map of ChannelKeys to PulseDetectionData, see {@link PulseDetectionData}
    */
   public void setPulseDetectionData(Map<ChannelKey, PulseDetectionData> cached) {
@@ -87,8 +85,8 @@ public abstract class PulseDetectionMetric extends Metric {
   }
 
   /**
-   * Calculate the pulse detection metric for a given channel according to the procedure stated
-   * in the prior documentation.
+   * Calculate the pulse detection metric for a given channel according to the procedure stated in
+   * the prior documentation.
    *
    * @param channel Channel to run the metric calculation over
    * @return List of lists of amplitude-correlation pairs {@link PulseDetectionData}
@@ -137,7 +135,7 @@ public abstract class PulseDetectionMetric extends Metric {
       assert (crossCorr.length == 2);
       correl = crossCorr[0];
       scale = crossCorr[1];
-      assert(correl.length == scale.length);
+      assert (correl.length == scale.length);
     }
 
     // use moving average to remove long-period (~1 hr) trend for constraint evaluation
@@ -175,8 +173,9 @@ public abstract class PulseDetectionMetric extends Metric {
   }
 
   /**
-   * Constructs a 15-minute step function; the station data is convolved with this to find
-   * potential pulse data. Pulse ranges from 0 to 1 with a 40-second slope between the two points
+   * Constructs a 15-minute step function; the station data is convolved with this to find potential
+   * pulse data. Pulse ranges from 0 to 1 with a 40-second slope between the two points
+   *
    * @param sampleRate Sample rate of the data.
    * @return Array of points representing the step.
    */
@@ -202,9 +201,10 @@ public abstract class PulseDetectionMetric extends Metric {
 
   /**
    * Gets the basic per-point difference for a dataset, akin to the numpy diff function.
+   *
    * @param trace Dataset to get difference over
-   * @return Trace of same length as input where first point is 0
-   * and all other points are trace[i+1]-trace[i]
+   * @return Trace of same length as input where first point is 0 and all other points are
+   * trace[i+1]-trace[i]
    */
   static double[] getPerPointDifference(double[] trace) {
     double[] differences = new double[trace.length];
@@ -216,13 +216,13 @@ public abstract class PulseDetectionMetric extends Metric {
   }
 
   /**
-   * Computes the cross-correlation of a trace with a 15-minute step function -- see
-   * {@link #crossCorrelate(double[], double[])}.
-   * The data returned will have values that would otherwise be guaranteed to be 0 at the ends
-   * of the data trimmed off; any operation that requires the index of these values to match with
-   * the points of the inputted trace will need to compare them with the offset value from
-   * {@link #getCorrelationOffset(double)}.
-   * @param trace Data to get cross correlation with step from
+   * Computes the cross-correlation of a trace with a 15-minute step function -- see {@link
+   * #crossCorrelate(double[], double[])}. The data returned will have values that would otherwise
+   * be guaranteed to be 0 at the ends of the data trimmed off; any operation that requires the
+   * index of these values to match with the points of the inputted trace will need to compare them
+   * with the offset value from {@link #getCorrelationOffset(double)}.
+   *
+   * @param trace      Data to get cross correlation with step from
    * @param sampleRate Sample rate of the data (used to generate the step function)
    * @return 2D array of correlation and associated amplitude values from the
    */
@@ -234,12 +234,13 @@ public abstract class PulseDetectionMetric extends Metric {
   }
 
   /**
-   * Gets the length of zeros on either side of the step function, for use in associating
-   * values in the correlation arrays with the raw data going into them. Adding this value to an
-   * index in those arrays will match it to the index of a point on the raw data.
-   * Because this is derived from the length of the step function -- the number of zeros on each
-   * end of the correlation array is equal to half the length of the step -- the only necessary
-   * parameter is the sample rate of the data, which is used to get the length of the step.
+   * Gets the length of zeros on either side of the step function, for use in associating values in
+   * the correlation arrays with the raw data going into them. Adding this value to an index in
+   * those arrays will match it to the index of a point on the raw data. Because this is derived
+   * from the length of the step function -- the number of zeros on each end of the correlation
+   * array is equal to half the length of the step -- the only necessary parameter is the sample
+   * rate of the data, which is used to get the length of the step.
+   *
    * @param sampleRate Sample rate of the data being correlated
    * @return Half the length of the step function generated, which is the number of zeros on either
    * end of the correlation array.
@@ -250,18 +251,17 @@ public abstract class PulseDetectionMetric extends Metric {
   }
 
   /**
-   * Produce the cross-correlation between a given channel trace and a 15-minute step function.
-   * The step function is detrended here before the correlation is calculated.
-   * The result is a 2D array of length 2, where the first array is the correlation values
-   * per-point and the second array is the associated amplitude values. The lengths of these arrays
-   * are trimmed down from the length of the trace by the length of the step function, as each
-   * side of it are flanked by zeros half the length of the step function; matching the indices
-   * of these arrays to points in the trace can be done by adding the value gotten from the method
-   * {@link #getCorrelationOffset(double)}.
+   * Produce the cross-correlation between a given channel trace and a 15-minute step function. The
+   * step function is detrended here before the correlation is calculated. The result is a 2D array
+   * of length 2, where the first array is the correlation values per-point and the second array is
+   * the associated amplitude values. The lengths of these arrays are trimmed down from the length
+   * of the trace by the length of the step function, as each side of it are flanked by zeros half
+   * the length of the step function; matching the indices of these arrays to points in the trace
+   * can be done by adding the value gotten from the method {@link #getCorrelationOffset(double)}.
    *
-   * @param trace Sensor data to correlate with step
-   * @param stepFunction 15-minute step function, see {@link #getStepFunction(double)} and
-   * {@link #computeCrossCorrelationWithStep(double[], double)}.
+   * @param trace        Sensor data to correlate with step
+   * @param stepFunction 15-minute step function, see {@link #getStepFunction(double)} and {@link
+   *                     #computeCrossCorrelationWithStep(double[], double)}.
    * @return 2D array containing sub-arrays of the correlation values and amplitudes respectively
    */
   static double[][] crossCorrelate(double[] trace, double[] stepFunction) {
@@ -307,7 +307,8 @@ public abstract class PulseDetectionMetric extends Metric {
    * Performs an averaging of the values centered at a given point over a range specified by
    * windowLength. Used to perform some basic high-pass filtering and to get the 15-min and
    * 60-second averages for the sharpness constraint.
-   * @param data Trace to get the windowed averages for
+   *
+   * @param data         Trace to get the windowed averages for
    * @param windowLength How many points to include in a windowed average
    * @return Result of applying moving average to the data
    */
@@ -334,14 +335,14 @@ public abstract class PulseDetectionMetric extends Metric {
   /**
    * Similar to the method {@link #getCenteredMovingAverage(double[], int)} but is done in such a
    * way that the averages of the lowest, middle, and upper 1/3 percentiles are averaged separately.
-   * That is, we sort the array and get the average of the first 1/3 of the data,
-   * the second 1/3 of the data, and the last 1/3 of the data.
-   * This produces a 2D array of length 3 corresponding to the windowed averages of those
-   * percentiles in the order {low, mid, high}.
-   * @param data Trace to get the averages over
+   * That is, we sort the array and get the average of the first 1/3 of the data, the second 1/3 of
+   * the data, and the last 1/3 of the data. This produces a 2D array of length 3 corresponding to
+   * the windowed averages of those percentiles in the order {low, mid, high}.
+   *
+   * @param data         Trace to get the averages over
    * @param windowLength Length of the window to get the moving averages over
-   * @return 2D array representing the low, middle, and high averages for each point;
-   * the index [0][27] returns the low-third percentile result for point 27 in the input array.
+   * @return 2D array representing the low, middle, and high averages for each point; the index
+   * [0][27] returns the low-third percentile result for point 27 in the input array.
    */
   public static double[][] getCenteredMovingAveragePercentiles(double[] data, int windowLength) {
     double[] lowestThird = new double[data.length];
@@ -372,13 +373,14 @@ public abstract class PulseDetectionMetric extends Metric {
   }
 
   /**
-   * Evaluate an envelope constraint on the data.
-   * This checks that the percentile windowed averages (see
-   * {@link #getCenteredMovingAveragePercentiles(double[], int)}) for each data point all change
-   * in the same way; specifically, we check that the values 140 seconds before and after that point
-   * have a difference that shares the same sign for each of the three percentile groups we get
-   * the average over. If they do not have the same sign, the point is excluded as a possible value.
-   * @param data Trace to get the envelope constraint over
+   * Evaluate an envelope constraint on the data. This checks that the percentile windowed averages
+   * (see {@link #getCenteredMovingAveragePercentiles(double[], int)}) for each data point all
+   * change in the same way; specifically, we check that the values 140 seconds before and after
+   * that point have a difference that shares the same sign for each of the three percentile groups
+   * we get the average over. If they do not have the same sign, the point is excluded as a possible
+   * value.
+   *
+   * @param data       Trace to get the envelope constraint over
    * @param sampleRate Sample rate of the data (for determining how many points are in 140 seconds)
    * @return Set of indices matching points that are valid by this criterion.
    */
@@ -421,22 +423,23 @@ public abstract class PulseDetectionMetric extends Metric {
   }
 
   /**
-   * Evaluate a sharpness constraint on the data. This method iterates over the points
-   * included for consideration by envelope evaluation and then produces a set of points that are
-   * NOT valid. The evaluation is to take a 60-second moving average of the data at each point, and
-   * compare it to the 900-second (15 min.) moving average of the magnitude of the data at each
-   * point. If the magnitude of the 60-second window value is at least 4 times that of the
-   * 900-second value, then the point is included (and thus not part of the returned set).
-   * Because this method returns the EXCLUSION of points from the input, the set of valid points
-   * that match both results can be done by removing all values in the returned set of this method
-   * from the returned set of the envelope constraint check.
+   * Evaluate a sharpness constraint on the data. This method iterates over the points included for
+   * consideration by envelope evaluation and then produces a set of points that are NOT valid. The
+   * evaluation is to take a 60-second moving average of the data at each point, and compare it to
+   * the 900-second (15 min.) moving average of the magnitude of the data at each point. If the
+   * magnitude of the 60-second window value is at least 4 times that of the 900-second value, then
+   * the point is included (and thus not part of the returned set). Because this method returns the
+   * EXCLUSION of points from the input, the set of valid points that match both results can be done
+   * by removing all values in the returned set of this method from the returned set of the envelope
+   * constraint check.
+   *
+   * @param traceFiltered Trace of data to get sharpness constraint over
+   * @param sampleRate    Sample rate of data (for determining points in 60, 900 second windows)
+   * @param validPoints   Subset of indices to check against; a null value is acceptable here, in
+   *                      which case all points in the trace will be checked.
+   * @return A set of indices to EXCLUDE from the published pulse detection result.
    * @see #envelopeConstraint(double[], double)
    * @see java.util.Set#removeAll(Collection)
-   * @param traceFiltered Trace of data to get sharpness constraint over
-   * @param sampleRate Sample rate of data (for determining points in 60, 900 second windows)
-   * @param validPoints Subset of indices to check against; a null value is acceptable here, in
-   * which case all points in the trace will be checked.
-   * @return A set of indices to EXCLUDE from the published pulse detection result.
    */
   public static Set<Integer> sharpnessConstraint(double[] traceFiltered, double sampleRate,
       Integer[] validPoints) {
@@ -472,17 +475,17 @@ public abstract class PulseDetectionMetric extends Metric {
   }
 
   /**
-   * Removes the response on data and returns it back in the time domain.
-   * Response gain is accounted for at the final step of this method; because this method is used
-   * to produce time-domain data rather than stay in frequency space,
-   * it is distinct from the response methods used elsewhere.
+   * Removes the response on data and returns it back in the time domain. Response gain is accounted
+   * for at the final step of this method; because this method is used to produce time-domain data
+   * rather than stay in frequency space, it is distinct from the response methods used elsewhere.
    * During the response removal process the data is converted to units of acceleration.
-   * @param trace Data to remove response from.
-   * @param metadata Metadata from which response is extracted
+   *
+   * @param trace      Data to remove response from.
+   * @param metadata   Metadata from which response is extracted
    * @param waterLevel Small decimal factor to prevent division by zero (i.e., 0.001)
-   * @see #applyWaterLevelToResponse(Complex[], double)
    * @return Trace with response removed, in acceleration
    * @throws ChannelMetaException If there is an issue with getting the channel metadata
+   * @see #applyWaterLevelToResponse(Complex[], double)
    */
   public static double[] removeResponseOnTimeDomainData(double[] trace, ChannelMeta metadata,
       double waterLevel) throws ChannelMetaException {
@@ -513,10 +516,11 @@ public abstract class PulseDetectionMetric extends Metric {
   }
 
   /**
-   * Inverts response and applies a minimum water level to prevent division by zero.
-   * Due to inverting the response in this process, response removal is done by multiplying
-   * the returned value with the FFT of some trace data.
-   * @param response Response curve (acceleration) for given metadata
+   * Inverts response and applies a minimum water level to prevent division by zero. Due to
+   * inverting the response in this process, response removal is done by multiplying the returned
+   * value with the FFT of some trace data.
+   *
+   * @param response   Response curve (acceleration) for given metadata
    * @param waterLevel Minimum value to give to nonzero response values
    * @return Response inverted with water level applied.
    */
@@ -548,16 +552,17 @@ public abstract class PulseDetectionMetric extends Metric {
   }
 
   /**
-   * Inner class for storing results of metrics using this backend.
-   * Each pulse is stored as a list of PulseDetectionPoint objects, which are a pair of finalized
-   * doubles representing a point's correlation and amplitude. That is, these lists are all of a
-   * contiguous set of data, from which the max pulse peak can be gotten by finding the point
-   * of all of these lists with the largest amplitude value that fits a prescribed correlation
-   * cutoff. The number of pulses detected is the size of the outer list.
-   *
+   * Inner class for storing results of metrics using this backend. Each pulse is stored as a list
+   * of PulseDetectionPoint objects, which are a pair of finalized doubles representing a point's
+   * correlation and amplitude. That is, these lists are all of a contiguous set of data, from which
+   * the max pulse peak can be gotten by finding the point of all of these lists with the largest
+   * amplitude value that fits a prescribed correlation cutoff. The number of pulses detected is the
+   * size of the outer list.
+   * <p>
    * This class's elements are all final and the lists are unmodifiable, so points are iterated
    * through and the correlation and amplitude fields are accessed directly; no getters or setters
    * are implemented for this class.
+   *
    * @see PulseDetectionPoint
    */
   public static class PulseDetectionData {
@@ -584,19 +589,19 @@ public abstract class PulseDetectionMetric extends Metric {
     }
 
     /**
-     * Constructs the result of the backend calculations for use in an implementing metric.
-     * Given the correlation and amplitude values of some data's cross-correlation with a step,
-     * the set of included (i.e., valid) indices, and an offset to deal with the fact that the
-     * points are offset by half the length of the step function they were correlated over (because
-     * those points would otherwise be zero).
-     * In the process of this construction, all contiguous accepted points are collected into
-     * the sublists of PulseDetectionPoints.
-     * @see PulseDetectionPoint
-     * @param correlations Correlated values between trace and step
-     * @param amplitudes Amplitudes of the above correlation
-     * @param inclusions Indices in the original trace that passed screening criteria
-     * @param sensitivity Sensitivity value of response (for scaling amplitude values)
+     * Constructs the result of the backend calculations for use in an implementing metric. Given
+     * the correlation and amplitude values of some data's cross-correlation with a step, the set of
+     * included (i.e., valid) indices, and an offset to deal with the fact that the points are
+     * offset by half the length of the step function they were correlated over (because those
+     * points would otherwise be zero). In the process of this construction, all contiguous accepted
+     * points are collected into the sublists of PulseDetectionPoints.
+     *
+     * @param correlations   Correlated values between trace and step
+     * @param amplitudes     Amplitudes of the above correlation
+     * @param inclusions     Indices in the original trace that passed screening criteria
+     * @param sensitivity    Sensitivity value of response (for scaling amplitude values)
      * @param startingOffset Index of first nonzero point in the untrimmed correlation arrays
+     * @see PulseDetectionPoint
      */
     public PulseDetectionData(double[] correlations, double[] amplitudes,
         Collection<Integer> inclusions, double sensitivity, int startingOffset) {

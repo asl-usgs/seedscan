@@ -1,6 +1,10 @@
-
 package asl.seedscan.database;
 
+import asl.metadata.Channel;
+import asl.metadata.Station;
+import asl.seedscan.config.DatabaseT;
+import asl.seedscan.metrics.MetricResult;
+import com.mchange.v2.c3p0.ComboPooledDataSource;
 import java.beans.PropertyVetoException;
 import java.nio.ByteBuffer;
 import java.sql.CallableStatement;
@@ -10,16 +14,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.UUID;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.mchange.v2.c3p0.ComboPooledDataSource;
-
-import asl.metadata.Channel;
-import asl.metadata.Station;
-import asl.seedscan.config.DatabaseT;
-import asl.seedscan.metrics.MetricResult;
 
 /**
  * The Class MetricDatabase. This contains methods for inserting and retrieving data from the
@@ -74,7 +70,7 @@ public class MetricDatabase {
   /**
    * Instantiates a new metric database.
    *
-   * @param URI the location of the database
+   * @param URI      the location of the database
    * @param username the username
    * @param password the password
    * @throws SQLException if the database is unable to be communicated with.
@@ -123,41 +119,42 @@ public class MetricDatabase {
    * @param pkScanID The UUID of the finished station scan.
    */
   public void finishScan(UUID pkScanID) {
-  	// lock prevents this from running if we are taking a scan or enumerating its child scans
-		// otherwise a taken scan whose children are not in the DB yet could get removed by this
+    // lock prevents this from running if we are taking a scan or enumerating its child scans
+    // otherwise a taken scan whose children are not in the DB yet could get removed by this
     synchronized (lockObject) {
-			try {
-				try (Connection connection = dataSource
-						.getConnection(); CallableStatement callStatement = connection
-						.prepareCall("SELECT * from fnfinishscan(?)")) {
-					callStatement.setObject(1, pkScanID);
-					callStatement.executeQuery();
+      try {
+        try (Connection connection = dataSource
+            .getConnection(); CallableStatement callStatement = connection
+            .prepareCall("SELECT * from fnfinishscan(?)")) {
+          callStatement.setObject(1, pkScanID);
+          callStatement.executeQuery();
 
-				}
+        }
       } catch (SQLException e) {
         logger.error("SQLException:", e);
       }
     }
   }
 
-	/**
-	 * Return the lock object. Used to synchronize taking and adding child scans to the database,
-	 * which happens together in the run method of RetrieveScan. These operations need to be locked
-	 * together in order to prevent scans being marked as finished when the scan is taken and the
-	 * child scans have not yet been populated.
-	 * @return Lock Object, object solely used to control synchronization of scan data.
-	 */
-	public Object getLockObject() {
-  	return lockObject;
-	}
+  /**
+   * Return the lock object. Used to synchronize taking and adding child scans to the database,
+   * which happens together in the run method of RetrieveScan. These operations need to be locked
+   * together in order to prevent scans being marked as finished when the scan is taken and the
+   * child scans have not yet been populated.
+   *
+   * @return Lock Object, object solely used to control synchronization of scan data.
+   */
+  public Object getLockObject() {
+    return lockObject;
+  }
 
   /**
    * Gets the metric value for a particular channel, metric, day.
    *
-   * @param date the date
+   * @param date       the date
    * @param metricName the metric name
-   * @param station the network and station information
-   * @param channel the channel and location information
+   * @param station    the network and station information
+   * @param channel    the channel and location information
    * @return the metric value
    */
   public Double getMetricValue(LocalDate date, String metricName, Station station,
@@ -181,15 +178,15 @@ public class MetricDatabase {
           value = resultSet.getDouble(1);
         }
       } finally {
-				if (resultSet != null) {
-					resultSet.close();
-				}
-				if (callStatement != null) {
-					callStatement.close();
-				}
-				if (connection != null) {
-					connection.close();
-				}
+        if (resultSet != null) {
+          resultSet.close();
+        }
+        if (callStatement != null) {
+          callStatement.close();
+        }
+        if (connection != null) {
+          connection.close();
+        }
       }
     } catch (SQLException e) {
       logger.error("SQLException:", e);
@@ -204,10 +201,10 @@ public class MetricDatabase {
   /**
    * Gets the metric value digest for a particular channel, metric, day.
    *
-   * @param date the date
+   * @param date       the date
    * @param metricName the metric name
-   * @param station the network and station information
-   * @param channel the channel and location information
+   * @param station    the network and station information
+   * @param channel    the channel and location information
    * @return the metric value digest
    */
   public ByteBuffer getMetricValueDigest(LocalDate date, String metricName, Station station,
@@ -233,20 +230,20 @@ public class MetricDatabase {
         if (resultSet.next()) {
           byte[] digestIn = resultSet.getBytes(1);
 
-					if (digestIn != null) {
-						digest = ByteBuffer.wrap(digestIn);
-					}
+          if (digestIn != null) {
+            digest = ByteBuffer.wrap(digestIn);
+          }
         }
       } finally {
-				if (resultSet != null) {
-					resultSet.close();
-				}
-				if (callStatement != null) {
-					callStatement.close();
-				}
-				if (connection != null) {
-					connection.close();
-				}
+        if (resultSet != null) {
+          resultSet.close();
+        }
+        if (callStatement != null) {
+          callStatement.close();
+        }
+        if (connection != null) {
+          connection.close();
+        }
       }
     } catch (SQLException e) {
       logger.error("SQLException:", e);
@@ -295,12 +292,12 @@ public class MetricDatabase {
           throw new SQLException("Failed to insert following scan into database:");
         }
       } finally {
-				if (statement != null) {
-					statement.close();
-				}
-				if (connection != null) {
-					connection.close();
-				}
+        if (statement != null) {
+          statement.close();
+        }
+        if (connection != null) {
+          connection.close();
+        }
       }
     } catch (SQLException e) {
       this.insertScanMessage(parentID, network, station, location, channel, metric,
@@ -314,16 +311,16 @@ public class MetricDatabase {
    * @param message error message
    */
   public void insertError(String message) {
-		try {
-			try (Connection connection = dataSource
-					.getConnection(); PreparedStatement statement = connection
-					.prepareStatement("INSERT INTO tblerrorlog(errormessage) VALUES (?)")) {
-				// We will let the db set the timestamp.
-				statement.setString(1, message);
-				if (statement.executeUpdate() != 1) {
-					throw new SQLException("Failed to insert following error message into database:");
-				}
-			}
+    try {
+      try (Connection connection = dataSource
+          .getConnection(); PreparedStatement statement = connection
+          .prepareStatement("INSERT INTO tblerrorlog(errormessage) VALUES (?)")) {
+        // We will let the db set the timestamp.
+        statement.setString(1, message);
+        if (statement.executeUpdate() != 1) {
+          throw new SQLException("Failed to insert following error message into database:");
+        }
+      }
     } catch (SQLException e) {
       logger.error("SQLException:", e);
       logger.error("Error Message not inserted:\n" + message);
@@ -367,12 +364,12 @@ public class MetricDatabase {
         }
         result = 0;
       } finally {
-				if (callStatement != null) {
-					callStatement.close();
-				}
-				if (connection != null) {
-					connection.close();
-				}
+        if (callStatement != null) {
+          callStatement.close();
+        }
+        if (connection != null) {
+          connection.close();
+        }
       }
     } catch (SQLException e) {
       logger.error("SQLException:", e);
@@ -383,18 +380,19 @@ public class MetricDatabase {
 
   /**
    * Insert a message (usually an error message) into the database regarding a scan.
-   *
+   * <p>
    * Only the scanID is checked for validity. NSLC identifiers aren't required to be valid, but
    * misuse is not advisable. There are hard size restrictions.
    *
-   * @param scanID - Should be the highest level scan. As child scans will be cleaned. Setting this
-   * to the child scan will result in it being deleted during the cleanup of finished child scans.
-   * @param network 2 character limit
-   * @param station 10 character limit
+   * @param scanID   - Should be the highest level scan. As child scans will be cleaned. Setting
+   *                 this to the child scan will result in it being deleted during the cleanup of
+   *                 finished child scans.
+   * @param network  2 character limit
+   * @param station  10 character limit
    * @param location 10 character limit
-   * @param channel 10 character limit
-   * @param metric 50 character limit
-   * @param message No limit in size. A more detailed message or exception should go here.
+   * @param channel  10 character limit
+   * @param metric   50 character limit
+   * @param message  No limit in size. A more detailed message or exception should go here.
    */
   public void insertScanMessage(UUID scanID, String network, String station, String location,
       String channel, String metric, String message) {
@@ -420,12 +418,12 @@ public class MetricDatabase {
           throw new SQLException("Failed to insert following scan message into database:");
         }
       } finally {
-				if (statement != null) {
-					statement.close();
-				}
-				if (connection != null) {
-					connection.close();
-				}
+        if (statement != null) {
+          statement.close();
+        }
+        if (connection != null) {
+          connection.close();
+        }
       }
     } catch (SQLException e) {
       logger.error("SQLException:", e);
@@ -449,21 +447,21 @@ public class MetricDatabase {
    * @throws SQLException for any exception from the JDBC driver
    */
   private void resetStationScans() throws SQLException {
-		try (Connection connection = dataSource
-				.getConnection(); PreparedStatement statement = connection.prepareStatement(
-				"UPDATE tblscan "
-						+ "SET taken=FALSE "
-						+ "WHERE "
+    try (Connection connection = dataSource
+        .getConnection(); PreparedStatement statement = connection.prepareStatement(
+        "UPDATE tblscan "
+            + "SET taken=FALSE "
+            + "WHERE "
             + "finished = FALSE "
             + "AND taken = TRUE "
             + "AND pkscanid NOT IN ( "
             + "SELECT DISTINCT fkparentscan FROM tblscan WHERE fkparentscan IS NOT NULL "
             + ")")) {
-			//@formatter:off
-			//@formatter:on
-			int orphanCount = statement.executeUpdate();
-			logger.info("Reset {} orphaned scans", orphanCount);
-		}
+      //@formatter:off
+      //@formatter:on
+      int orphanCount = statement.executeUpdate();
+      logger.info("Reset {} orphaned scans", orphanCount);
+    }
   }
 
   /**
@@ -473,32 +471,32 @@ public class MetricDatabase {
    * @return A Scan object to be added to the Priority Queue or null if empty
    */
   public DatabaseScan takeNextScan() {
-		try {
-			try (Connection connection = dataSource
-					.getConnection(); CallableStatement callStatement = connection
-					.prepareCall("SELECT * from fntakenextscan()"); ResultSet rs = callStatement
-					.executeQuery()) {
+    try {
+      try (Connection connection = dataSource
+          .getConnection(); CallableStatement callStatement = connection
+          .prepareCall("SELECT * from fntakenextscan()"); ResultSet rs = callStatement
+          .executeQuery()) {
 
-				//If we have a scan return it
-				if (rs.next()) {
-					//@formatter:off
-					return new DatabaseScan(
-							(UUID) rs.getObject("pkscanid"),
-							(UUID) rs.getObject("fkparentscan"),
-							rs.getString("metricfilter"),
-							rs.getString("networkfilter"),
-							rs.getString("stationfilter"),
-							rs.getString("locationfilter"),
-							rs.getString("channelfilter"),
-							rs.getObject("startdate", LocalDate.class),
-							rs.getObject("enddate", LocalDate.class),
-							rs.getInt("priority"),
-							rs.getBoolean("deleteexisting"));
-					//@formatter:on
-				} else {
-					return null;
-				}
-			}
+        //If we have a scan return it
+        if (rs.next()) {
+          //@formatter:off
+          return new DatabaseScan(
+              (UUID) rs.getObject("pkscanid"),
+              (UUID) rs.getObject("fkparentscan"),
+              rs.getString("metricfilter"),
+              rs.getString("networkfilter"),
+              rs.getString("stationfilter"),
+              rs.getString("locationfilter"),
+              rs.getString("channelfilter"),
+              rs.getObject("startdate", LocalDate.class),
+              rs.getObject("enddate", LocalDate.class),
+              rs.getInt("priority"),
+              rs.getBoolean("deleteexisting"));
+          //@formatter:on
+        } else {
+          return null;
+        }
+      }
     } catch (SQLException e) {
       logger.error("SQLException:", e);
     }

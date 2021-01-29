@@ -7,9 +7,8 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 
 /**
- * Creates a lock based on a given file name.
- * It creates an empty file that can be locked and released.
- * Designed to prevent multiple applications from starting simultaneously.
+ * Creates a lock based on a given file name. It creates an empty file that can be locked and
+ * released. Designed to prevent multiple applications from starting simultaneously.
  */
 public class LockFile {
 

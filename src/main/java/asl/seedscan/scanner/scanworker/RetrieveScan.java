@@ -11,8 +11,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This worker retrieves a Scan from the database. Determines if it is a
- * Station and splits it into station scans if it is not.
+ * This worker retrieves a Scan from the database. Determines if it is a Station and splits it into
+ * station scans if it is not.
  *
  * @author jholland - USGS
  */

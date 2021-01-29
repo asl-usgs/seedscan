@@ -22,105 +22,101 @@ import java.io.Serializable;
 
 /**
  * @author Joel D. Edwards
- * 
- *         A subclass of Sequence which pairs seismic station and channel
- *         information with the data.
+ * <p>
+ * A subclass of Sequence which pairs seismic station and channel information with the data.
  */
 public class DataSet extends Sequence implements Serializable {
-	/**
-	 * Serial version UID
-	 */
-	private static final long serialVersionUID = 1L;
-	private String m_network;
-	private String m_station;
-	private String m_location;
-	private String m_channel;
 
-	/**
-	 * Constructor.
-	 */
-	public DataSet() {
-		super();
-		m_network = null;
-		m_station = null;
-		m_location = null;
-		m_channel = null;
-	}
+  /**
+   * Serial version UID
+   */
+  private static final long serialVersionUID = 1L;
+  private String m_network;
+  private String m_station;
+  private String m_location;
+  private String m_channel;
 
-	/**
-	 * Sets the station's two character network code.
-	 * 
-	 * @param network
-	 *            network code
-	 */
-	public void setNetwork(String network) {
-		m_network = network;
-	}
+  /**
+   * Constructor.
+   */
+  public DataSet() {
+    super();
+    m_network = null;
+    m_station = null;
+    m_location = null;
+    m_channel = null;
+  }
 
-	/**
-	 * Sets the 3-5 character station code.
-	 * 
-	 * @param station
-	 *            station code
-	 */
-	public void setStation(String station) {
-		m_station = station;
-	}
+  /**
+   * Sets the station's two character network code.
+   *
+   * @param network network code
+   */
+  public void setNetwork(String network) {
+    m_network = network;
+  }
 
-	/**
-	 * Sets the channel's two digit location code.
-	 * 
-	 * @param location
-	 *            location code
-	 */
-	public void setLocation(String location) {
-		m_location = location;
-	}
+  /**
+   * Sets the 3-5 character station code.
+   *
+   * @param station station code
+   */
+  public void setStation(String station) {
+    m_station = station;
+  }
 
-	/**
-	 * Sets the three character channel name.
-	 * 
-	 * @param channel
-	 *            channel name
-	 */
-	public void setChannel(String channel) {
-		m_channel = channel;
-	}
+  /**
+   * Sets the channel's two digit location code.
+   *
+   * @param location location code
+   */
+  public void setLocation(String location) {
+    m_location = location;
+  }
 
-	/**
-	 * Returns the station's two character network code.
-	 * 
-	 * @return network code
-	 */
-	public String getNetwork() {
-		return m_network;
-	}
+  /**
+   * Sets the three character channel name.
+   *
+   * @param channel channel name
+   */
+  public void setChannel(String channel) {
+    m_channel = channel;
+  }
 
-	/**
-	 * Returns the 3-5 character station code.
-	 * 
-	 * @return station code
-	 */
-	public String getStation() {
-		return m_station;
-	}
+  /**
+   * Returns the station's two character network code.
+   *
+   * @return network code
+   */
+  public String getNetwork() {
+    return m_network;
+  }
 
-	/**
-	 * Returns the channel's two digit location code.
-	 * 
-	 * @return location code
-	 */
-	public String getLocation() {
-		return m_location;
-	}
+  /**
+   * Returns the 3-5 character station code.
+   *
+   * @return station code
+   */
+  public String getStation() {
+    return m_station;
+  }
 
-	/**
-	 * Returns the 3 character channel name.
-	 * 
-	 * @return channel name
-	 */
-	public String getChannel() {
-		return m_channel;
-	}
+  /**
+   * Returns the channel's two digit location code.
+   *
+   * @return location code
+   */
+  public String getLocation() {
+    return m_location;
+  }
+
+  /**
+   * Returns the 3 character channel name.
+   *
+   * @return channel name
+   */
+  public String getChannel() {
+    return m_channel;
+  }
 
 }

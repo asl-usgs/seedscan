@@ -7,113 +7,110 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 /**
- * This class represents the generic blockette from the SEED standard V2.4
- * Blockette.java * All blockettes start with 0 UWORD - blockette type 2 UWORD -
- * offset of next blockette within record (offset to next blockette)
- * 
+ * This class represents the generic blockette from the SEED standard V2.4 Blockette.java * All
+ * blockettes start with 0 UWORD - blockette type 2 UWORD - offset of next blockette within record
+ * (offset to next blockette)
+ * <p>
  * Created on October 3, 2012, 10:38 UTC
- * 
- * 
+ *
  * @author Joel D. Edwards - USGS
  * @author James Holland - USGS
  */
-public abstract class Blockette  implements Serializable {
-	/**
-	 * Serial Version UID
-	 */
-	private static final long serialVersionUID = 1L;
-	private static final ByteOrder DEFAULT_BYTE_ORDER = ByteOrder.BIG_ENDIAN;
-	private ByteOrder byteOrder = DEFAULT_BYTE_ORDER;
+public abstract class Blockette implements Serializable {
 
-	protected byte[] buf;
-	protected transient ByteBuffer bb;
+  /**
+   * Serial Version UID
+   */
+  private static final long serialVersionUID = 1L;
+  private static final ByteOrder DEFAULT_BYTE_ORDER = ByteOrder.BIG_ENDIAN;
+  private ByteOrder byteOrder = DEFAULT_BYTE_ORDER;
 
-	public Blockette() {
-		this(4);
-	}
+  protected byte[] buf;
+  protected transient ByteBuffer bb;
 
-	Blockette(int bufferSize) {
-		allocateBuffer(bufferSize);
-		bb.position(0);
-		bb.putShort(blocketteNumber());
-	}
+  public Blockette() {
+    this(4);
+  }
 
-	Blockette(byte[] b) {
-		reload(b);
-	}
+  Blockette(int bufferSize) {
+    allocateBuffer(bufferSize);
+    bb.position(0);
+    bb.putShort(blocketteNumber());
+  }
 
-	void reload(byte[] b) {
-		if ((buf == null) || (buf.length != b.length)) {
-			allocateBuffer(b.length);
-		}
-		System.arraycopy(b, 0, buf, 0, b.length);
-	}
+  Blockette(byte[] b) {
+    reload(b);
+  }
 
-	protected abstract short blocketteNumber();
+  void reload(byte[] b) {
+    if ((buf == null) || (buf.length != b.length)) {
+      allocateBuffer(b.length);
+    }
+    System.arraycopy(b, 0, buf, 0, b.length);
+  }
 
-	public void setByteOrder(ByteOrder byteOrder) {
-		this.byteOrder = byteOrder;
-	}
+  protected abstract short blocketteNumber();
 
-	public ByteOrder getByteOrder() {
-		return byteOrder;
-	}
+  public void setByteOrder(ByteOrder byteOrder) {
+    this.byteOrder = byteOrder;
+  }
 
-	private static short peekBlocketteType(byte[] b) {
-		return peekBlocketteType(b, DEFAULT_BYTE_ORDER);
-	}
+  public ByteOrder getByteOrder() {
+    return byteOrder;
+  }
 
-	private static short peekBlocketteType(byte[] b, ByteOrder order) {
-		ByteBuffer wrapper = ByteBuffer.wrap(b);
-		wrapper.position(0);
-		wrapper.order(order);
-		return wrapper.getShort();
-	}
+  private static short peekBlocketteType(byte[] b) {
+    return peekBlocketteType(b, DEFAULT_BYTE_ORDER);
+  }
 
-	private void allocateBuffer(int length) {
-		buf = new byte[length];
-		bb = ByteBuffer.wrap(buf);
-	}
+  private static short peekBlocketteType(byte[] b, ByteOrder order) {
+    ByteBuffer wrapper = ByteBuffer.wrap(b);
+    wrapper.position(0);
+    wrapper.order(order);
+    return wrapper.getShort();
+  }
 
-	protected void reallocateBuffer(int length) {
-		byte[] old = buf;
-		allocateBuffer(length);
-		if (old != null) {
-			System.arraycopy(old, 0, buf, 0, Math.min(length, old.length));
-		}
-	}
+  private void allocateBuffer(int length) {
+    buf = new byte[length];
+    bb = ByteBuffer.wrap(buf);
+  }
 
-	public byte[] getBytes() {
-		return buf;
-	}
+  protected void reallocateBuffer(int length) {
+    byte[] old = buf;
+    allocateBuffer(length);
+    if (old != null) {
+      System.arraycopy(old, 0, buf, 0, Math.min(length, old.length));
+    }
+  }
 
-	public short getBlocketteType() {
-		bb.position(0);
-		return bb.getShort();
-	}
+  public byte[] getBytes() {
+    return buf;
+  }
 
-	public void setNextOffset(int i) {
-		bb.position(2);
-		bb.putShort((short) i);
-	}
+  public short getBlocketteType() {
+    bb.position(0);
+    return bb.getShort();
+  }
 
-	public short getNextOffset() {
-		bb.position(2);
-		return bb.getShort();
-	}
-	
-	/**
-	 * Read default blockette then reallocates the ByteBuffer bb.
-	 *
-	 * @param in
-	 *            the ObjectInputStream containing the Blockette
-	 * @throws IOException
-	 *             Signals that an I/O exception has occurred.
-	 * @throws ClassNotFoundException
-	 *             the class not found exception
-	 */
-	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-		in.defaultReadObject();
-		reallocateBuffer(this.buf.length);
-	}
+  public void setNextOffset(int i) {
+    bb.position(2);
+    bb.putShort((short) i);
+  }
+
+  public short getNextOffset() {
+    bb.position(2);
+    return bb.getShort();
+  }
+
+  /**
+   * Read default blockette then reallocates the ByteBuffer bb.
+   *
+   * @param in the ObjectInputStream containing the Blockette
+   * @throws IOException            Signals that an I/O exception has occurred.
+   * @throws ClassNotFoundException the class not found exception
+   */
+  private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+    in.defaultReadObject();
+    reallocateBuffer(this.buf.length);
+  }
 }

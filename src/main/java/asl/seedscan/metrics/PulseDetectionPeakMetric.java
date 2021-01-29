@@ -11,14 +11,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Gets the maximum-amplitude pulse over a channel's data based on a user-specified lower bound
- * for coefficient of cross-correlation with a step function. The highest amplitude that passes
- * the backend filtering criteria and is above that coefficient lower-bound is published.
- * Amplitude is specifically defined as correlation amplitude with a step-function,
- * rather than the value from the sensor at a given moment.
+ * Gets the maximum-amplitude pulse over a channel's data based on a user-specified lower bound for
+ * coefficient of cross-correlation with a step function. The highest amplitude that passes the
+ * backend filtering criteria and is above that coefficient lower-bound is published. Amplitude is
+ * specifically defined as correlation amplitude with a step-function, rather than the value from
+ * the sensor at a given moment.
+ *
  * @see PulseDetectionMetric (The backend for pulse enumeration)
- * @see asl.seedscan.metrics.PulseDetectionMetric.PulseDetectionData (Specification for the
- * list of list of contiguous pulse values)
+ * @see asl.seedscan.metrics.PulseDetectionMetric.PulseDetectionData (Specification for the list of
+ * list of contiguous pulse values)
  */
 public class PulseDetectionPeakMetric extends PulseDetectionMetric {
 

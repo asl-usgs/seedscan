@@ -39,8 +39,8 @@ public class Time {
   }
 
   /**
-   * This method converts from the seed Convention that uses 0.0001 seconds (decimilliseconds)
-   * to nanoseconds for use with more standard applications.
+   * This method converts from the seed Convention that uses 0.0001 seconds (decimilliseconds) to
+   * nanoseconds for use with more standard applications.
    *
    * @param dmSeconds 0.0001 seconds
    * @return the nanosecond conversion
@@ -50,19 +50,19 @@ public class Time {
   }
 
   /**
-   * Creates a LocalDateTime object from the values in a BTIME field in the SEED format.
-   * See Chapter 3 in Seed Manual
+   * Creates a LocalDateTime object from the values in a BTIME field in the SEED format. See Chapter
+   * 3 in Seed Manual
+   * <p>
+   * Note that Java implementation of Time does not permit leap seconds. Java spreads the leap
+   * second evenly across the last 1000 seconds of the day. In the chance that a btime has a leap
+   * time, it will be regarded as 23:59:59.999999999
    *
-   * Note that Java implementation of Time does not permit leap seconds.
-   * Java spreads the leap second evenly across the last 1000 seconds of the day.
-   * In the chance that a btime has a leap time, it will be regarded as 23:59:59.999999999
-   *
-   * @param year Year (e.g., 1987)
+   * @param year      Year (e.g., 1987)
    * @param dayOfYear Day of Year (Jan 1 is 1)
-   * @param hour Hours of day (0-23)
-   * @param minute Minutes of day (0-59)
-   * @param second Seconds of day (0-59, 60 for leap seconds)
-   * @param dmSecond 0.0001 seconds (0-9999)
+   * @param hour      Hours of day (0-23)
+   * @param minute    Minutes of day (0-59)
+   * @param second    Seconds of day (0-59, 60 for leap seconds)
+   * @param dmSecond  0.0001 seconds (0-9999)
    * @return the LocalDateTime version of provided data
    */
   public static LocalDateTime btimeToLocalDateTime(int year, int dayOfYear, int hour, int minute,

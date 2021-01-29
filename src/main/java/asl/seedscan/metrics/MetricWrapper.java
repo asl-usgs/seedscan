@@ -21,40 +21,41 @@ package asl.seedscan.metrics;
 import java.util.Enumeration;
 
 public class MetricWrapper {
-	private Metric arguments;
-	private Class<?> metricClass;
 
-	public MetricWrapper(Class<?> metricClass) throws IllegalAccessException,
-			InstantiationException {
-		this.metricClass = metricClass;
-		arguments = (Metric) metricClass.newInstance();
-	}
+  private final Metric arguments;
+  private final Class<?> metricClass;
 
-	public void add(String name, String value) throws NoSuchFieldException {
-		// We are actually calling Metric.add(name,value):
-		arguments.add(name, value);
-	}
+  public MetricWrapper(Class<?> metricClass) throws IllegalAccessException,
+      InstantiationException {
+    this.metricClass = metricClass;
+    arguments = (Metric) metricClass.newInstance();
+  }
 
-	public String get(String name) throws NoSuchFieldException {
-		return arguments.get(name);
-	}
+  public void add(String name, String value) throws NoSuchFieldException {
+    // We are actually calling Metric.add(name,value):
+    arguments.add(name, value);
+  }
 
-	public Metric getNewInstance() throws InstantiationException,
-			IllegalAccessException, NoSuchFieldException {
+  public String get(String name) throws NoSuchFieldException {
+    return arguments.get(name);
+  }
 
-		Metric metric = (Metric) metricClass.newInstance();
-		Enumeration<String> names = arguments.names();
-		while (names.hasMoreElements()) {
-			String name = names.nextElement();
-			// MTH: added this condition so that some arguments in
-			// config.xml (e.g., <cfg:argument name=forceupdate value=../>
-			// could be optional and we don't want a NullPointer error when
-			// we try to put a null value:
-			if (arguments.get(name) != null) {
-				metric.add(name, arguments.get(name));
-			}
-		}
-		return metric;
+  public Metric getNewInstance() throws InstantiationException,
+      IllegalAccessException, NoSuchFieldException {
 
-	}
+    Metric metric = (Metric) metricClass.newInstance();
+    Enumeration<String> names = arguments.names();
+    while (names.hasMoreElements()) {
+      String name = names.nextElement();
+      // MTH: added this condition so that some arguments in
+      // config.xml (e.g., <cfg:argument name=forceupdate value=../>
+      // could be optional and we don't want a NullPointer error when
+      // we try to put a null value:
+      if (arguments.get(name) != null) {
+        metric.add(name, arguments.get(name));
+      }
+    }
+    return metric;
+
+  }
 }
