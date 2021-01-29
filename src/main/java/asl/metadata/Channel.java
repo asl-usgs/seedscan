@@ -240,13 +240,9 @@ public class Channel {
       return false;
     }
     if (location == null) {
-      if (other.location != null) {
-        return false;
-      }
-    } else if (!location.equals(other.location)) {
-      return false;
-    }
-    return true;
+      return other.location == null;
+    } else
+      return location.equals(other.location);
   }
 
   public String getLocation() {

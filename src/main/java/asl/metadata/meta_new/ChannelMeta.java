@@ -533,7 +533,7 @@ public class ChannelMeta extends MemberDigest implements Serializable,
 					String TransferFunctionType = blockette.getFieldValue(3, 0);
 					String ResponseInUnits = blockette.getFieldValue(5, 0);
 					String ResponseOutUnits = blockette.getFieldValue(6, 0);
-					Double A0Normalization = Double.parseDouble(blockette
+					double A0Normalization = Double.parseDouble(blockette
 							.getFieldValue(7, 0));
 					@SuppressWarnings("unused")
 					Double frequencyOfNormalization = Double
@@ -555,14 +555,14 @@ public class ChannelMeta extends MemberDigest implements Serializable,
 					pz.setOutputUnits(ResponseOutUnits);
 
 					for (int i = 0; i < numberOfPoles; i++) {
-						Double pole_re = Double.parseDouble(RealPoles.get(i));
-						Double pole_im = Double.parseDouble(ImagPoles.get(i));
+						double pole_re = Double.parseDouble(RealPoles.get(i));
+						double pole_im = Double.parseDouble(ImagPoles.get(i));
 						Complex pole_complex = new Complex(pole_re, pole_im);
 						pz.addPole(pole_complex);
 					}
 					for (int i = 0; i < numberOfZeros; i++) {
-						Double zero_re = Double.parseDouble(RealZeros.get(i));
-						Double zero_im = Double.parseDouble(ImagZeros.get(i));
+						double zero_re = Double.parseDouble(RealZeros.get(i));
+						double zero_im = Double.parseDouble(ImagZeros.get(i));
 						Complex zero_complex = new Complex(zero_re, zero_im);
 						pz.addZero(zero_complex);
 					}
@@ -581,13 +581,13 @@ public class ChannelMeta extends MemberDigest implements Serializable,
 																					// "P [Polynomial]"
 					String ResponseInUnits = blockette.getFieldValue(5, 0);
 					String ResponseOutUnits = blockette.getFieldValue(6, 0);
-					Double lowerFrequencyBound = Double.parseDouble(blockette
+					double lowerFrequencyBound = Double.parseDouble(blockette
 							.getFieldValue(9, 0));
-					Double upperFrequencyBound = Double.parseDouble(blockette
+					double upperFrequencyBound = Double.parseDouble(blockette
 							.getFieldValue(10, 0));
-					Double lowerApproximationBound = Double
+					double lowerApproximationBound = Double
 							.parseDouble(blockette.getFieldValue(11, 0));
-					Double upperApproximationBound = Double
+					double upperApproximationBound = Double
 							.parseDouble(blockette.getFieldValue(12, 0));
 					int numberOfCoefficients = Integer.parseInt(blockette
 							.getFieldValue(14, 0));
@@ -609,9 +609,9 @@ public class ChannelMeta extends MemberDigest implements Serializable,
 					polyStage
 							.setUpperApproximationBound(upperApproximationBound);
 					for (int i = 0; i < numberOfCoefficients; i++) {
-						Double coeff_re = Double.parseDouble(RealCoefficients
+						double coeff_re = Double.parseDouble(RealCoefficients
 								.get(i));
-						Double coeff_im = Double.parseDouble(ImagCoefficients
+						double coeff_im = Double.parseDouble(ImagCoefficients
 								.get(i));
 						Complex coefficient = new Complex(coeff_re, coeff_im);
 						polyStage.addCoefficient(coefficient);

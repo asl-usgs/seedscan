@@ -113,12 +113,10 @@ class StationKey extends Key implements Comparable<StationKey> {
 		} else if (!name.equals(other.name))
 			return false;
 		if (network == null) {
-			if (other.network != null)
-				return false;
-		} else if (!network.equals(other.network))
-			return false;
-		return true;
-	}
+      return other.network == null;
+		} else
+      return network.equals(other.network);
+  }
 
 	/*
 	 * (non-Javadoc)

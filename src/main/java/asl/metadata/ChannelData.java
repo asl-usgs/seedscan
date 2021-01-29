@@ -76,8 +76,7 @@ public class ChannelData {
 	LocalDateTime containsEpoch(LocalDateTime epochTime) {
 		boolean containsEpochTime = false;
 
-		ArrayList<LocalDateTime> epochtimes = new ArrayList<>();
-		epochtimes.addAll(epochs.keySet());
+    ArrayList<LocalDateTime> epochtimes = new ArrayList<>(epochs.keySet());
 		Collections.sort(epochtimes);
 		Collections.reverse(epochtimes);
 		int nEpochs = epochtimes.size();
@@ -134,8 +133,7 @@ public class ChannelData {
 	}
 
 	void printEpochs() {
-		ArrayList<LocalDateTime> epochtimes = new ArrayList<>();
-		epochtimes.addAll(epochs.keySet());
+    ArrayList<LocalDateTime> epochtimes = new ArrayList<>(epochs.keySet());
 		Collections.sort(epochtimes);
 
 		for (LocalDateTime timestamp : epochtimes) {

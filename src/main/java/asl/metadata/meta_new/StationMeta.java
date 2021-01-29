@@ -484,12 +484,9 @@ public class StationMeta implements Serializable {
 		// Then try kcmp = "Z", "N", "E"
 		chanArray = new ChannelArray(location, band + "Z", band + "N", band
 				+ "E");
-		if (hasChannels(chanArray)) {
-			return true;
-		}
+    return hasChannels(chanArray);
 		// If we're here then we didn't find either combo --> return false
-		return false;
-	}
+  }
 
 	/**
 	 * Not sure yet if we need this to drive addRotatedChannel below e.g., if we

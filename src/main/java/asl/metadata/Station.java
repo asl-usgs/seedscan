@@ -117,10 +117,8 @@ public class Station implements Serializable {
 		} else if (!network.equals(other.network))
 			return false;
 		if (station == null) {
-			if (other.station != null)
-				return false;
-		} else if (!station.equals(other.station))
-			return false;
-		return true;
-	}
+      return other.station == null;
+		} else
+      return station.equals(other.station);
+  }
 }

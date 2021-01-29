@@ -166,12 +166,10 @@ public class ChannelKey extends Key implements Comparable<ChannelKey>, Serializa
 		} else if (!location.equals(other.location))
 			return false;
 		if (name == null) {
-			if (other.name != null)
-				return false;
-		} else if (!name.equals(other.name))
-			return false;
-		return true;
-	}
+      return other.name == null;
+		} else
+      return name.equals(other.name);
+  }
 
 	/**
 	 * Comparisons are done by converting location and name to string for both

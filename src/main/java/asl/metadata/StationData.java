@@ -95,40 +95,38 @@ public class StationData {
 	// Return the correct Blockette 050 for the requested epochTime
 	// Return null if epochTime not contained
 	public Blockette getBlockette(LocalDateTime epochTime) {
-		ArrayList<LocalDateTime> epochtimes = new ArrayList<>();
-		epochtimes.addAll(epochs.keySet());
+    ArrayList<LocalDateTime> epochtimes = new ArrayList<>(epochs.keySet());
 		Collections.sort(epochtimes);
 		Collections.reverse(epochtimes);
-		int nEpochs = epochtimes.size();
 
 		LocalDateTime startTimeStamp = null;
 		LocalDateTime endTimeStamp = null;
 
 		// Loop through Blockettes (B050) and pick out epoch end dates
-		for (int i = 0; i < nEpochs; i++) {
-			endTimeStamp = null;
-			startTimeStamp = epochtimes.get(i);
-			Blockette blockette = epochs.get(startTimeStamp);
-			String timestampString = blockette.getFieldValue(14, 0);
-			if (!timestampString.equals("(null)")) {
-				try {
-					endTimeStamp = BlocketteTimestamp
-							.parseTimestamp(timestampString);
-				} catch (TimestampFormatException e) {
-					logger.error("StationData.printEpochs() [{}-{}] Error converting timestampString={}",
-							network, name, timestampString);
-				}
-			}
-			if (endTimeStamp == null) { // This Epoch is open
-				if (epochTime.compareTo(startTimeStamp) >= 0) {
-					return blockette;
-				}
-			} // This Epoch is closed
-			else if (epochTime.compareTo(startTimeStamp) >= 0
-					&& epochTime.compareTo(endTimeStamp) <= 0) {
-				return blockette;
-			}
-		} // for
+    for (LocalDateTime epochtime : epochtimes) {
+      endTimeStamp = null;
+      startTimeStamp = epochtime;
+      Blockette blockette = epochs.get(startTimeStamp);
+      String timestampString = blockette.getFieldValue(14, 0);
+      if (!timestampString.equals("(null)")) {
+        try {
+          endTimeStamp = BlocketteTimestamp
+              .parseTimestamp(timestampString);
+        } catch (TimestampFormatException e) {
+          logger.error("StationData.printEpochs() [{}-{}] Error converting timestampString={}",
+              network, name, timestampString);
+        }
+      }
+      if (endTimeStamp == null) { // This Epoch is open
+        if (epochTime.compareTo(startTimeStamp) >= 0) {
+          return blockette;
+        }
+      } // This Epoch is closed
+      else if (epochTime.compareTo(startTimeStamp) >= 0
+          && epochTime.compareTo(endTimeStamp) <= 0) {
+        return blockette;
+      }
+    }
 		return null; // If we made it to here than we are returning
 						// blockette==null
 	}
@@ -136,8 +134,7 @@ public class StationData {
 	// Loop through all station (=Blockette 050) epochs and print summary
 
 	public void printEpochs() {
-		TreeSet<LocalDateTime> epochtimes = new TreeSet<>();
-		epochtimes.addAll(epochs.keySet());
+    TreeSet<LocalDateTime> epochtimes = new TreeSet<>(epochs.keySet());
 
 		for (LocalDateTime timestamp : epochtimes) {
 			String startDate = EpochData.epochToDateString(timestamp);
@@ -162,8 +159,7 @@ public class StationData {
 
 	// Sort channels and print out
 	public void printChannels() {
-		TreeSet<ChannelKey> keys = new TreeSet<>();
-		keys.addAll(channels.keySet());
+    TreeSet<ChannelKey> keys = new TreeSet<>(channels.keySet());
 
 		for (ChannelKey key : keys) {
 			System.out.println("==Channel:" + key);

@@ -142,8 +142,7 @@ public class SeedVolume {
 	 */
 	public List<Station> getStationList() {
 		ArrayList<Station> stns = new ArrayList<>();
-		TreeSet<StationKey> keys = new TreeSet<>();
-		keys.addAll(stations.keySet());
+    TreeSet<StationKey> keys = new TreeSet<>(stations.keySet());
 
 		for (StationKey key : keys) {
 			stns.add(new Station(key.getNetwork(), key.getName()));

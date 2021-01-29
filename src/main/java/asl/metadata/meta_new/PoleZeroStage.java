@@ -29,12 +29,12 @@ public class PoleZeroStage extends ResponseStage implements Cloneable, Serializa
 	public PoleZeroStage copy() {
 		PoleZeroStage stageCopy = new PoleZeroStage(this.stageNumber,
 				this.stageType, this.stageGain, this.stageGainFrequency);
-		for (int i = 0; i < poles.size(); i++) {
-			stageCopy.addPole(this.poles.get(i));
-		}
-		for (int i = 0; i < zeros.size(); i++) {
-			stageCopy.addZero(this.zeros.get(i));
-		}
+    for (Complex pole : poles) {
+      stageCopy.addPole(pole);
+    }
+    for (Complex zero : zeros) {
+      stageCopy.addZero(zero);
+    }
 		stageCopy.setNormalization(this.normalizationConstant);
 		stageCopy.setInputUnits(this.inputUnitsString);
 		stageCopy.setOutputUnits(this.outputUnitsString);

@@ -212,13 +212,8 @@ public abstract class ResponseStage implements Comparable<ResponseStage>, Serial
 	 */
 	@Override
 	public int compareTo(ResponseStage stage) {
-		if (this.getStageNumber() > stage.getStageNumber()) {
-			return 1;
-		} else if (this.getStageNumber() < stage.getStageNumber()) {
-			return -1;
-		} else { // Stage numbers must be the same
-			return 0;
-		}
+    // Stage numbers must be the same
+    return Integer.compare(this.getStageNumber(), stage.getStageNumber());
 	}
 
 }

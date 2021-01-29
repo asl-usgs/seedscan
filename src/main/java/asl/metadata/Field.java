@@ -16,7 +16,6 @@ public class Field implements Serializable {
 	private String description;
 	private ArrayList<String> values;
 
-	// Constructor(s)
 	public Field(int fieldID, String description) {
 		this.fieldID = fieldID;
 		this.description = description;
@@ -42,9 +41,7 @@ public class Field implements Serializable {
 	}
 
 	public void addValues(Collection<String> values) {
-		for (String value : values) {
-			this.values.add(value);
-		}
+    this.values.addAll(values);
 	}
 
 	public String getValue(int index) {
