@@ -238,9 +238,7 @@ class Dataless {
 				if (station == null) {
 					throw new BlocketteOutOfOrderException();
 				}
-
-				station.addComment(blockette);
-
+				//Skip Station Comment Blockettes Seedscan does not use them
 				break;
 			case 52:
 				if (station == null) {

@@ -13,24 +13,19 @@ public class StationData {
 			.getLogger(asl.metadata.StationData.class);
 
 	private static final int STATION_EPOCH_BLOCKETTE_NUMBER = 50;
-	private static final int STATION_COMMENT_BLOCKETTE_NUMBER = 51;
 
-	private final Hashtable<LocalDateTime, Blockette> comments;
 	private final Hashtable<LocalDateTime, Blockette> epochs;
 	private final Hashtable<ChannelKey, ChannelData> channels;
 	private final String network;
 	private final String name;
 
-	// Constructor(s)
 	public StationData(String network, String name) {
-		comments = new Hashtable<>();
 		epochs = new Hashtable<>();
 		channels = new Hashtable<>();
 		this.name = name;
 		this.network = network;
 	}
 
-	// identifiers
 	public String getNetwork() {
 		return network;
 	}
@@ -39,25 +34,6 @@ public class StationData {
 		return name;
 	}
 
-	// comments
-	public LocalDateTime addComment(Blockette blockette)
-			throws TimestampFormatException, WrongBlocketteException,
-			MissingBlocketteDataException {
-		if (blockette.getNumber() != STATION_COMMENT_BLOCKETTE_NUMBER) {
-			throw new WrongBlocketteException();
-		}
-		// Epoch epochNew = new Epoch(blockette);
-		String timestampString = blockette.getFieldValue(3, 0);
-		if (timestampString == null) {
-			throw new MissingBlocketteDataException();
-		}
-		LocalDateTime timestamp = BlocketteTimestamp
-                .parseTimestamp(timestampString);
-		comments.put(timestamp, blockette);
-		return timestamp;
-	}
-
-	// epochs
 	public LocalDateTime addEpoch(Blockette blockette)
 			throws TimestampFormatException, WrongBlocketteException,
 			MissingBlocketteDataException {
@@ -89,7 +65,6 @@ public class StationData {
 	 * endTimestamp (may be "null") 1 ... - ... 2 ... - ... . ... - ... n-1
 	 * oldest startTimestamp - oldest endTimestamp
 	 **/
-	// public boolean containsEpoch(Calendar epochTime)
 
 	// Return the correct Blockette 050 for the requested epochTime
 	// Return null if epochTime not contained

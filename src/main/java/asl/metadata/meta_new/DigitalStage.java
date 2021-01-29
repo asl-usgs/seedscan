@@ -70,15 +70,7 @@ class DigitalStage extends ResponseStage implements Cloneable, Serializable {
 		super(stageNumber, stageType, stageGain, stageFrequency);
 	}
 
-	public void setInputSampleRate(double sampleRate) {
-		this.inputSampleRate = sampleRate;
-	}
-
-	public void setDecimation(int factor) {
-		this.decimationFactor = factor;
-	}
-
-	public double getInputSampleRate() {
+  public double getInputSampleRate() {
 		return inputSampleRate;
 	}
 
