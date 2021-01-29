@@ -32,8 +32,8 @@ import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sac.SacHeader;
-import sac.SacTimeSeries;
+import edu.sc.seis.seisFile.sac.SacHeader;
+import edu.sc.seis.seisFile.sac.SacTimeSeries;
 
 /**
  * Calculates the quality of data relative to an event if it is a feasible candidate for

@@ -11,7 +11,7 @@ import java.util.Hashtable;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import sac.SacTimeSeries;
+import edu.sc.seis.seisFile.sac.SacTimeSeries;
 
 public class EventLoaderTest {
 

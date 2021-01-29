@@ -1,5 +1,6 @@
 package asl.seedscan.event;
 
+import edu.sc.seis.seisFile.sac.SacTimeSeries;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -18,7 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import asl.metadata.Station;
-import sac.SacTimeSeries;
+
 
 /**
  * The Class EventLoader.

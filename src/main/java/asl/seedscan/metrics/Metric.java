@@ -15,7 +15,7 @@ import asl.seedscan.database.MetricValueIdentifier;
 import asl.seedscan.event.EventCMT;
 import asl.timeseries.CrossPower;
 import asl.timeseries.CrossPowerKey;
-import sac.SacTimeSeries;
+import edu.sc.seis.seisFile.sac.SacTimeSeries;
 
 /**
  * The basic class that all metrics extend.

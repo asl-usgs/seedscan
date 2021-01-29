@@ -7,8 +7,8 @@ import org.apache.commons.math3.complex.Complex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import sac.SacHeader;
-import sac.SacTimeSeries;
+import edu.sc.seis.seisFile.sac.SacHeader;
+import edu.sc.seis.seisFile.sac.SacTimeSeries;
 
 public class MyFilter {
 	private static final Logger logger = LoggerFactory
