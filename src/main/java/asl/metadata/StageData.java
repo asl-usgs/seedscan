@@ -3,8 +3,8 @@ package asl.metadata;
 import java.util.Hashtable;
 
 public class StageData {
-	private int stageID;
-	private Hashtable<Integer, Blockette> blockettes;
+	private final int stageID;
+	private final Hashtable<Integer, Blockette> blockettes;
 
 	// Constructor(s)
 	StageData(int stageID) {

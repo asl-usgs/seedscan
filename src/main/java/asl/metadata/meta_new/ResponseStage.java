@@ -21,16 +21,16 @@ public abstract class ResponseStage implements Comparable<ResponseStage>, Serial
 	private static final long serialVersionUID = 1L;
 	
 	/** The stage number. */
-	protected int stageNumber;
+	protected final int stageNumber;
 	
 	/** The stage type. */
-	protected char stageType;
+	protected final char stageType;
 	
 	/** The stage gain. */
-	protected double stageGain;
+	protected final double stageGain;
 	
 	/** The stage gain frequency. */
-	protected double stageGainFrequency;
+	protected final double stageGainFrequency;
 	
 	/** The input units. */
 	private int inputUnits;

@@ -15,7 +15,7 @@ public class ChannelData {
 	private static final int CHANNEL_EPOCH_INFO_BLOCKETTE_NUMBER = 52;
 	private static final int CHANNEL_COMMENT_BLOCKETTE_NUMBER = 59;
 
-  private Hashtable<LocalDateTime, EpochData> epochs;
+  private final Hashtable<LocalDateTime, EpochData> epochs;
 	private String location = null;
 	private String name = null;
 

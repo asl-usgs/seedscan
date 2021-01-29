@@ -76,10 +76,10 @@ class Dataless {
 			.getLogger(asl.metadata.Dataless.class);
 
 	private SeedVolume volume;
-	private Collection<String> rawDataless;
+	private final Collection<String> rawDataless;
 	private ArrayList<Blockette> blockettes;
-	private String networkName;
-	private String stationName;
+	private final String networkName;
+	private final String stationName;
 	private double percent;
 	private double lastPercent;
 	private double count;

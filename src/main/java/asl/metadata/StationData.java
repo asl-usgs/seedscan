@@ -16,9 +16,9 @@ public class StationData {
 	private static final int STATION_EPOCH_BLOCKETTE_NUMBER = 50;
 	private static final int STATION_COMMENT_BLOCKETTE_NUMBER = 51;
 
-	private Hashtable<LocalDateTime, Blockette> comments;
-	private Hashtable<LocalDateTime, Blockette> epochs;
-	private Hashtable<ChannelKey, ChannelData> channels;
+	private final Hashtable<LocalDateTime, Blockette> comments;
+	private final Hashtable<LocalDateTime, Blockette> epochs;
+	private final Hashtable<ChannelKey, ChannelData> channels;
 	private String network = null;
 	private String name = null;
 

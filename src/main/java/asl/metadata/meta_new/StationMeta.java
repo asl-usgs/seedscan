@@ -60,16 +60,16 @@ public class StationMeta implements Serializable {
 	private String name = null;
 	
 	/** The latitude. (degrees) */
-	private double latitude;
+	private final double latitude;
 	
 	/** The longitude. (degrees) */
-	private double longitude;
+	private final double longitude;
 	
 	/** The elevation. */
-	private double elevation;
+	private final double elevation;
 	
 	/** The channels. */
-	private Hashtable<ChannelKey, ChannelMeta> channels;
+	private final Hashtable<ChannelKey, ChannelMeta> channels;
 
 	/**
 	 * Whitelist for locations that are needed to have a data re-run based on metadata changes.
@@ -79,7 +79,7 @@ public class StationMeta implements Serializable {
 	 * https://service.iris.edu/irisws/metadatachange/1/
 	 * If this is empty then all channels are considered to be whitelisted.
 	 */
-	private Set<String> locationWhitelist;
+	private final Set<String> locationWhitelist;
 	
 	/** The meta timestamp. */
 	private LocalDateTime metaTimestamp = null;

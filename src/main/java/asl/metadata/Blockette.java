@@ -24,10 +24,10 @@ public class Blockette implements java.io.Serializable {
 	private static final long serialVersionUID = 1L;
 
 	/** The number. */
-	private int number;
+	private final int number;
 	
 	/** The fields. */
-	private Hashtable<Integer, Field> fields;
+	private final Hashtable<Integer, Field> fields;
 
 	/** The last start id. */
 	private int lastStartID = 0;

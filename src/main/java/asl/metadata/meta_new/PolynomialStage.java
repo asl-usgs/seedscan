@@ -30,7 +30,7 @@ public class PolynomialStage extends ResponseStage implements Serializable {
 	private double upperFrequencyBound;
 	private double lowerApproximationBound;
 	private double upperApproximationBound;
-	private ArrayList<Complex> coefficients;
+	private final ArrayList<Complex> coefficients;
 
 	// private static final long serialVersionUID = 1L;
 

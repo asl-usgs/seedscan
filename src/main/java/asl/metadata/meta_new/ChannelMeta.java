@@ -53,9 +53,9 @@ public class ChannelMeta extends MemberDigest implements Serializable,
 											// stationMeta metaTimestamp
 	private boolean dayBreak = false; // This will be set to true if channelMeta
 										// changes during requested day
-	private Hashtable<Integer, ResponseStage> stages;
+	private final Hashtable<Integer, ResponseStage> stages;
 
-	private Station station;
+	private final Station station;
 
 	public enum ResponseUnits {
 		DISPLACEMENT, VELOCITY, ACCELERATION, SEEDUNITS

@@ -15,8 +15,8 @@ public class PoleZeroStage extends ResponseStage implements Cloneable, Serializa
 	private static final long serialVersionUID = 2L;
 	private static final Logger logger = LoggerFactory
 			.getLogger(asl.metadata.meta_new.PoleZeroStage.class);
-	private ArrayList<Complex> poles;
-	private ArrayList<Complex> zeros;
+	private final ArrayList<Complex> poles;
+	private final ArrayList<Complex> zeros;
 	private double normalizationConstant;
 	private boolean poleAdded = false;
 	private boolean normalizationSet = false;

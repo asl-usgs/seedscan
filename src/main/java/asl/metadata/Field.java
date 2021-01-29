@@ -12,9 +12,9 @@ public class Field implements Serializable {
 			.getLogger(asl.metadata.Field.class);
 	private static final long serialVersionUID = 1L;
 
-	private int fieldID;
+	private final int fieldID;
 	private String description;
-	private ArrayList<String> values;
+	private final ArrayList<String> values;
 
 	public Field(int fieldID, String description) {
 		this.fieldID = fieldID;

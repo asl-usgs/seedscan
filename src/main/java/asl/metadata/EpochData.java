@@ -32,8 +32,8 @@ public class EpochData {
 
 	private Blockette format = null;
 	private Blockette info = null;
-	private ArrayList<Blockette> misc;
-	private Hashtable<Integer, StageData> stages;
+	private final ArrayList<Blockette> misc;
+	private final Hashtable<Integer, StageData> stages;
 
 	// MTH:
 	private LocalDateTime startTimestamp = null;

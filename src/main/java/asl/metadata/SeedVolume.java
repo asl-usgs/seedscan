@@ -27,10 +27,10 @@ public class SeedVolume {
 	private StationKey stationKey = null;
 
 	/** The station locators. */
-	private ArrayList<Blockette> stationLocators;
+	private final ArrayList<Blockette> stationLocators;
 
 	/** The station list. */
-	private Hashtable<StationKey, StationData> stations;
+	private final Hashtable<StationKey, StationData> stations;
 
 	/**
 	 * Instantiates a new seed volume.
