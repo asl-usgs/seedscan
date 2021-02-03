@@ -73,10 +73,10 @@ xjcGenerate {
 jar {
     /* Adds all dependent libraries*/
     from {
-        configurations.compile.collect {
+        configurations.compileClasspath.collect {
             it.isDirectory() ? it : zipTree(it)
         }
-        configurations.runtime.collect {
+        configurations.runtimeClasspath.collect {
             it.isDirectory() ? it : zipTree(it)
         }
     }
