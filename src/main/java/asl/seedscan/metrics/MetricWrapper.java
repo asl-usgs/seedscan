@@ -18,6 +18,7 @@
  */
 package asl.seedscan.metrics;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Enumeration;
 
 public class MetricWrapper {
@@ -26,9 +27,9 @@ public class MetricWrapper {
   private final Class<?> metricClass;
 
   public MetricWrapper(Class<?> metricClass) throws IllegalAccessException,
-      InstantiationException {
+      InstantiationException, NoSuchMethodException, InvocationTargetException {
     this.metricClass = metricClass;
-    arguments = (Metric) metricClass.newInstance();
+    arguments = (Metric) metricClass.getDeclaredConstructor().newInstance();
   }
 
   public void add(String name, String value) throws NoSuchFieldException {
@@ -41,9 +42,10 @@ public class MetricWrapper {
   }
 
   public Metric getNewInstance() throws InstantiationException,
-      IllegalAccessException, NoSuchFieldException {
+      IllegalAccessException, NoSuchFieldException, NoSuchMethodException,
+      InvocationTargetException {
 
-    Metric metric = (Metric) metricClass.newInstance();
+    Metric metric = (Metric) metricClass.getDeclaredConstructor().newInstance();
     Enumeration<String> names = arguments.names();
     while (names.hasMoreElements()) {
       String name = names.nextElement();

@@ -30,7 +30,7 @@ lastTagHash = lastTagHash.substring(0, lastTagHash.length() - 1)
 def commitCount = ("git rev-list "+lastTagHash+".. --count").execute().text
 commitCount = commitCount.substring(0, commitCount.length() - 1)
 
-version = "$jsonVersion.$commitCount"
+def version = "$jsonVersion.$commitCount"
 mainClassName = 'asl.seedscan.SeedScan'
 applicationDefaultJvmArgs = ["-Xms64m", "-Xmx30g"]
 
@@ -41,26 +41,26 @@ repositories {
 dependencies {
     api project(':asl-java-utils')
 
-    compile group: 'javax.xml.bind', name: 'jaxb-api', version: '2.3+'
-    compile group: 'com.sun.xml.bind', name: 'jaxb-core', version: '2.3+'
-    compile group: 'com.sun.xml.bind', name: 'jaxb-impl', version: '2.3+'
-    compile group: 'com.sun.activation', name: 'javax.activation', version: '1.2.0'
+    implementation group: 'javax.xml.bind', name: 'jaxb-api', version: '2.3+'
+    implementation group: 'com.sun.xml.bind', name: 'jaxb-core', version: '2.3+'
+    implementation group: 'com.sun.xml.bind', name: 'jaxb-impl', version: '2.3+'
+    implementation group: 'com.sun.activation', name: 'javax.activation', version: '1.2.0'
 
-    compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.+'
-    compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.+'
+    implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.+'
+    implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.+'
     // may want to call jfreechart as an api in java utils to prevent redundant import?
-    compile group: 'org.jfree', name: 'jfreechart', version: '1.5.+'
-    compile group: 'org.apache.commons', name: 'commons-math3', version: '3.+'
-    compile group: 'org.postgresql', name: 'postgresql', version: '42.2.1'
-    compile group: 'com.mchange', name: 'c3p0', version: '0.9.5.2'
-    compile 'edu.sc.seis:seedCodec:1.0.11'
-    compile ('edu.sc.seis:TauP:2.4.1') {
+    implementation group: 'org.jfree', name: 'jfreechart', version: '1.5.+'
+    implementation group: 'org.apache.commons', name: 'commons-math3', version: '3.+'
+    implementation group: 'org.postgresql', name: 'postgresql', version: '42.2.1'
+    implementation group: 'com.mchange', name: 'c3p0', version: '0.9.5.2'
+    implementation 'edu.sc.seis:seedCodec:1.0.11'
+    implementation ('edu.sc.seis:TauP:2.4.1') {
         exclude group: 'org.slf4j'
     }
     // compile files('lib/TauP-2.1.0.jar')
 
-    testCompile group: 'org.mockito', name: 'mockito-all', version: '1.10.19'
-    testCompile group: 'junit', name: 'junit', version: '4.+'
+    testImplementation group: 'org.mockito', name: 'mockito-all', version: '1.10.19'
+    testImplementation group: 'junit', name: 'junit', version: '4.+'
 
     xjcClasspath 'com.sun.xml.bind:jaxb-xjc:2.3+'
 }
@@ -86,6 +86,10 @@ jar {
                 'Implementation-Version': version,
                 'Main-Class': mainClassName
     }
+}
+
+tasks.withType(Jar){
+    setDuplicatesStrategy(DuplicatesStrategy.EXCLUDE)
 }
 
 test {
@@ -139,6 +143,10 @@ task gitSubmodule(type: Exec) {
     println 'Downloading the test data submodule may take a long time, potentially hours depending on your connection speed.'
     println 'Interrupting may corrupt the test data submodule.'
     commandLine 'git', 'submodule', 'update', '--init', '--recursive'
+}
+
+tasks.withType(JavaCompile) {
+    options.compilerArgs << "-Xlint:deprecation"
 }
 
 compileJava.dependsOn(gitSubmodule)

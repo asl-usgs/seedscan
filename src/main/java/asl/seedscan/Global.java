@@ -9,6 +9,7 @@ import asl.seedscan.metrics.MetricWrapper;
 import asl.util.LockFile;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -99,6 +100,12 @@ public abstract class Global {
       } catch (NoSuchFieldException ex) {
         throw new MetricException(
             "Invalid dynamic argument to Metric subclass '" + met.getClassName() + "'", ex);
+      } catch (NoSuchMethodException ex) {
+        throw new MetricException(
+            "Found no valid constructor for Metric subclass '" + met.getClassName() + "'", ex);
+      } catch (InvocationTargetException ex) {
+        throw new MetricException(
+            "Encountered error instantiating Metric subclass '" + met.getClassName() + "'", ex);
       }
     }
 
