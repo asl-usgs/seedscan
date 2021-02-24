@@ -87,8 +87,8 @@ public class StationMetaTest {
 
   @Test
   public final void testGetLatitude() throws Exception {
-    assertEquals(new Double(-32.9277), new Double(metadata1.getLatitude()));
-    assertEquals(new Double(35.79657), new Double(metadata2.getLatitude()));
+    assertEquals(-32.9277, metadata1.getLatitude(), 0);
+    assertEquals(35.79657, metadata2.getLatitude(), 0);
   }
 
   @Test
@@ -98,15 +98,15 @@ public class StationMetaTest {
   }
 
   @Test
-  public final void testGetElevation() throws Exception {
-    assertEquals(new Double(380.0), new Double(metadata1.getElevation()));
-    assertEquals(new Double(333.0), new Double(metadata2.getElevation()));
+  public final void testGetElevation() {
+    assertEquals(380.0, metadata1.getElevation(), 0);
+    assertEquals(333.0, metadata2.getElevation(), 0);
   }
 
   @Test
   public final void testGetNumberOfChannels() throws Exception {
-    assertEquals(new Integer(35), new Integer(maleablemetadata1.getNumberOfChannels()));
-    assertEquals(new Integer(6), new Integer(metadata2.getNumberOfChannels()));
+    assertEquals(35, maleablemetadata1.getNumberOfChannels());
+    assertEquals(6, metadata2.getNumberOfChannels());
   }
 
   @Test
@@ -141,83 +141,83 @@ public class StationMetaTest {
     IntBuffer cbuf = buf.asIntBuffer();
 
     //We expect 4 integers in the buffer
-    assertEquals(new Integer(4), new Integer(cbuf.remaining()));
+    assertEquals(4, cbuf.remaining());
 
     //Our digest values in testing.
-    assertEquals(new Integer(680281833), new Integer(cbuf.get()));
-    assertEquals(new Integer(2056767904), new Integer(cbuf.get()));
-    assertEquals(new Integer(-1193767743), new Integer(cbuf.get()));
-    assertEquals(new Integer(1883118207), new Integer(cbuf.get()));
+    assertEquals(680281833, cbuf.get());
+    assertEquals(2056767904, cbuf.get());
+    assertEquals(-1193767743,cbuf.get());
+    assertEquals(1883118207, cbuf.get());
   }
 
   @Test
   public final void testFindChannelHashTable() throws Exception {
     //10-BH1, 00-VHZ, 00-BH2, 00-BH1, 20-LNZ, 00-VM2, 00-VM1, 20-HNZ, 10-LHZ, 10-VH2, 00-VH2, 00-LHZ, 10-VH1, 00-VH1, 20-LN2, 10-HHZ, 20-LN1
     Hashtable<ChannelKey, ChannelMeta> table = maleablemetadata1.getChannelHashTable();
-    assertEquals(new Integer(35), new Integer(table.size()));
+    assertEquals(35, table.size());
 
-    ChannelKey key = null;
-    ChannelMeta meta = null;
+    ChannelKey key;
+    ChannelMeta meta;
     //Check random sample matches our original benchmark.
     key = new ChannelKey("20", "HN2");
     meta = table.get(key);
-    assertEquals(new Double(90), new Double(meta.getAzimuth()));
-    assertEquals(new Double(100), new Double(meta.getSampleRate()));
-    assertEquals(new Integer(3), new Integer(meta.getNumberOfStages()));
+    assertEquals(90.0, meta.getAzimuth(), 0);
+    assertEquals(100.0, meta.getSampleRate(), 0);
+    assertEquals(3, meta.getNumberOfStages());
 
     key = new ChannelKey("10", "LH2");
     meta = table.get(key);
-    assertEquals(new Double(89), new Double(meta.getAzimuth()));
-    assertEquals(new Double(1), new Double(meta.getSampleRate()));
-    assertEquals(new Integer(3), new Integer(meta.getNumberOfStages()));
+    assertEquals(89.0, meta.getAzimuth(), 0);
+    assertEquals(1.0, meta.getSampleRate(), 0);
+    assertEquals(3, meta.getNumberOfStages());
 
     key = new ChannelKey("10", "BHZ");
     meta = table.get(key);
-    assertEquals(new Double(0), new Double(meta.getAzimuth()));
-    assertEquals(new Double(40), new Double(meta.getSampleRate()));
-    assertEquals(new Integer(3), new Integer(meta.getNumberOfStages()));
+    assertEquals(0, meta.getAzimuth(), 0);
+    assertEquals(40.0, meta.getSampleRate(), 0);
+    assertEquals(3, meta.getNumberOfStages());
 
     key = new ChannelKey("31", "LDO");
     meta = table.get(key);
-    assertEquals(new Double(0), new Double(meta.getAzimuth()));
-    assertEquals(new Double(1), new Double(meta.getSampleRate()));
-    assertEquals(new Integer(2), new Integer(meta.getNumberOfStages()));
+    assertEquals(0, meta.getAzimuth(), 0);
+    assertEquals(1.0, meta.getSampleRate(), 0);
+    assertEquals(2, meta.getNumberOfStages());
 
     key = new ChannelKey("00", "LH1");
     meta = table.get(key);
-    assertEquals(new Double(80), new Double(meta.getAzimuth()));
-    assertEquals(new Double(1), new Double(meta.getSampleRate()));
-    assertEquals(new Double(105), new Double(meta.getDepth()));
-    assertEquals(new Integer(3), new Integer(meta.getNumberOfStages()));
+    assertEquals(80.0, meta.getAzimuth(), 0);
+    assertEquals(1.0, meta.getSampleRate(), 0);
+    assertEquals(105.0, meta.getDepth(), 0);
+    assertEquals(3, meta.getNumberOfStages());
 
     key = new ChannelKey("10", "HH1");
     meta = table.get(key);
-    assertEquals(new Double(359), new Double(meta.getAzimuth()));
-    assertEquals(new Double(100), new Double(meta.getSampleRate()));
-    assertEquals(new Integer(3), new Integer(meta.getNumberOfStages()));
+    assertEquals(359.0, meta.getAzimuth(), 0);
+    assertEquals(100.0, meta.getSampleRate(), 0);
+    assertEquals(3, meta.getNumberOfStages());
 
     key = new ChannelKey("10", "VMW");
     meta = table.get(key);
-    assertEquals(new Double(0), new Double(meta.getAzimuth()));
-    assertEquals(new Double(0.1), new Double(meta.getSampleRate()));
-    assertEquals(new Integer(2), new Integer(meta.getNumberOfStages()));
+    assertEquals(0, meta.getAzimuth(), 0);
+    assertEquals(0.1, meta.getSampleRate(), 0);
+    assertEquals(2, meta.getNumberOfStages());
 
     key = new ChannelKey("10", "VHZ");
     meta = table.get(key);
-    assertEquals(new Double(0), new Double(meta.getAzimuth()));
-    assertEquals(new Double(0.1), new Double(meta.getSampleRate()));
-    assertEquals(new Double(-90), new Double(meta.getDip()));
-    assertEquals(new Integer(3), new Integer(meta.getNumberOfStages()));
+    assertEquals(0, meta.getAzimuth(), 0);
+    assertEquals(0.1, meta.getSampleRate(), 0);
+    assertEquals(-90, meta.getDip(), 0);
+    assertEquals(3, meta.getNumberOfStages());
   }
 
   @Test
   public final void testFindChannelArrayForIgnoringTriggeredChannels() throws Exception {
     List<Channel> channels = maleablemetadata1.getChannelArray("LH,BH,HH", true, false);
-    assertEquals(new Integer(12), new Integer(channels.size()));
+    assertEquals((12), (channels.size()));
 
     //Should now get 3 more triggered HH channels
     channels = maleablemetadata1.getChannelArray("LH,BH,HH", false, false);
-    assertEquals(new Integer(15), new Integer(channels.size()));
+    assertEquals((15), (channels.size()));
   }
 
   @Test
@@ -226,34 +226,34 @@ public class StationMetaTest {
     maleablemetadata3.addRotatedChannelMeta("10", "LH");
 
     List<Channel> channels = maleablemetadata3.getChannelArray("LH,BH", false, true);
-    assertEquals(new Integer(12), new Integer(channels.size()));
+    assertEquals((12), (channels.size()));
 
     //Should now get 4 (not 6) more derived channels channels
     //*Z channels should be included regardless as they are always vertical.
     channels = maleablemetadata3.getChannelArray("LH,BH", false, false);
-    assertEquals(new Integer(16), new Integer(channels.size()));
+    assertEquals((16), (channels.size()));
   }
 
   @Test
   public final void testFindChannelArrayForChangingBands() throws Exception {
     List<Channel> channels = maleablemetadata3.getChannelArray("LH,BH", false, true);
-    assertEquals(new Integer(12), new Integer(channels.size()));
+    assertEquals(12, channels.size());
 
     //Should not change from last result
     channels = maleablemetadata3.getChannelArray("LH,BH", false, true);
-    assertEquals(new Integer(12), new Integer(channels.size()));
+    assertEquals(12, channels.size());
 
     //Should now get HH as well
     channels = maleablemetadata3.getChannelArray("LH,BH,HH", false, true);
-    assertEquals(new Integer(15), new Integer(channels.size()));
+    assertEquals(15, channels.size());
 
     //Should only get LH
     channels = maleablemetadata3.getChannelArray("LH", false, true);
-    assertEquals(new Integer(6), new Integer(channels.size()));
+    assertEquals(6, channels.size());
   }
 
   @Test
-  public final void testFindChannelUsingComponent12() throws Exception {
+  public final void testFindChannelUsingComponent12() {
     assertEquals(new Channel("00", "LH1"), maleablemetadata1.findChannel("00", "LH", "1"));
     assertEquals(new Channel("10", "HH2"), maleablemetadata3.findChannel("10", "HH", "2"));
 
