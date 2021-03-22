@@ -61,7 +61,6 @@ License
     License:        BSD License  
     Website:        http://jdbc.postgresql.org/  
 ###### TauP
-    Copyright (C) 1998-2000 University of South Carolina  
-    License:        GPL v3 or later (See https://github.com/crotwell/TauP/blob/master/doc/taup.pdf)  
-    Website:        http://www.seis.sc.edu/taup/  
-                    https://github.com/crotwell/TauP  
+	Author:			Crotwell, H. P., T. J. Owens, and J. Ritsema (1999)
+	License:		LGPL v. 3.0
+	Website: 		http://www.seis.sc.edu/taup/ 

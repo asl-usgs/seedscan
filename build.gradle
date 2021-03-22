@@ -54,7 +54,7 @@ dependencies {
     implementation group: 'org.postgresql', name: 'postgresql', version: '42.2.1'
     implementation group: 'com.mchange', name: 'c3p0', version: '0.9.5.2'
     implementation 'edu.sc.seis:seedCodec:1.0.11'
-    implementation ('edu.sc.seis:TauP:2.4.1') {
+    implementation ('edu.sc.seis:TauP:2.5.0') {
         exclude group: 'org.slf4j'
     }
     // compile files('lib/TauP-2.1.0.jar')
