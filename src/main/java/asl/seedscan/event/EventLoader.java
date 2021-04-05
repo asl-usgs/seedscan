@@ -172,9 +172,9 @@ public class EventLoader {
 
       for (File sacFile : sacFiles) {
         logger.info(String.format("Found sacFile=%s [%s]", sacFile, sacFile.getName()));
-        SacTimeSeries sac = new SacTimeSeries();
+        SacTimeSeries sac;
         try {
-          sac.read(sacFile);
+          sac = SacTimeSeries.read(sacFile);
         } catch (IOException e) {
           //File didn't read correctly, try next file.
           logger.error("Exception:", e);
