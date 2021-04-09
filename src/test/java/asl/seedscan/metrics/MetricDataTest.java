@@ -1,12 +1,5 @@
 package asl.seedscan.metrics;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 import asl.metadata.Channel;
 import asl.metadata.Station;
 import asl.metadata.meta_new.StationMeta;
@@ -14,16 +7,16 @@ import asl.seedscan.database.MetricDatabaseMock;
 import asl.seedscan.database.MetricValueIdentifier;
 import asl.seedsplitter.DataSet;
 import asl.testutils.ResourceManager;
-import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import javax.xml.bind.DatatypeConverter;
-import org.apache.commons.codec.binary.Hex;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import seed.Blockette320;
+
+import javax.xml.bind.DatatypeConverter;
+import java.nio.ByteBuffer;
+import java.time.LocalDate;
+import java.util.ArrayList;
+
+import static org.junit.Assert.*;
 
 public class MetricDataTest {
 

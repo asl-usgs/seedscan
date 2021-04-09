@@ -47,9 +47,9 @@ public class EventLoaderTest {
     Hashtable<String, SacTimeSeries> eventSynthetics = synthetics.get("C201510260909A");
 
     SacTimeSeries timeseries = eventSynthetics.get("NWAO.XX.LXZ.modes.sac.proc");
-    assertEquals(new Integer(timeseries.getNumPtsRead()), new Integer(3999));
+    assertEquals(timeseries.getNumPtsRead(), 3999);
     timeseries = eventSynthetics.get("NWAO.XX.LXZ.modes.sac");
-    assertEquals(new Integer(timeseries.getNumPtsRead()), new Integer(8000));
+    assertEquals(timeseries.getNumPtsRead(),8000);
 
     // Should only return table with synthetics that are actually there.
     station = new Station("IU", "MAKZ");
@@ -63,9 +63,9 @@ public class EventLoaderTest {
     LocalDate date = LocalDate.of(2015, 10, 26);
     Hashtable<String, EventCMT> cmts = eventLoader.getDayEvents(date);
     EventCMT cmt = cmts.get("C201510260909A");
-    assertEquals(new Double(cmt.getLatitude()), new Double(36.44));
-    assertEquals(new Double(cmt.getLongitude()), new Double(70.72));
-    assertEquals(new Double(cmt.getDepth()), new Double(212.5));
+    assertEquals(cmt.getLatitude(), 36.44, 0.);
+    assertEquals(cmt.getLongitude(), 70.72, 0.);
+    assertEquals(cmt.getDepth(), 212.5, 0.);
   }
 
 }
