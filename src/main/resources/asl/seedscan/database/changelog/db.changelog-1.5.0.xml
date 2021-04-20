@@ -42,8 +42,10 @@
     <dropColumn columnName="legend" tableName="tblmetric"/>
   </changeSet>
   <changeSet author="dwitte" id="add_metric_description">
-    <addColumn columnName="descriptionshort" tableName="tblmetric" type="VARCHAR(128)"/>
-    <addColumn columnName="descriptionlong" tableName="tblmetric" type="TEXT"/>
+    <addColumn tableName="tblmetric">
+      <column name="descriptionshort" type="VARCHAR(128)"/>
+      <column name="descriptionlong" type="TEXT"/>
+    </addColumn>
   </changeSet>
 </databaseChangeLog>
 
