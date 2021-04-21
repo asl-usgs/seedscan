@@ -34,8 +34,11 @@ public class CrossPower {
    */
   public CrossPower(Channel channelX, Channel channelY, MetricData metricData)
       throws MetricPSDException, ChannelMetaException {
-    this(channelX, channelY, metricData, metricData.getDetrendedPaddedDayData(channelX),
-        metricData.getDetrendedPaddedDayData(channelY));
+    // normally we would use the detrended padded day data method, but we get the data from the
+    // datablock directly so that data that is at high sample rates (i.e, 100Hz) can run without
+    // producing memory exceptions
+    this(channelX, channelY, metricData, metricData.getChannelData(channelX).getData(),
+        metricData.getChannelData(channelY).getData());
   }
 
   /**

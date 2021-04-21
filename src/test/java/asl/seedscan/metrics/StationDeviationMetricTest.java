@@ -2,9 +2,12 @@ package asl.seedscan.metrics;
 
 import static org.junit.Assert.assertEquals;
 
+import asl.metadata.Channel;
 import asl.metadata.Station;
 import asl.testutils.MetricTestMap;
 import asl.testutils.ResourceManager;
+import asl.utils.timeseries.DataBlock;
+import java.time.Instant;
 import java.time.LocalDate;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -69,12 +72,12 @@ public class StationDeviationMetricTest {
 
     double err = 1E-5;
     MetricTestMap expect = new MetricTestMap();
-    expect.put("00,LH1",  0.233198, err);
-    expect.put("00,LH2", 14.616353, err);
-    expect.put("00,LHZ", 22.065026, err);
-    expect.put("00,HH1",  2.803599, err);
-    expect.put("00,HH2", 13.600242, err);
-    expect.put("00,HHZ", 21.547157, err);
+    expect.put("00,LH1", -6.581580, err);
+    expect.put("00,LH2", -1.361748, err);
+    expect.put("00,LHZ", -3.529673, err);
+    expect.put("00,HH1", -6.979268, err);
+    expect.put("00,HH2", -0.003474, err);
+    expect.put("00,HHZ", -1.880106, err);
 
     TestUtils.testMetric(metric, expect);
   }
