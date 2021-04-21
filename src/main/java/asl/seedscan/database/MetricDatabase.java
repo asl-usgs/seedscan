@@ -70,7 +70,7 @@ public class MetricDatabase {
   /**
    * Instantiates a new metric database.
    *
-   * @param URI      the location of the database
+   * @param URI the location of the database
    * @param username the username
    * @param password the password
    * @throws SQLException if the database is unable to be communicated with.
@@ -151,10 +151,10 @@ public class MetricDatabase {
   /**
    * Gets the metric value for a particular channel, metric, day.
    *
-   * @param date       the date
+   * @param date the date
    * @param metricName the metric name
-   * @param station    the network and station information
-   * @param channel    the channel and location information
+   * @param station the network and station information
+   * @param channel the channel and location information
    * @return the metric value
    */
   public Double getMetricValue(LocalDate date, String metricName, Station station,
@@ -201,10 +201,10 @@ public class MetricDatabase {
   /**
    * Gets the metric value digest for a particular channel, metric, day.
    *
-   * @param date       the date
+   * @param date the date
    * @param metricName the metric name
-   * @param station    the network and station information
-   * @param channel    the channel and location information
+   * @param station the network and station information
+   * @param channel the channel and location information
    * @return the metric value digest
    */
   public ByteBuffer getMetricValueDigest(LocalDate date, String metricName, Station station,
@@ -379,20 +379,47 @@ public class MetricDatabase {
   }
 
   /**
+   * Insert a metric or update an existing metric with descriptions
+   * @param metricName The metric name to insert
+   * @param simpleDescription Short form description
+   * @param longDescription Long form description
+   * @throws SQLException If insertion fails
+   */
+  public void insertMetric(String metricName, String simpleDescription, String longDescription)
+      throws SQLException {
+
+    try (Connection connection = dataSource
+        .getConnection(); PreparedStatement statement = connection.prepareStatement("INSERT INTO "
+        + "public.tblmetric(name, fkcomputetypeid, descriptionshort, descriptionlong) "
+        + "VALUES (?, 1, ?, ?) "
+        + "ON CONFLICT (name) DO "
+        + "UPDATE SET descriptionshort=EXCLUDED.descriptionshort, descriptionlong=EXCLUDED.descriptionlong")) {
+
+      int i = 1;
+      statement.setObject(i++, metricName);
+      statement.setString(i++, simpleDescription);
+      statement.setString(i++, longDescription);
+
+      if (statement.executeUpdate() != 1) {
+        throw new SQLException("Failed to insert metric information into database");
+      }
+    }
+  }
+
+  /**
    * Insert a message (usually an error message) into the database regarding a scan.
    * <p>
    * Only the scanID is checked for validity. NSLC identifiers aren't required to be valid, but
    * misuse is not advisable. There are hard size restrictions.
    *
-   * @param scanID   - Should be the highest level scan. As child scans will be cleaned. Setting
-   *                 this to the child scan will result in it being deleted during the cleanup of
-   *                 finished child scans.
-   * @param network  2 character limit
-   * @param station  10 character limit
+   * @param scanID - Should be the highest level scan. As child scans will be cleaned. Setting this
+   * to the child scan will result in it being deleted during the cleanup of finished child scans.
+   * @param network 2 character limit
+   * @param station 10 character limit
    * @param location 10 character limit
-   * @param channel  10 character limit
-   * @param metric   50 character limit
-   * @param message  No limit in size. A more detailed message or exception should go here.
+   * @param channel 10 character limit
+   * @param metric 50 character limit
+   * @param message No limit in size. A more detailed message or exception should go here.
    */
   public void insertScanMessage(UUID scanID, String network, String station, String location,
       String channel, String metric, String message) {
@@ -415,7 +442,8 @@ public class MetricDatabase {
         statement.setString(i++, message);
 
         if (statement.executeUpdate() != 1) {
-          throw new SQLException("Failed to insert following scan message into database:");
+          throw new SQLException(
+              "Failed to insert following scan message into database: " + message);
         }
       } finally {
         if (statement != null) {

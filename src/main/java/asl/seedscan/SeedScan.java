@@ -2,7 +2,9 @@ package asl.seedscan;
 
 import asl.metadata.MetaGenerator;
 import asl.seedscan.database.MetricDatabase;
+import asl.seedscan.metrics.Metric;
 import asl.seedscan.metrics.MetricException;
+import asl.seedscan.metrics.MetricWrapper;
 import asl.seedscan.scanner.ScanManager;
 import asl.util.LockFile;
 import asl.util.Logging;
@@ -10,7 +12,9 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.sql.SQLException;
+import java.util.List;
 import javax.xml.bind.JAXBException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -112,6 +116,19 @@ public class SeedScan {
       metaGenerator = new MetaGenerator(Global.getDatalessDir(), Global.getDatalessFile(),
           Global.getNetworkRestrictions());
       database = new MetricDatabase(Global.getDatabase());
+
+      //Add any missing metrics or metric descriptions to database.
+      List<MetricWrapper> metrics = Global.getMetrics();
+
+      for (MetricWrapper metricWrapper : metrics) {
+        Metric metric = metricWrapper.getNewInstance();
+        database.insertMetric(
+            metric.getName(),
+            metric.getSimpleDescription(),
+            metric.getLongDescription());
+
+      }
+
       scanManager = new ScanManager(database, metaGenerator);
 
       logger.info("Handing control to ScanManager");
@@ -132,6 +149,9 @@ public class SeedScan {
       logger.error(Logging.prettyExceptionWithCause(e));
     } catch (SQLException e) {
       logger.error("Unable to communicate with Database");
+      logger.error(Logging.prettyExceptionWithCause(e));
+    } catch (InstantiationException | InvocationTargetException | NoSuchMethodException | IllegalAccessException | NoSuchFieldException e) {
+      logger.error("Malformed MetricWrapper encountered");
       logger.error(Logging.prettyExceptionWithCause(e));
     } finally {
       logger.info("Release seedscan lock and quit metaServer");
