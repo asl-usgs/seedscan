@@ -27,6 +27,9 @@ import java.io.Serializable;
  */
 public class DataSet extends Sequence implements Serializable {
 
+  // TODO: this could with almost no issues be replaced with the datablock object from java utils
+  //   (especially as that includes both the raw data and the basic SNCL metadata)
+
   /**
    * Serial version UID
    */

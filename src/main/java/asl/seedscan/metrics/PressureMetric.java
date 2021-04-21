@@ -9,6 +9,8 @@ import asl.util.Logging;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.util.List;
+
+import asl.utils.timeseries.DataBlock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -120,7 +122,7 @@ public class PressureMetric extends Metric {
       throws MetricException, UnsupportedEncodingException {
 
     ChannelMeta chanMeta = this.stationMeta.getChannelMetadata(channel);
-    List<DataSet> datasets = this.metricData.getChannelData(channel);
+    DataBlock dataBlock = this.metricData.getChannelData(channel);
 
     double elevation = chanMeta.getElevation();
 
@@ -153,9 +155,8 @@ public class PressureMetric extends Metric {
     double rmsValue = 0;
     int pointCount = 0;
 
-    for (DataSet dataset : datasets) {
-      int[] intArray = dataset.getSeries();
-      for (int dataPoint : intArray) {
+    for (double[] dataset : dataBlock.getDataMap().values()) {
+      for (double dataPoint : dataset) {
         double polynomialAccumulator = 0.; // a0 + a1 * x + a2 * x^2, etc.
         // we expect there to be only a0 and a1 but won't enforce this as a constraint
         for (int k = 0; k < coefficients.length; ++k) {
@@ -163,7 +164,7 @@ public class PressureMetric extends Metric {
         }
         rmsValue += Math.pow(polynomialAccumulator, 2);
       }
-      pointCount += dataset.getLength();
+      pointCount += dataset.length;
     } // end for each dataset
 
     rmsValue = Math.sqrt(rmsValue / pointCount);

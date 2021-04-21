@@ -9,6 +9,8 @@ import asl.util.Logging;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.util.List;
+
+import asl.utils.timeseries.DataBlock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,7 +49,7 @@ public class MassPositionMetric extends Metric {
       throws MetricException, UnsupportedEncodingException {
 
     ChannelMeta chanMeta = this.stationMeta.getChannelMetadata(channel);
-    List<DataSet> datasets = this.metricData.getChannelData(channel);
+    DataBlock dataBlock = this.metricData.getChannelData(channel);
 
     double a0 = 0;
     double a1 = 0;
@@ -91,12 +93,11 @@ public class MassPositionMetric extends Metric {
     double massPosition = 0;
     int ndata = 0;
 
-    for (DataSet dataset : datasets) {
-      int[] intArray = dataset.getSeries();
-      for (int i : intArray) {
+    for (double[] dataset : dataBlock.getDataMap().values()) {
+      for (double i : dataset) {
         massPosition += Math.pow((a0 + i * a1), 2);
       }
-      ndata += dataset.getLength();
+      ndata += dataset.length;
     } // end for each dataset
 
     massPosition = Math.sqrt(massPosition / ndata);

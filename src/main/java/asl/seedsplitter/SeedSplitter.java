@@ -1,13 +1,20 @@
 package asl.seedsplitter;
 
+import edu.iris.dmc.seedcodec.CodecException;
+import edu.sc.seis.seisFile.mseed.SeedFormatException;
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.concurrent.LinkedBlockingQueue;
+
+import asl.utils.timeseries.DataBlock;
+import asl.utils.timeseries.TimeSeriesUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import seed.Blockette320;
@@ -18,7 +25,7 @@ import seed.Blockette320;
  * <p>
  * The SeedSplitter class reads MiniSEED records from a list of files, filters out records that
  * don't match the filters (if supplied), de-duplicates the data, orders it based on date, and
- * breaks it up into DataSets based on continuity and station/channel info.
+ * creates datablocks that hold the relevant data
  */
 public class SeedSplitter {
 
@@ -26,13 +33,7 @@ public class SeedSplitter {
       .getLogger(asl.seedsplitter.SeedSplitter.class);
 
   private File[] m_files;
-  private Hashtable<String, ArrayList<DataSet>> m_table;
-  private LinkedBlockingQueue<ByteBlock> m_recordQueue;
-
-  // MTH
-  private Hashtable<String, ArrayList<Integer>> m_qualityTable;
-  private Hashtable<String, ArrayList<Blockette320>> m_calTable;
-
+  private Hashtable<String, DataBlockDigest> m_table;
   /**
    * Hidden initializer which is called by all constructors.
    *
@@ -41,8 +42,6 @@ public class SeedSplitter {
   private void _construct(File[] fileList) {
     m_files = fileList;
     m_table = null;
-
-    m_recordQueue = new LinkedBlockingQueue<>(1024);
   }
 
   /**
@@ -55,65 +54,43 @@ public class SeedSplitter {
     _construct(fileList);
   }
 
-  public Hashtable<String, ArrayList<Integer>> getQualityTable() {
-    return m_qualityTable;
-  }
-
-  public Hashtable<String, ArrayList<Blockette320>> getCalTable() {
-    return m_calTable;
-  }
-
   /**
    * Overrides the doInBackground method of SwingWorker, launching and monitoring two threads which
    * read the files and process MiniSEED Data.
    *
    * @return A hash table containing all of the data acquired from the file list.
    */
-  public Hashtable<String, ArrayList<DataSet>> doInBackground() {
-    boolean finalFile = false;
-
-    SeedSplitProcessor processor = new SeedSplitProcessor(m_recordQueue);
-    Thread processorThread = new Thread(processor);
-    processorThread.start();
-    for (int i = 0; i < m_files.length; i++) {
-      if (i == (m_files.length - 1)) {
-        finalFile = true;
-      }
-      File file = m_files[i];
-      DataInputStream inputStream;
-      Thread inputThread = null;
+  public Hashtable<String, DataBlockDigest> doInBackground() {
+    m_table = new Hashtable<>();
+    Arrays.stream(m_files).parallel().forEach(file -> {
+      // we won't do a parallel inner loop as we expect files to in practice only have one channel
       try {
-        inputStream = new DataInputStream(new BufferedInputStream(
-            new FileInputStream(file)));
-        SeedInputStream stream = new SeedInputStream(inputStream,
-            m_recordQueue, finalFile);
-        inputThread = new Thread(stream);
-        logger.debug("Processing file " + file.getName() + "...");
-        inputThread.start();
-      } catch (FileNotFoundException e) {
+        for (String sncl : TimeSeriesUtils.getMplexNameList(file.getPath())) {
+          DataBlock db = TimeSeriesUtils.getTimeSeries(file.getPath(), sncl);
+          String[] components = db.getName().split("_");
+          String key = components[2] + '-' + components[3];
+          if (m_table.contains(key)) {
+            m_table.get(key).getDataBlock().appendTimeSeries(db);
+          } else {
+            m_table.put(key, new DataBlockDigest(db));
+          }
+        }
+      } catch (SeedFormatException e) {
+        String message = "SeedFormatException: File '"
+            + file.getName() + "' not a proper seed file\n";
+        logger.error(message, e);
+        // Should we do something more? Throw an exception?
+      } catch (IOException e) {
         String message = "FileNotFoundException: File '"
             + file.getName() + "' not found\n";
         logger.error(message, e);
-        // Should we do something more? Throw an exception?
+      } catch (CodecException e) {
+        String message = "CodecException: File '"
+            + file.getName() + "' is a valid seed file but has data issues\n";
+        logger.error(message, e);
       }
-      m_table = processor.getTable();
-      m_qualityTable = processor.getQualityTable();
-      m_calTable = processor.getCalTable();
-      if (inputThread != null) {
-        try {
-          inputThread.join();
-        } catch (InterruptedException e) {
-          logger.error("InterruptedException:", e);
-        }
-      }
-      if (finalFile) {
-        try {
-          processorThread.join();
-        } catch (InterruptedException e) {
-          logger.error("InterruptedException:", e);
-        }
-      }
-    }
+    });
+
     return m_table;
   }
 }

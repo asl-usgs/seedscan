@@ -34,7 +34,6 @@ public class CrossPower {
    */
   public CrossPower(Channel channelX, Channel channelY, MetricData metricData)
       throws MetricPSDException, ChannelMetaException {
-
     this(channelX, channelY, metricData, metricData.getDetrendedPaddedDayData(channelX),
         metricData.getDetrendedPaddedDayData(channelY));
   }
@@ -67,11 +66,11 @@ public class CrossPower {
           channelY.toString() + ") was null for some reason");
     }
 
-    double sampleRate = metricData.getChannelData(channelX).get(0).getSampleRate();
+    double sampleRate = metricData.getChannelData(channelX).getSampleRate();
 
-    if (sampleRate != metricData.getChannelData(channelY).get(0).getSampleRate()) {
+    if (sampleRate != metricData.getChannelData(channelY).getSampleRate()) {
       throw new MetricPSDException("computePSD(): srateX (=" + sampleRate + ") != srateY (="
-          + metricData.getChannelData(channelY).get(0).getSampleRate() + ")\n");
+          + metricData.getChannelData(channelY).getSampleRate() + ")\n");
     }
 
     if (sampleRate == 0) {

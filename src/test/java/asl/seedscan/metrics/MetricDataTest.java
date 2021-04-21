@@ -7,6 +7,8 @@ import asl.seedscan.database.MetricDatabaseMock;
 import asl.seedscan.database.MetricValueIdentifier;
 import asl.seedsplitter.DataSet;
 import asl.testutils.ResourceManager;
+import asl.utils.timeseries.DataBlock;
+import java.util.List;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import seed.Blockette320;
@@ -188,17 +190,11 @@ public class MetricDataTest {
    */
   @Test
   public final void testGetChannelDataChannel() throws Exception {
-    ArrayList<DataSet> channelData = data.getChannelData(new Channel("00", "LHZ"));
+    DataBlock channelData = data.getChannelData(new Channel("00", "LHZ"));
 
     assertNotNull(channelData);
-    assertEquals((Integer) 1, (Integer) channelData.size());
-
     // Make sure we got the correct Channel back
-    DataSet dataSet = channelData.get(0);
-    assertEquals("IU", dataSet.getNetwork());
-    assertEquals("ANMO", dataSet.getStation());
-    assertEquals("00", dataSet.getLocation());
-    assertEquals("LHZ", dataSet.getChannel());
+    assertEquals("IU_ANMO_00_LHZ", channelData.getName());
   }
 
   /*
@@ -212,28 +208,24 @@ public class MetricDataTest {
     assertFalse(metricData.hasCalibrationData());
   }
 
-  /*
-   * TODO: Need a day with a calibration, but won't worry about until
-   * Calibration metric is working.
-   */
-  @Test
-  public final void testGetChannelCalDataChannel() throws Exception {
-    ArrayList<Blockette320> calData;
-
-    calData = data.getChannelCalData(new Channel("00", "LHZ"));
-    assertNull(calData);
-  }
-
   @Test
   public final void testGetChannelTimingQualityDataChannel() throws Exception {
-    ArrayList<Integer> timingQuality;
-
+    List<Integer> timingQuality;
     timingQuality = data.getChannelTimingQualityData(new Channel("10", "BH1"));
 
+    int numberOfQuality90Records = 0;
     int i;
     for (i = 0; i < 100; i++) {
-      if (timingQuality.get(i) != 100) {
-        fail("Timing Quality doesn't match expected 100%");
+      int quality = timingQuality.get(i);
+      if (quality != 100) {
+        if (quality == 90) {
+          ++numberOfQuality90Records;
+          if (numberOfQuality90Records >= 12) {
+            fail("Encountered more 90% timing quality records than we should have!");
+          }
+        } else {
+          fail("Timing Quality doesn't match expected -- got " + timingQuality.get(i));
+        }
       }
     }
 

@@ -6,8 +6,10 @@ import asl.metadata.Station;
 import asl.metadata.meta_new.StationMeta;
 import asl.seedscan.database.MetricDatabaseMock;
 import asl.seedscan.metrics.MetricData;
+import asl.seedsplitter.DataBlockDigest;
 import asl.seedsplitter.DataSet;
 import asl.seedsplitter.SeedSplitter;
+import asl.utils.timeseries.DataBlock;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -164,9 +166,7 @@ public abstract class ResourceManager { // NO_UCD (test only)
     File dir = new File(getDirectoryPath(timeSeriesDataLocation));
     File[] files = dir.listFiles((dir1, name) -> name.endsWith(".seed"));
 
-    Hashtable<String, ArrayList<DataSet>> dataTable;
-    Hashtable<String, ArrayList<Integer>> qualityTable;
-    Hashtable<String, ArrayList<Blockette320>> calibrationTable;
+    Hashtable<String, DataBlockDigest> dataTable;
 
     int timeout = 900;
     SplitterObject splitObj = null;
@@ -174,10 +174,8 @@ public abstract class ResourceManager { // NO_UCD (test only)
       splitObj = executeSplitter(files, timeout, date);
       SeedSplitter splitter = splitObj.splitter;
       dataTable = splitObj.table;
-      qualityTable = splitter.getQualityTable();
-      calibrationTable = splitter.getCalTable();
 
-      return new MetricData(mockDB, dataTable, qualityTable, stationMeta, calibrationTable);
+      return new MetricData(mockDB, dataTable, stationMeta);
     } catch (TimeoutException | ExecutionException | InterruptedException e) {
       e.printStackTrace();
       return null;
@@ -190,10 +188,10 @@ public abstract class ResourceManager { // NO_UCD (test only)
    */
   private static SplitterObject executeSplitter(File[] files, int timeout, LocalDate timestamp)
       throws TimeoutException, ExecutionException, InterruptedException {
-    Hashtable<String, ArrayList<DataSet>> table = null;
+    Hashtable<String, DataBlockDigest> table = null;
     SeedSplitter splitter = new SeedSplitter(files);
     ExecutorService executor = Executors.newSingleThreadExecutor();
-    Future<Hashtable<String, ArrayList<DataSet>>> future = executor.submit(new Task(splitter));
+    Future<Hashtable<String, DataBlockDigest>> future = executor.submit(new Task(splitter));
 
     try {
       table = future.get(timeout, TimeUnit.SECONDS);
@@ -236,26 +234,26 @@ public abstract class ResourceManager { // NO_UCD (test only)
   // Class to assign seedplitter object and seedsplitter table
   private static class SplitterObject {
 
-    private SeedSplitter splitter;
-    private Hashtable<String, ArrayList<DataSet>> table;
+    private final SeedSplitter splitter;
+    private final Hashtable<String, DataBlockDigest> table;
 
-    private SplitterObject(SeedSplitter splitter, Hashtable<String, ArrayList<DataSet>> table) {
+    private SplitterObject(SeedSplitter splitter, Hashtable<String, DataBlockDigest> table) {
       this.splitter = splitter;
       this.table = table;
     }
   }
 
   // Class to run Future task (seedplitter.doInBackground())
-  private static class Task implements Callable<Hashtable<String, ArrayList<DataSet>>> {
+  private static class Task implements Callable<Hashtable<String, DataBlockDigest>> {
 
-    private SeedSplitter splitter;
+    private final SeedSplitter splitter;
 
     private Task(SeedSplitter splitter) {
       this.splitter = splitter;
     }
 
-    public Hashtable<String, ArrayList<DataSet>> call() throws Exception {
-      Hashtable<String, ArrayList<DataSet>> table = splitter.doInBackground();
+    public Hashtable<String, DataBlockDigest> call() throws Exception {
+      Hashtable<String, DataBlockDigest> table = splitter.doInBackground();
       return table;
     }
   }

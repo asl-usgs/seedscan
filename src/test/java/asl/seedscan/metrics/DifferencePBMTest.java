@@ -36,8 +36,8 @@ public class DifferencePBMTest {
     metric.setData(data);
     MetricTestMap expect = new MetricTestMap();
     expect.put("00-10,LHZ-LHZ",    0.0277, ERROR_TERM);
-    expect.put("00-10,LHND-LHND",  0.1678, ERROR_TERM);
-    expect.put("00-10,LHED-LHED", -0.0590, ERROR_TERM);
+    expect.put("00-10,LHND-LHND",  0.1677, ERROR_TERM);
+    expect.put("00-10,LHED-LHED", -0.0591, ERROR_TERM);
     TestUtils.testMetric(metric, expect);
   }
 
@@ -51,7 +51,7 @@ public class DifferencePBMTest {
     MetricTestMap expect = new MetricTestMap();
     expect.put("00-10,LHZ-LHZ",   -0.0122053, ERROR_TERM);
     expect.put("00-10,LHND-LHND",  0.2018929, ERROR_TERM);
-    expect.put("00-10,LHED-LHED", -0.0444764, ERROR_TERM);
+    expect.put("00-10,LHED-LHED", -0.0424189, ERROR_TERM);
     TestUtils.testMetric(metric, expect);
   }
 
@@ -64,8 +64,8 @@ public class DifferencePBMTest {
     metric.setData(data);
     MetricTestMap expect = new MetricTestMap();
     expect.put("00-10,LHZ-LHZ",   -0.873422, ERROR_TERM);
-    expect.put("00-10,LHND-LHND", -1.468633, ERROR_TERM);
-    expect.put("00-10,LHED-LHED",  1.898297, ERROR_TERM);
+    expect.put("00-10,LHND-LHND", -1.476201, ERROR_TERM);
+    expect.put("00-10,LHED-LHED",  1.896952, ERROR_TERM);
     TestUtils.testMetric(metric, expect);
   }
 
@@ -78,8 +78,8 @@ public class DifferencePBMTest {
     metric.setData(data);
     MetricTestMap expect = new MetricTestMap();
     expect.put("00-10,LHZ-LHZ",    2.378944, ERROR_TERM);
-    expect.put("00-10,LHND-LHND", -3.201307, ERROR_TERM);
-    expect.put("00-10,LHED-LHED",  6.398256, ERROR_TERM);
+    expect.put("00-10,LHND-LHND", -3.206823, ERROR_TERM);
+    expect.put("00-10,LHED-LHED",  6.393751, ERROR_TERM);
     TestUtils.testMetric(metric, expect);
   }
 
@@ -94,8 +94,8 @@ public class DifferencePBMTest {
     metric.setData(data);
     MetricTestMap expect = new MetricTestMap();
     expect.put("10-00,LHZ-LHZ" ,  -2.378944, ERROR_TERM);
-    expect.put("10-00,LHND-LHND",  3.2013067, ERROR_TERM);
-    expect.put("10-00,LHED-LHED", -6.398256, ERROR_TERM);
+    expect.put("10-00,LHND-LHND",  3.2068236, ERROR_TERM);
+    expect.put("10-00,LHED-LHED", -6.393751, ERROR_TERM);
     TestUtils.testMetric(metric, expect);
 
   }

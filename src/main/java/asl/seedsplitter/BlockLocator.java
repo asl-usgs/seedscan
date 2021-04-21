@@ -1,7 +1,15 @@
 package asl.seedsplitter;
 
+import static java.util.Collections.sort;
+
 import asl.seedscan.metrics.MetricException;
+import asl.utils.timeseries.DataBlock;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import org.apache.commons.math3.util.Pair;
 
 /**
  * @author Joel D. Edwards
@@ -22,7 +30,7 @@ public class BlockLocator {
    *
    * @return A ArrayList of ContiguousBlock objects.
    */
-  public static ArrayList<ContiguousBlock> buildBlockList(ArrayList<ArrayList<DataSet>> dataLists)
+  public static ArrayList<ContiguousBlock> buildBlockList(ArrayList<DataBlock> dataLists)
       throws MetricException {
     // The first ArrayList sets up the base ArrayList of ContiguousBlock
     // objects
@@ -32,8 +40,8 @@ public class BlockLocator {
     // within the original ArrayList and the current data.
 
     ArrayList<ContiguousBlock> blockList = _buildFirstList(dataLists.get(0));
-    for (ArrayList<DataSet> dataList : dataLists) {
-      blockList = _buildDependentList(dataList, blockList);
+    for (DataBlock dataBlock : dataLists) {
+      blockList = _buildDependentList(dataBlock, blockList);
     }
 
     return blockList;
@@ -42,17 +50,20 @@ public class BlockLocator {
   /**
    * Generates the initial list of contiguous data regions.
    *
-   * @param dataList A list of DataSet objects containing the data from a channel.
+   * @param dataBlock A DataBlock object containing the data from a channel.
    * @return An ArrayList of ContiguousBlock objects.
    */
-  private static ArrayList<ContiguousBlock> _buildFirstList(
-      ArrayList<DataSet> dataList) {
+  private static ArrayList<ContiguousBlock> _buildFirstList(DataBlock dataBlock) {
+    Map<Long, double[]> dataList = dataBlock.getDataMap();
+    long interval = dataBlock.getInterval();
+
     ArrayList<ContiguousBlock> resultList = new ArrayList<>();
     ContiguousBlock tempBlock;
 
-    for (DataSet tempData : dataList) {
-      tempBlock = new ContiguousBlock(tempData.getStartTime(),
-          tempData.getEndTime(), tempData.getInterval());
+    for (long startTime : dataList.keySet()) {
+      double[] data = dataList.get(startTime);
+      long endTime = startTime + (data.length * interval);
+      tempBlock = new ContiguousBlock(startTime, endTime, interval);
       resultList.add(tempBlock);
     }
 
@@ -62,53 +73,86 @@ public class BlockLocator {
   /**
    * Updates the list of contiguous data blocks based on the data in an additional data list.
    *
-   * @param dataList  A new group of data which will be used to update the list of contiguous data
-   *                  blocks.
+   * @param dataBlock  A timeseries data holder that will be used to update the contiguous data
+   *                   blocks.
    * @param blockList The previous list of contiguous data blocks.
    * @return A new list of contiguous data blocks.
    * @throws MetricException If the sample rate of any of the DataSets does not match with those of
    *                         the ContiguousBlocks.
    */
   private static ArrayList<ContiguousBlock> _buildDependentList(
-      ArrayList<DataSet> dataList, ArrayList<ContiguousBlock> blockList)
+      DataBlock dataBlock, ArrayList<ContiguousBlock> blockList)
       throws MetricException {
+    Set<ContiguousBlock> contiguousToConsider = new HashSet<>(blockList);
     ArrayList<ContiguousBlock> resultList = new ArrayList<>();
     DataSet tempData;
     ContiguousBlock oldBlock;
     ContiguousBlock newBlock;
     long startTime;
     long endTime;
-
-    for (int dataIndex = 0, blockIndex = 0; (dataIndex < dataList.size())
-        && (blockIndex < blockList.size()); ) {
-      tempData = dataList.get(dataIndex);
-      oldBlock = blockList.get(blockIndex);
-
-      if (tempData.getInterval() != oldBlock.getInterval()) {
+    long interval = dataBlock.getInitialInterval();
+    long blockStart = dataBlock.getInitialStartTime();
+    long blockEnd = dataBlock.getInitialEndTime();
+    // first, exclude any blocks that don't fit within the start and end times of our datablock
+    for (ContiguousBlock contiguous : blockList) {
+      // this is a great time to check to make sure that there's no interval mismatch
+      if (interval != contiguous.getInterval()) {
         throw new MetricException(String.format(
             "_buildDependentList: interval1=[%s] and/or interval2=[%s]",
-            tempData.getInterval(), oldBlock.getInterval()));
+            interval, contiguous.getInterval()));
       }
 
-      if (tempData.getEndTime() <= oldBlock.getStartTime()) {
-        dataIndex++;
-      } else if (tempData.getStartTime() >= oldBlock.getEndTime()) {
-        blockIndex++;
-      } else {
-        // Ensure the new block is a subset of the time within the old
-        // block.
-        startTime = Math.max(tempData.getStartTime(), oldBlock.getStartTime());
-        if (tempData.getEndTime() > oldBlock.getEndTime()) {
-          endTime = oldBlock.getEndTime();
-          blockIndex++;
-        } else {
-          endTime = tempData.getEndTime();
-          dataIndex++;
-        }
-        newBlock = new ContiguousBlock(startTime, endTime,
-            tempData.getInterval());
-        resultList.add(newBlock);
+      if (contiguous.getEndTime() < blockStart || contiguous.getStartTime() > blockEnd) {
+        contiguousToConsider.remove(contiguous);
       }
+      else if (contiguous.getStartTime() < blockStart && contiguous.getEndTime() > blockStart) {
+        contiguousToConsider.remove(contiguous);
+        resultList.add(new ContiguousBlock(blockStart, contiguous.getEndTime(), interval));
+      }
+      else if (contiguous.getEndTime() > blockEnd && contiguous.getStartTime() < blockEnd) {
+        contiguousToConsider.remove(contiguous);
+        resultList.add(new ContiguousBlock(contiguous.getStartTime(), blockEnd, interval));
+      }
+    }
+
+    outerLoop:
+    for (ContiguousBlock contiguousBlock : contiguousToConsider) {
+      // for each current contiguous block we need to ensure
+      // 1. If this datablock has a gap during a contiguous block, split the contiguous block
+      // along the gap (create two new contiguous blocks)
+      // 2. If the contiguous block starts or ends during a gap, truncate the block accordingly
+      // (we've already eliminated/fixed the blocks that are beyond this datablock's limits)
+      // 3. If neither of these things are true, the contiguous block remains unchanged
+      boolean passesAllGaps = true;
+      for (Pair<Long, Long> gap : dataBlock.getGapBoundaries()) {
+        // a contiguous block may have multiple gaps intersecting it, so we change the contiguous
+        // block as we iterate through the gaps, and add the bits before an implicit time cursor
+        // based on the gaps' locations in time
+        if (contiguousBlock.getStartTime() < gap.getFirst() &&
+            contiguousBlock.getEndTime() > gap.getSecond()) {
+          // add the time up to the given gap
+          resultList.add(
+              new ContiguousBlock(contiguousBlock.getStartTime(), gap.getFirst(), interval));
+          // and modify the block under analysis to be the time after the gap
+          contiguousBlock =
+              new ContiguousBlock(gap.getSecond(), contiguousBlock.getEndTime(), interval);
+        }
+        // case 2 in the previous example where block starts during a gap
+        else if (contiguousBlock.getStartTime() > gap.getFirst() &&
+            contiguousBlock.getEndTime() < gap.getSecond()) {
+          contiguousBlock =
+              new ContiguousBlock(gap.getSecond(), contiguousBlock.getEndTime(), interval);
+        }
+        // case 2 where block ends during a gap -- in which case we're done with this block
+        else if (contiguousBlock.getEndTime() > gap.getFirst() &&
+            contiguousBlock.getEndTime() < gap.getSecond()) {
+          resultList.add(
+              new ContiguousBlock(contiguousBlock.getStartTime(), gap.getFirst(), interval));
+          continue outerLoop; // time to look at the next contiguous block
+        }
+      }
+      // if we've gone through all gaps and the block didn't end in one, we can add it to the list
+      resultList.add(contiguousBlock);
     }
 
     return resultList;

@@ -5,6 +5,7 @@ import asl.metadata.meta_new.StationMeta;
 import asl.seedscan.ArchivePath;
 import asl.seedscan.Global;
 import asl.seedscan.metrics.MetricData;
+import asl.seedsplitter.DataBlockDigest;
 import asl.seedsplitter.DataSet;
 import asl.seedsplitter.SeedSplitter;
 import java.io.File;
@@ -20,6 +21,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+
+import asl.utils.timeseries.DataBlock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import seed.Blockette320;
@@ -33,16 +36,16 @@ public abstract class DataLoader {
   private static class SplitterObject {
 
     private final SeedSplitter splitter;
-    private final Hashtable<String, ArrayList<DataSet>> table;
+    private final Hashtable<String, DataBlockDigest> table;
 
-    private SplitterObject(SeedSplitter splitter, Hashtable<String, ArrayList<DataSet>> table) {
+    private SplitterObject(SeedSplitter splitter, Hashtable<String, DataBlockDigest> table) {
       this.splitter = splitter;
       this.table = table;
     }
   }
 
   // Class to run Future task (seedplitter.doInBackground())
-  private static class Task implements Callable<Hashtable<String, ArrayList<DataSet>>> {
+  private static class Task implements Callable<Hashtable<String, DataBlockDigest>> {
 
     private final SeedSplitter splitter;
 
@@ -50,8 +53,8 @@ public abstract class DataLoader {
       this.splitter = splitter;
     }
 
-    public Hashtable<String, ArrayList<DataSet>> call() throws Exception {
-      Hashtable<String, ArrayList<DataSet>> table = null;
+    public Hashtable<String, DataBlockDigest> call() throws Exception {
+      Hashtable<String, DataBlockDigest> table = null;
       table = splitter.doInBackground();
       return table;
     }
@@ -62,10 +65,10 @@ public abstract class DataLoader {
    */
   private static SplitterObject executeSplitter(File[] files, int timeout, LocalDate timestamp)
       throws TimeoutException, ExecutionException, InterruptedException {
-    Hashtable<String, ArrayList<DataSet>> table = null;
+    Hashtable<String, DataBlockDigest> table = null;
     SeedSplitter splitter = new SeedSplitter(files);
     ExecutorService executor = Executors.newSingleThreadExecutor();
-    Future<Hashtable<String, ArrayList<DataSet>>> future = executor.submit(new Task(splitter));
+    Future<Hashtable<String, DataBlockDigest>> future = executor.submit(new Task(splitter));
 
     try {
       table = future.get(timeout, TimeUnit.SECONDS);
@@ -141,15 +144,9 @@ public abstract class DataLoader {
       int timeout = 180;
       SplitterObject splitObj = executeSplitter(files, timeout, date);
       SeedSplitter splitter = splitObj.splitter;
-      Hashtable<String, ArrayList<DataSet>> table = splitObj.table;
+      Hashtable<String, DataBlockDigest> table = splitObj.table;
 
-      Hashtable<String, ArrayList<Integer>> qualityTable = null;
-      qualityTable = splitter.getQualityTable();
-
-      Hashtable<String, ArrayList<Blockette320>> calibrationTable = null;
-      calibrationTable = splitter.getCalTable();
-
-      return new MetricData(manager.database, table, qualityTable, stationMeta, calibrationTable);
+      return new MetricData(manager.database, table, stationMeta);
     } catch (TimeoutException e) {
       logger.error("== TimeoutException: Skipping to next day for [{}]:[{}]\n", station,
           date.format(DateTimeFormatter.ISO_ORDINAL_DATE));

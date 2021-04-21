@@ -122,8 +122,8 @@ public class EventCompareStrongMotion extends Metric {
           continue; // Skip since not out of date or missing.
         }
 
-        double srateX = metricData.getChannelData(baseChannel).get(0).getSampleRate();
-        double srateY = metricData.getChannelData(curChannel).get(0).getSampleRate();
+        double srateX = metricData.getChannelData(baseChannel).getSampleRate();
+        double srateY = metricData.getChannelData(curChannel).getSampleRate();
 
         double result = 0;
         boolean correlated = false;

@@ -4,7 +4,10 @@ import static asl.utils.FFTResult.cosineTaper;
 import static asl.utils.FFTResult.singleSidedFFT;
 import static asl.utils.NumericUtils.demeanInPlace;
 import static asl.utils.NumericUtils.detrend;
+import static asl.utils.timeseries.TimeSeriesUtils.ONE_HZ;
+import static asl.utils.timeseries.TimeSeriesUtils.ONE_HZ_INTERVAL;
 import static asl.utils.timeseries.TimeSeriesUtils.concatAll;
+import static javax.xml.bind.DatatypeConverter.printHexBinary;
 
 import asl.metadata.Channel;
 import asl.metadata.ChannelArray;
@@ -19,6 +22,7 @@ import asl.seedscan.database.MetricDatabase;
 import asl.seedscan.database.MetricValueIdentifier;
 import asl.seedsplitter.BlockLocator;
 import asl.seedsplitter.ContiguousBlock;
+import asl.seedsplitter.DataBlockDigest;
 import asl.seedsplitter.DataSet;
 import asl.seedsplitter.IllegalSampleRateException;
 import asl.seedsplitter.SequenceRangeException;
@@ -34,10 +38,13 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.DoubleStream;
+
+import asl.utils.timeseries.DataBlock;
 import org.apache.commons.math3.complex.Complex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,17 +69,7 @@ public class MetricData implements Serializable {
   /**
    * The data.
    */
-  private Hashtable<String, ArrayList<DataSet>> data;
-
-  /**
-   * The quality data.
-   */
-  private Hashtable<String, ArrayList<Integer>> qualityData;
-
-  /**
-   * The random calibration.
-   */
-  private Hashtable<String, ArrayList<Blockette320>> randomCal;
+  private Hashtable<String, DataBlockDigest> data;
 
   /**
    * The metadata.
@@ -137,17 +134,12 @@ public class MetricData implements Serializable {
    *
    * @param metricReader the metric reader
    * @param data         the data
-   * @param qualityData  the quality data
    * @param metadata     the metadata
-   * @param randomCal    the random cal
    */
-  public MetricData(MetricDatabase metricReader, Hashtable<String, ArrayList<DataSet>> data,
-      Hashtable<String, ArrayList<Integer>> qualityData, StationMeta metadata,
-      Hashtable<String, ArrayList<Blockette320>> randomCal) {
+  public MetricData(MetricDatabase metricReader,
+      Hashtable<String, DataBlockDigest> data, StationMeta metadata) {
     this.metricReader = metricReader;
     this.data = data;
-    this.qualityData = qualityData;
-    this.randomCal = randomCal;
     this.metadata = metadata;
   }
 
@@ -301,13 +293,13 @@ public class MetricData implements Serializable {
    * @param name     the name
    * @return {@code ArrayList<DataSet>} = All DataSets for a given channel (e.g., "00-BHZ")
    */
-  private ArrayList<DataSet> getChannelData(String location, String name) {
+  private DataBlock getChannelData(String location, String name) {
     String locationName = location + "-" + name;
     Set<String> keys = data.keySet();
     for (String key : keys) {
       // key looks like "IU_ANMO 00-BHZ (20.0 Hz)"
       if (key.contains(locationName)) {
-        return data.get(key);
+        return data.get(key).getDataBlock();
       }
     }
     return null;
@@ -319,72 +311,30 @@ public class MetricData implements Serializable {
    * @param channel the channel
    * @return the channel data
    */
-  public ArrayList<DataSet> getChannelData(Channel channel) {
+  public DataBlock getChannelData(Channel channel) {
     return getChannelData(channel.getLocation(), channel.getChannel());
   }
 
   /**
-   * Note we don't rely on the metadata to contain any info about calibration channels. We simply
-   * look for the presence of random calibration blockettes (320's) for the IU stations, or miniseed
-   * channels like "LC0" or "LC1" for the II stations.
-   * <p>
-   * This hard codes
-   *
-   * @return true, if either the calibration blockette exists or Calibration channels exist
+   * Returns false; seedscan is not suitable for calibration analysis.
    */
+  @Deprecated
   boolean hasCalibrationData() {
-    if (randomCal != null && randomCal.size() > 0) {
-      return true;
-    } else if (metadata.getNetwork()
-        .equals("II")) { //This hardcoded station needs to be address (Ticket 9727)
-      return hasChannelData("BC0") || hasChannelData("BC1") ||
-          hasChannelData("LC0") || hasChannelData("LC1");
-    }
     return false;
   }
 
   /**
-   * Gets the channel cal data.
-   *
-   * @param channel the channel
-   * @return the channel cal data
-   */
-  ArrayList<Blockette320> getChannelCalData(Channel channel) {
-    return getChannelCalData(channel.getLocation(), channel.getChannel());
-  }
-
-  /**
-   * Gets the channel cal data.
-   *
-   * @param location the location
-   * @param name     the name
-   * @return the channel cal data
-   */
-  private ArrayList<Blockette320> getChannelCalData(String location, String name) {
-    if (!hasCalibrationData()) {
-      return null; // randomCal was never created --> Probably not a
-    }
-    // calibration day
-    String locationName = location + "-" + name;
-    Set<String> keys = randomCal.keySet();
-    for (String key : keys) { // key looks like "IU_ANMO 00-BHZ (20.0 Hz)"
-      if (key.contains(locationName)) {
-        return randomCal.get(key);
-      }
-    }
-    return null;
-  }
-
-  /**
    * Gets the channel timing quality data.
    *
    * @param channel the channel
    * @return the channel timing quality data
    */
-  ArrayList<Integer> getChannelTimingQualityData(Channel channel) {
+  List<Integer> getChannelTimingQualityData(Channel channel) {
     return getChannelTimingQualityData(channel.getLocation(), channel.getChannel());
   }
 
+
+
   /**
    * Gets the channel timing quality data.
    *
@@ -392,17 +342,14 @@ public class MetricData implements Serializable {
    * @param name     the name
    * @return the channel timing quality data
    */
-  private ArrayList<Integer> getChannelTimingQualityData(String location, String name) {
+  private List<Integer> getChannelTimingQualityData(String location, String name) {
     String locationName = location + "-" + name;
     // there's a null check in the calling class but we still need to make sure the keySet
     // actually instantiated or else we'll break before that exception can be handled
-    if (qualityData == null) {
-      return null;
-    }
-    Set<String> keys = qualityData.keySet();
+    Set<String> keys = data.keySet();
     for (String key : keys) { // key looks like "IU_ANMO 00-BHZ (20.0 Hz)"
       if (key.contains(locationName)) {
-        return qualityData.get(key);
+        return new ArrayList<>(data.get(key).getDataBlock().getTimingQualities().get(0).values());
       }
     }
     return null;
@@ -554,18 +501,13 @@ public class MetricData implements Serializable {
    * Gets the windowed data.
    *
    * @param channel                the channel
-   * @param windowStartEpochMillis the window start epoch milliseconds
-   * @param windowEndEpochMillis   the window end epoch milliseconds
+   * @param windowStartEpoch the window start epoch milliseconds
+   * @param windowEndEpoch   the window end epoch milliseconds
    * @return the windowed data
    */
-  double[] getWindowedData(Channel channel, long windowStartEpochMillis,
-      long windowEndEpochMillis) {
-    return getWindowedDataMicroSeconds(channel, windowStartEpochMillis * 1000,
-        windowEndEpochMillis * 1000);
-  }
-
-  double[] getWindowedDataMicroSeconds(Channel channel, long windowStartEpoch,
+  double[] getWindowedData(Channel channel, long windowStartEpoch,
       long windowEndEpoch) {
+
     if (windowStartEpoch > windowEndEpoch) {
       logger.error("Requested window Epoch (ms timestamp) [{} - {}] is NOT VALID (start > end)",
           windowStartEpoch,
@@ -582,61 +524,28 @@ public class MetricData implements Serializable {
     //If window boundary preceeds day start get from previousData.getwindowed...
     //If window boundary exceeds day end get from nextData.getwindowed...
 
-    ArrayList<DataSet> dataSets = getChannelData(channel);
-    long dayStart = dataSets.get(0).getStartTime();
-    long dayEnd = dataSets.get(0).getEndTime();
+    DataBlock dataBlock = getChannelData(channel);
+    long dayStart = dataBlock.getStartTime();
+    long dayEnd = dataBlock.getEndTime();
 
-    DataSet wholeData = null;
-    for (DataSet dataSet : dataSets) {
-      //Convert to millisecs No data should actually be sampled submillisec.
-      long dataStart = dataSet.getStartTime();
-      long dataEnd = dataSet.getEndTime();
-      dayStart = Long.min(dayStart, dataStart);
-      dayEnd = Long.max(dayEnd, dataEnd);
-
-      //Check if within a sample of the needed window.
-      long sampleDelta = dataSet.getInterval();
-
-      // Add a little bit of fudging to match window start if close enough
-      if (dataStart <= windowStartEpoch + 1.5 * sampleDelta && dataStart >= windowStartEpoch) {
-        windowStartEpoch = dataStart;
-      }
-      if (dataEnd >= windowEndEpoch - 1.5 * sampleDelta && dataEnd <= windowEndEpoch) {
-        windowEndEpoch = dataEnd;
-      }
-
-      if (windowStartEpoch >= dataStart && windowEndEpoch <= dataEnd) {
-        //Is wholely found within this chunk of data.
-        wholeData = dataSet;
-        break;
-      }
-    }
-
-    //Did we find a datasegment containing everything?
-    if (wholeData != null) {
-      //Yes, return trimmed values or null if error occurs
-      try {
-        return Arrays.stream(wholeData.getSeries(windowStartEpoch, windowEndEpoch))
-            .asDoubleStream().toArray();
-      } catch (SequenceRangeException e) {
-        logger.warn("Sequence Exception caught reading data for channel=[{}] date=[{}] "
-                + "window (in epoch millis): {} msto {} ms", channel, metadata.getDate(),
-            windowStartEpoch, windowEndEpoch);
-        return null;
-      }
-    }
-
-    // Was it entirely outside our requested window?
+    // Is the datablock's current data entirely outside our requested window?
     if (windowEndEpoch < dayStart || windowStartEpoch > dayEnd) {
       logger.warn("Entirety of requested window outside currentDay for channel=[{}] date=[{}] "
-              + "window (in epoch millis): {} msto {} ms", channel, metadata.getDate(),
-          windowStartEpoch, windowEndEpoch);
+                      + "window (in epoch millis): {} msto {} ms", channel, metadata.getDate(),
+              windowStartEpoch, windowEndEpoch);
       return null;
     }
 
+    //Did we find a datasegment containing everything?
+    else if (dayStart <= windowStartEpoch && dayEnd >= windowEndEpoch) {
+      //Yes, return trimmed values or null if error occurs
+      return dataBlock.getData(windowStartEpoch, windowEndEpoch);
+    }
+
+
+
     boolean getPreviousDay = false;
     boolean getNextDay = false;
-
     //Data was not found in a single chunk
     //Is it because it is outside the day boundary?
     if (windowStartEpoch < dayStart) {
@@ -654,7 +563,6 @@ public class MetricData implements Serializable {
     }
 
     //Merge parts together since it overlaps day boundaries
-
     //First do other days have data loaded?
     //HasChannelData ends up being checked twice once on the sub getWindowedData call and here.
     if (getPreviousDay &&
@@ -679,13 +587,12 @@ public class MetricData implements Serializable {
     //Data found, do sample rates match?
     //Grab interval while checking samplerates.
     if (getPreviousDay) {
-      ArrayList<DataSet> prevDataSets = this.previousMetricData.getChannelData(channel);
+      DataBlock prevDataBlock = this.previousMetricData.getChannelData(channel);
       //Compare last dataset of previous day to first dataset of today.
       //This compares doubles, but I don't see a clean way to refactor this to something else.
       //Pre-existing code did this same type of comparison.
-      sampleDelta = dataSets.get(0).getInterval();
-      if (prevDataSets.get(prevDataSets.size() - 1).getSampleRate() !=
-          dataSets.get(0).getSampleRate()) {
+      sampleDelta = dataBlock.getInterval();
+      if (prevDataBlock.getInterval() != sampleDelta) {
         logger.warn("Previous Day's samplerate doesn't match current Day's samplerate for "
                 + "channel=[{}] date=[{}] window (in epoch millis): {} msto {} ms",
             channel, metadata.getDate(), windowStartEpoch, windowEndEpoch);
@@ -693,12 +600,11 @@ public class MetricData implements Serializable {
       }
     }
     if (getNextDay) {
-      ArrayList<DataSet> nextDataSets = this.nextMetricData.getChannelData(channel);
+      DataBlock nextDataBlock = this.nextMetricData.getChannelData(channel);
       //Compare first set of next day to last set of today
       //Same double comparison concerns as above.
-      sampleDelta = nextDataSets.get(0).getInterval();
-      if (nextDataSets.get(0).getSampleRate() != dataSets.get(dataSets.size() - 1)
-          .getSampleRate()) {
+      sampleDelta = dataBlock.getInterval();
+      if (nextDataBlock.getInterval() != sampleDelta) {
         logger.warn("Next Day's samplerate doesn't match current Day's samplerate for channel=[{}] "
                 + "date=[{}] window (in epoch millis): {} msto {} ms", channel,
             metadata.getDate(), windowStartEpoch, windowEndEpoch);
@@ -728,7 +634,7 @@ public class MetricData implements Serializable {
 
     //Load actual data
     double[] todaysResults = this
-        .getWindowedDataMicroSeconds(channel, currentDayStart, currentDayEnd);
+        .getWindowedData(channel, currentDayStart, currentDayEnd);
     if (todaysResults == null) {
       logger.warn("Could not get data for current day for channel=[{}] date=[{}] window "
               + "(in epoch millis): {} msto {} ms", channel, metadata.getDate(),
@@ -739,7 +645,7 @@ public class MetricData implements Serializable {
 
     if (getPreviousDay) {
       double[] prevResults =
-          this.previousMetricData.getWindowedDataMicroSeconds(channel, prevDayStart, prevDayEnd);
+          this.previousMetricData.getWindowedData(channel, prevDayStart, prevDayEnd);
       if (prevResults == null) {
         logger.warn("Could not get data for previous day for channel=[{}] date=[{}] window "
                 + "(in epoch millis): {} msto {} ms", channel, metadata.getDate(),
@@ -751,7 +657,7 @@ public class MetricData implements Serializable {
 
     if (getNextDay) {
       double[] nextResults =
-          this.nextMetricData.getWindowedDataMicroSeconds(channel, nextDayStart, nextDayEnd);
+          this.nextMetricData.getWindowedData(channel, nextDayStart, nextDayEnd);
       if (nextResults == null) {
         logger.warn("Could not get data for next day for channel=[{}] date=[{}] window "
                 + "(in epoch millis): {} msto {} ms", channel, metadata.getDate(),
@@ -771,53 +677,19 @@ public class MetricData implements Serializable {
    * @param channel the channel
    * @return the padded day data
    */
-  double[][] getPaddedDayData(Channel channel) {
+  double[] getPaddedDayData(Channel channel) {
     if (!hasChannelData(channel)) {
       logger.warn(String
           .format("== getPaddedDayData(): We have NO data for channel=[%s] date=[%s]\n", channel,
               metadata.getDate()));
       return null;
     }
-    List<DataSet> datasets = getChannelData(channel);
+    DataBlock dataBlock = getChannelData(channel);
 
-    /*epoch microsecs since 1970*/
-    long dayStartTime = Time.calculateEpochMicroSeconds(metadata.getTimestamp());
-    long interval = datasets.get(0).getInterval(); // sample dt in microsecs
-
-    int nPointsPerDay = (int) (86400000000L / interval);
-    List<double[]> segments = new ArrayList<>();
-
-    long lastEndTime = dayStartTime;
-    int totalPointCount = 0; // easy way to keep track of the number of points added to the list
-    // append each dataset to the new data as necessary,
-    for (DataSet dataset : datasets) {
-      long startTime = dataset.getStartTime(); // microsecs since 1970 Jan. 1
-      long endTime = dataset.getEndTime();
-      // first, add zero padding over any gap between previous dataset and this current one
-      int npad = (int) ((startTime - lastEndTime) / interval) - 1;
-      if (npad > 0) {
-        totalPointCount += npad;
-        segments.add(new double[npad]);
-      }
-      // now convert the series to doubles and add it to the list of data
-      int[] series = dataset.getSeries();
-      double[] seriesAsDoubles = new double[series.length];
-      for (int j = 0; j < series.length; ++j) {
-        seriesAsDoubles[j] = series[j];
-      }
-      segments.add(seriesAsDoubles);
-      totalPointCount += series.length;
-      // now the current time will be used to account for gap between this and next dataset start
-      lastEndTime = endTime;
-    }
-
-    // in event the last segment doesn't reach the end of the day length, pad out until data does
-    if (totalPointCount < nPointsPerDay) {
-      double[] lastGapFiller = new double[nPointsPerDay - totalPointCount];
-      segments.add(lastGapFiller);
-    }
-
-    return segments.toArray(new double[][]{});
+    /*epoch ms since 1970*/
+    long dayStartTime = Time.calculateEpochMicroSeconds(metadata.getTimestamp()) / 1000;
+    long dayEndTime = dayStartTime + 86400000L; // offset by exactly 1 day in milliseconds
+    return dataBlock.getData(dayStartTime, dayEndTime); // this method already pads the data as necessary
   }
 
   /**
@@ -834,11 +706,8 @@ public class MetricData implements Serializable {
               metadata.getDate()));
       return null;
     }
-    double[][] segments = getPaddedDayData(channel);
-
-    // now concatenate the segments and detrend the whole thing
-    double[] toDetrend = concatAll(segments);
-    return detrend(toDetrend);
+    double[] segments = getPaddedDayData(channel);
+    return detrend(segments);
   }
 
   /**
@@ -888,11 +757,11 @@ public class MetricData implements Serializable {
       Channel channelN = new Channel(location, String.format("%sND", channelPrefix));
       Channel channelE = new Channel(location, String.format("%sED", channelPrefix));
 
-      double srate1 = getChannelData(channel1).get(0).getSampleRate();
-      double srate2 = getChannelData(channel2).get(0).getSampleRate();
+      double srate1 = getChannelData(channel1).getSampleRate();
+      double srate2 = getChannelData(channel2).getSampleRate();
       if (srate1 != srate2) {
         throw new MetricException(String.format(
-            "createRotatedChannels: channel1=[%s] and/or channel2=[%s] date=[%s]: srate1 != srate2 !!",
+            "createRotatedChannels: channel1=[%s] vs. channel2=[%s] date=[%s]: srate1 != srate2 !!",
             channel1, channel2, metadata.getDate()));
       }
 
@@ -919,6 +788,7 @@ public class MetricData implements Serializable {
       double az2 = (metadata.getChannelMetadata(channel2)).getAzimuth();
 
       PreprocessingUtils.rotate_xy_to_ne(az1, az2, chan1Data, chan2Data, chanNData, chanEData);
+
 			/*
 			  az1 = azimuth of the H1 channel/vector. az2 = azimuth of the
 			  H2 channel/vector // Find the smallest (<= 180) angle between
@@ -963,48 +833,22 @@ public class MetricData implements Serializable {
         }
       }
 
-      DataSet ch1Temp = getChannelData(channel1).get(0);
-      String network = ch1Temp.getNetwork();
-      String station = ch1Temp.getStation();
+      DataBlock ch1Temp = getChannelData(channel1);
+      String[] ch1Name = ch1Temp.getName().split("_");
+      String network = ch1Name[0];
+      String station = ch1Name[1];
       // String location = ch1Temp.getLocation();
 
-      DataSet northDataSet = new DataSet();
-      northDataSet.setNetwork(network);
-      northDataSet.setStation(station);
-      northDataSet.setLocation(location);
-      northDataSet.setChannel(channelN.getChannel());
-      northDataSet.setStartTime(startTime);
+      long interval = (long) (ONE_HZ_INTERVAL / srate1);
+      String northDataName = network + "." + station + "." + location + "." + channelN.getChannel();
+      DataBlock northDataBlock = new DataBlock(chanNData, interval, northDataName, startTime);
+      data.put(northKey, new DataBlockDigest(northDataBlock));
 
-      northDataSet.setSampleRate(srate1);
+      String eastDataName = network + "." + station + "." + location + "." + channelE.getChannel();
+      DataBlock eastDataBlock = new DataBlock(chanEData, interval, eastDataName, startTime);
+      data.put(eastKey, new DataBlockDigest(eastDataBlock));
 
-      int[] intArray = new int[ndata];
-      for (int i = 0; i < ndata; i++) {
-        intArray[i] = (int) chanNData[i];
-      }
-      northDataSet.extend(intArray, 0, ndata);
-
-      ArrayList<DataSet> dataList = new ArrayList<>();
-      dataList.add(northDataSet);
-      data.put(northKey, dataList);
-
-      DataSet eastDataSet = new DataSet();
-      eastDataSet.setNetwork(network);
-      eastDataSet.setStation(station);
-      eastDataSet.setLocation(location);
-      eastDataSet.setChannel(channelE.getChannel());
-      eastDataSet.setStartTime(startTime);
-
-      eastDataSet.setSampleRate(srate1);
-
-      for (int i = 0; i < ndata; i++) {
-        intArray[i] = (int) chanEData[i];
-      }
-      eastDataSet.extend(intArray, 0, ndata);
-
-      dataList = new ArrayList<>();
-      dataList.add(eastDataSet);
-      data.put(eastKey, dataList);
-    } catch (TimeseriesException | ChannelException | IllegalSampleRateException e) {
+    } catch (TimeseriesException | ChannelException e) {
       throw new MetricException("Data rotation failed", e);
     }
   }
@@ -1021,10 +865,10 @@ public class MetricData implements Serializable {
   private double[][] getChannelOverlap(Channel channelX, Channel channelY, long[] startTime)
       throws MetricException {
 
-    ArrayList<ArrayList<DataSet>> dataLists = new ArrayList<>();
+    ArrayList<DataBlock> dataLists = new ArrayList<>();
 
-    ArrayList<DataSet> channelXData = getChannelData(channelX);
-    ArrayList<DataSet> channelYData = getChannelData(channelY);
+    DataBlock channelXData = getChannelData(channelX);
+    DataBlock channelYData = getChannelData(channelY);
     if (channelXData == null) {
       logger.warn("== getChannelOverlap: Warning --> No DataSets found for Channel={} Date={}\n",
           channelX,
@@ -1038,6 +882,7 @@ public class MetricData implements Serializable {
     dataLists.add(channelXData);
     dataLists.add(channelYData);
 
+    // TODO: datablocks already merge their contiguous segments, so this can almost certainly be simplified
     ArrayList<ContiguousBlock> blocks = BlockLocator.buildBlockList(dataLists);
 
     if (blocks == null || blocks.size() == 0) {
@@ -1059,54 +904,27 @@ public class MetricData implements Serializable {
       lastBlock = block;
     }
 
-    double[][] channels = {null, null};
-    int[] channel;
+    double[][] channels = new double[2][];
 
-    for (int i = 0; i < 2; i++) {
-      for (DataSet set : dataLists.get(i)) {
-        if (set.containsRange(largestBlock.getStartTime(), largestBlock.getEndTime())) {
-          try {
-            channel = set.getSeries(largestBlock.getStartTime(), largestBlock.getEndTime());
-            channels[i] = intArrayToDoubleArray(channel);
-          } catch (SequenceRangeException e) {
-            logger.error("SequenceRangeException:", e);
-          } catch (IndexOutOfBoundsException e) {
-            logger.error("IndexOutOfBoundsException:", e);
-          }
-          break;
-        }
-      }
+    // since the contiguous block is defined by a range of data without gaps,
+    // we can just get the data over that range, without having to do more verification
+    for (int i = 0; i < channels.length; i++) {
+      DataBlock set = dataLists.get(i);
+      channels[i] = set.getData(largestBlock.getStartTime(), largestBlock.getEndTime());
     }
 
-    // See if we have a problem with the channel data we are about to
-    // return:
-    if (channels[0].length == 0 || channels[1].length == 0
-        || channels[0].length != channels[1].length) {
+    // See if we have a problem with the channel data we are about to return:
+    if (channels[0].length == 0 || channels[1].length == 0 ||
+            channels[0].length != channels[1].length) {
       logger.warn("== getChannelOverlap: WARNING date=[{}] --> Something has gone wrong!",
           metadata.getDate());
     }
 
-    // MTH: hack to return the startTime of the overlapping length of data
-    // points
+    // MTH: hack to return the startTime of the overlapping length of data points
     startTime[0] = largestBlock.getStartTime();
 
     return channels;
 
-  }
-
-  /**
-   * Converts an array of type int into an array of type double.
-   *
-   * @param source The array of int values to be converted.
-   * @return An array of double values.
-   */
-  private static double[] intArrayToDoubleArray(int[] source) {
-    double[] dest = new double[source.length];
-    int length = source.length;
-    for (int i = 0; i < length; i++) {
-      dest[i] = source[i];
-    }
-    return dest;
   }
 
   /**
@@ -1261,16 +1079,15 @@ public class MetricData implements Serializable {
 			 The only Metric that should get to here is the
 			 AvailabilityMetric */
       if (hasChannelData(channel)) { // Add in the data digests
-        ArrayList<DataSet> datasets = getChannelData(channel);
-        if (datasets == null) {
+        DataBlock block = getChannelData(channel);
+        if (block == null) {
           logger.warn(
               String.format("getHash(): Data not found for requested channel:%s date:%s\n", channel,
                   metadata.getDate()));
           return null;
         } else {
-          for (DataSet dataset : datasets) {
-            digests.add(dataset.getDigestBytes());
-          }
+          ByteBuffer digest = new DataBlockDigest(block).getDigestBytes();
+          digests.add(digest);
         }
       }
     }

@@ -5,6 +5,8 @@ import asl.seedsplitter.DataSet;
 import asl.util.Time;
 import java.nio.ByteBuffer;
 import java.util.List;
+
+import asl.utils.timeseries.DataBlock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -82,7 +84,8 @@ public class GapCountMetric extends Metric {
   private double computeMetric(Channel channel, String station, String day,
       String metric) {
 
-    List<DataSet> datasets = metricData.getChannelData(channel);
+    // gap list is there in datablocks
+    DataBlock datasets = metricData.getChannelData(channel);
     if (datasets == null) { // No data --> Skip this channel
       logger.error(
           "No datasets found for station=[{}] channel=[{}] day=[{}] --> Skip Metric",
@@ -92,13 +95,13 @@ public class GapCountMetric extends Metric {
 
     // First count any interior gaps (= gaps that aren't at the
     // beginning/end of the day)
-    int gapCount = datasets.size() - 1;
+    int gapCount = datasets.getGapBoundaries().size();
 
-    long firstSetStartTime = datasets.get(0).getStartTime(); // time in
+    long firstSetStartTime = datasets.getStartTime(); // time in
     // microsecs
     // since
     // epoch
-    long interval = datasets.get(0).getInterval(); // sample dt in microsecs
+    long interval = datasets.getInterval(); // sample dt in microsecs
 
     long expectedStartTime = Time.calculateEpochMicroSeconds(stationMeta.getTimestamp());
     // double gapThreshold = interval / 2.;
@@ -112,7 +115,7 @@ public class GapCountMetric extends Metric {
     long expectedEndTime = expectedStartTime + 86400000000L; // end of day
     // in
     // microsecs
-    long lastSetEndTime = datasets.get(datasets.size() - 1).getEndTime();
+    long lastSetEndTime = datasets.getEndTime();
 
     // Check for possible gap at the end of the day
     // We expect a full day to be 24:00:00 - one sample = (86400 - dt) secs

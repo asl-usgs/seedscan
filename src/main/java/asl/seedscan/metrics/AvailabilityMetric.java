@@ -3,11 +3,15 @@ package asl.seedscan.metrics;
 import asl.metadata.Channel;
 import asl.metadata.meta_new.ChannelMeta;
 import asl.seedsplitter.DataSet;
+import asl.util.Time;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
 import java.nio.ByteBuffer;
 import java.util.List;
+import java.util.Map;
+
+import asl.utils.timeseries.DataBlock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -81,37 +85,28 @@ public class AvailabilityMetric extends Metric {
     int expectedPoints = metaSR.multiply(SECONDS_PER_DAY).intValue();
 
     // The actual (=from data) number of samples:
-    List<DataSet> datasets = metricData.getChannelData(channel);
+    DataBlock dataBlock = metricData.getChannelData(channel);
+    // Check sample rates of metadata and station channel data
+    BigDecimal dataSR = BigDecimal.valueOf(dataBlock.getSampleRate());
+
+    MathContext mathContext = new MathContext(5, RoundingMode.HALF_UP);
+    if (!dataSR.round(mathContext).equals(metaSR.round(mathContext))) {
+      logger.warn(
+          "SampleRate Mismatch: station:[{}] channel:[{}] day:[{}] "
+              + "metaSR:[{}] dataSR:[{}]", getStation(),
+          channel, getDay(), metaSR, dataSR);
+    }
 
     int ndata = 0;
-
-    for (DataSet dataset : datasets) {
-      // Check sample rates of metadata and station channel data
-      BigDecimal dataSR = BigDecimal.valueOf(dataset.getSampleRate());
-
-      /*
-      rdseed produces sample rates with only a scale of 6 decimal places regardless of precision
-      SEED data can have about 6 precision places
-      Create same math context for comparison so precision over 5 isn't a problem.
-
-      This could have problems if a sample rate uses more than 5 precision places.
-      EG 100001 hz vs 100000 hz
-      */
-      MathContext mathContext = new MathContext(5, RoundingMode.HALF_UP);
-
-      if (!dataSR.round(mathContext).equals(metaSR.round(mathContext))) {
-        logger.error(
-            "SampleRate Mismatch: station:[{}] channel:[{}] day:[{}] "
-                + "metaSR:[{}] dataSR:[{}]", getStation(),
-            channel, getDay(), metaSR, dataSR);
-        continue;
-      }
-      ndata += dataset.getLength();
+    // long dayStartTime = Time.calculateEpochMicroSeconds(stationMeta.getTimestamp()) / 1000;
+    // long dayEndTime = dayStartTime + 86400000L; // offset by exactly 1 day in milliseconds
+    for (double[] data : dataBlock.getDataMap().values()) {
+      ndata += data.length;
     }
 
     double availability;
     if (expectedPoints > 0) {
-      availability = 100. * ndata / expectedPoints;
+      availability = (100. * ndata) / expectedPoints;
     } else {
       logger.info("Expected points for channel={} = 0!", channel);
       return NO_RESULT;

@@ -107,7 +107,7 @@ public class EventComparePWaveOrientationTest {
     metric.setEventTable(eventLoader.getDayEvents(tucDate));
     metric.setEventSynthetics(eventLoader.getDaySynthetics(tucDate, station2));
     MetricTestMap expect = new MetricTestMap();
-    expect.put("00,LHND", -6.299, 1E-3);
+    expect.put("00,LHND", -6.297, 1E-3);
     expect.put("10,LHND", -0.238, 1E-3);
     expect.put("60,LHND", -0.662, 1E-3);
     TestUtils.testMetric(metric, expect);

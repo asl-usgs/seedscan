@@ -2,6 +2,7 @@ package asl.seedscan.metrics;
 
 import asl.metadata.Channel;
 import java.nio.ByteBuffer;
+import java.util.Collection;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

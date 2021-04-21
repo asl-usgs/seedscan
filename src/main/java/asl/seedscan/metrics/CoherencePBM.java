@@ -75,8 +75,8 @@ public class CoherencePBM extends PowerBandMetric {
         ByteBuffer digest = metricData.valueDigestChanged(channelArray,
             createIdentifier(channelX, channelY), getForceUpdate());
 
-        double srateX = metricData.getChannelData(channelX).get(0).getSampleRate();
-        double srateY = metricData.getChannelData(channelY).get(0).getSampleRate();
+        double srateX = metricData.getChannelData(channelX).getSampleRate();
+        double srateY = metricData.getChannelData(channelY).getSampleRate();
 
         if (srateX == srateY) {
           if (digest == null) { // means oldDigest == newDigest and we don't

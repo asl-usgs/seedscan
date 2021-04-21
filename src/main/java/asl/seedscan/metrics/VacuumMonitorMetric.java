@@ -7,6 +7,8 @@ import asl.seedsplitter.DataSet;
 import asl.util.Logging;
 import java.nio.ByteBuffer;
 import java.util.List;
+
+import asl.utils.timeseries.DataBlock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +47,7 @@ public class VacuumMonitorMetric extends Metric {
   private double computeMetric(Channel channel) throws MetricException {
 
     ChannelMeta chanMeta = this.stationMeta.getChannelMetadata(channel);
-    List<DataSet> datasets = this.metricData.getChannelData(channel);
+    DataBlock dataBlock = this.metricData.getChannelData(channel);
 
     ResponseStage stage0 = chanMeta.getStage(0);
     ResponseStage stage1 = chanMeta.getStage(1);
@@ -63,12 +65,11 @@ public class VacuumMonitorMetric extends Metric {
     double totalPressure = 0;
     int totalDataPoints = 0;
 
-    for (DataSet dataset : datasets) {
-      int[] timeSeries = dataset.getSeries();
-      for (int value : timeSeries) {
+    for (double[] dataset : dataBlock.getDataMap().values()) {
+      for (double value : dataset) {
         totalPressure += value / totalGain;
       }
-      totalDataPoints += dataset.getLength();
+      totalDataPoints += dataset.length;
     }
 
     return totalPressure / totalDataPoints;

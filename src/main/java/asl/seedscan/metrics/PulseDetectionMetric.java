@@ -95,10 +95,10 @@ public abstract class PulseDetectionMetric extends Metric {
   public PulseDetectionData calculatePulseResults(Channel channel) throws ChannelMetaException {
     // instead of having the boundary be right at midnight, seedscan doesn't easily support getting
     // the previous day's data for doing centered differences on windowed estimations
-    // instead pulse detections will be off such that the first 140 or so seconds of the next day
+    // instead pulse detections will be off such that the first 280 or so seconds of the next day
     // are included in the current day's metric, unless the data does not exist
-
-    long start = metricData.getChannelData(channel).get(0).getStartTime();
+    // TODO: can we adjust this to be centered on either side of the day boundary (140 seconds offset either side)?
+    long start = metricData.getChannelData(channel).getStartTime();
     long end = Instant.ofEpochMilli(start).plus(280, ChronoUnit.SECONDS)
         .plus(1, ChronoUnit.DAYS).toEpochMilli();
 

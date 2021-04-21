@@ -20,15 +20,20 @@ if (file('database.gradle').exists()) {
     apply from:'database.gradle'
 }
 
-/* Get first three version numbers from code.json */
-def codeJson = new JsonSlurper().parseText(new File("code.json").text)
+def codeJson = new JsonSlurper().parseText(new File("$projectDir", "code.json").text)
 // NOTE: codeJson.version is a String[], and any IDE warning here can be safely ignored
 def jsonVersion = codeJson.version[0]
 /* Get last version number from commit counts */
 def lastTagHash = "git rev-list --tags --max-count=1".execute().text
-lastTagHash = lastTagHash.substring(0, lastTagHash.length() - 1)
-def commitCount = ("git rev-list "+lastTagHash+".. --count").execute().text
-commitCount = commitCount.substring(0, commitCount.length() - 1)
+def commitCount = "NO_TAG_PRESENT"
+if (! lastTagHash.isEmpty()){
+    lastTagHash = lastTagHash.substring(0, lastTagHash.length() - 1)
+    commitCount = ("git rev-list "+lastTagHash+".. --count").execute().text
+    commitCount = commitCount.substring(0, commitCount.length() - 1)
+}
+if (commitCount == "NO_TAG_PRESENT") {
+    commitCount = "0"
+}
 
 def version = "$jsonVersion.$commitCount"
 mainClassName = 'asl.seedscan.SeedScan'
