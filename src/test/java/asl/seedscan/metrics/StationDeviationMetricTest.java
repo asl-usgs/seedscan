@@ -27,7 +27,7 @@ public class StationDeviationMetricTest {
     String metaPath = "/metadata/rdseed/GS-OK029-00-ascii.txt";
     LocalDate date = LocalDate.ofYearDay(2015, 360);
     Station station = new Station("GS", "OK029");
-    data2 = (MetricData) ResourceManager.getMetricData(dataPath, metaPath, date, station);
+    data2 = ResourceManager.getMetricData(dataPath, metaPath, date, station);
   }
 
   @AfterClass
