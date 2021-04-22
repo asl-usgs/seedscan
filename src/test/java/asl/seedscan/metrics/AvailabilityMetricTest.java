@@ -130,127 +130,127 @@ public class AvailabilityMetricTest {
     Station station = new Station("IU", "ANMO");
     database.insertMockData(
         new MetricValueIdentifier(expectDate, metricName, station, new Channel("00","BH1")),
-        100.0, ByteBuffer.wrap(DatatypeConverter.parseHexBinary("699EAAE66CF4C20716D7C695A9DE0DD9")));
+        100.0, ByteBuffer.wrap(DatatypeConverter.parseHexBinary("4D46DFED1F5EF9DF5EE29021AB471FA7")));
     database.insertMockData(
         new MetricValueIdentifier(expectDate, metricName, station, new Channel("00","BH2")),
-        100.0, ByteBuffer.wrap(DatatypeConverter.parseHexBinary("C79DE3622B2000130E790A5446101E01")));
+        100.0, ByteBuffer.wrap(DatatypeConverter.parseHexBinary("64BC1D72F04D8610BF7A9240860C7C8A")));
     database.insertMockData(
         new MetricValueIdentifier(expectDate, metricName, station, new Channel("00","BHZ")),
-        100.0, ByteBuffer.wrap(DatatypeConverter.parseHexBinary("2731D7A25401CD54836EF851201D202C")));
+        100.0, ByteBuffer.wrap(DatatypeConverter.parseHexBinary("4B2C9C6A11E8ABB0CB6287837B157CEF")));
     database.insertMockData(
         new MetricValueIdentifier(expectDate, metricName, station, new Channel("00","LH1")),
-        100.0, ByteBuffer.wrap(DatatypeConverter.parseHexBinary("D9DF0B9A41E65F46E81A1FF1CB3E90C0")));
+        100.0, ByteBuffer.wrap(DatatypeConverter.parseHexBinary("D61F8DB8FFF1DF3FFEB9D089C9514EA9")));
     database.insertMockData(
         new MetricValueIdentifier(expectDate, metricName, station, new Channel("00","LH2")),
-        100.0, ByteBuffer.wrap(DatatypeConverter.parseHexBinary("8CD6822C6CBE39245D142C67AD6A283D")));
+        100.0, ByteBuffer.wrap(DatatypeConverter.parseHexBinary("36B4BB961B6CB41CD6BBD460CD524DF3")));
     database.insertMockData(
         new MetricValueIdentifier(expectDate, metricName, station, new Channel("00","LHZ")),
-        100.0, ByteBuffer.wrap(DatatypeConverter.parseHexBinary("238059BFC152D1AA9BD650512506D20C")));
+        100.0, ByteBuffer.wrap(DatatypeConverter.parseHexBinary("818630B82BB59C60E3765C4BDF1E346B")));
     database.insertMockData(
         new MetricValueIdentifier(expectDate, metricName, station, new Channel("00","VH1")),
-        100.0, ByteBuffer.wrap(DatatypeConverter.parseHexBinary("BBB8C07A767208F123CB8D59DFBB2329")));
+        100.0, ByteBuffer.wrap(DatatypeConverter.parseHexBinary("AEA92846AE204421135BAC048640375A")));
     database.insertMockData(
         new MetricValueIdentifier(expectDate, metricName, station, new Channel("00","VH2")),
-        100.0, ByteBuffer.wrap(DatatypeConverter.parseHexBinary("F240CEC139409DB381F59C9EBB5B42EF")));
+        100.0, ByteBuffer.wrap(DatatypeConverter.parseHexBinary("4B327253DBF39CA3CD61498F6C8F554B")));
     database.insertMockData(
         new MetricValueIdentifier(expectDate, metricName, station, new Channel("00","VHZ")),
-        100.0, ByteBuffer.wrap(DatatypeConverter.parseHexBinary("48764E568FEC9963453965348B208F1B")));
+        100.0, ByteBuffer.wrap(DatatypeConverter.parseHexBinary("B0C996A60DE923D098D8C230BC6D35AC")));
     database.insertMockData(
         new MetricValueIdentifier(expectDate, metricName, station, new Channel("10","BH1")),
-        100.0, ByteBuffer.wrap(DatatypeConverter.parseHexBinary("241DEEADAF1CA2FD4A654D483029F1F3")));
+        100.0, ByteBuffer.wrap(DatatypeConverter.parseHexBinary("5965A457643242D7479373D3CCCD11C0")));
     database.insertMockData(
         new MetricValueIdentifier(expectDate, metricName, station, new Channel("10","BH2")),
-        100.0, ByteBuffer.wrap(DatatypeConverter.parseHexBinary("8C1902E5D159FC597DAB15CEBEBFEBD4")));
+        100.0, ByteBuffer.wrap(DatatypeConverter.parseHexBinary("F161481F1A771C73705D2B55425B0BE7")));
     database.insertMockData(
         new MetricValueIdentifier(expectDate, metricName, station, new Channel("10","BHZ")),
-        100.0, ByteBuffer.wrap(DatatypeConverter.parseHexBinary("D6230C7AA35F7E34298CDA935E648A56")));
+        100.0, ByteBuffer.wrap(DatatypeConverter.parseHexBinary("AB5B468068719E1E247AE408A2806A65")));
     database.insertMockData(
         new MetricValueIdentifier(expectDate, metricName, station, new Channel("10","LH1")),
-        100.0, ByteBuffer.wrap(DatatypeConverter.parseHexBinary("3221360DB5D42818DE5609FD0C84CE73")));
+        100.0, ByteBuffer.wrap(DatatypeConverter.parseHexBinary("1AF48BC0019BE0A18A4CAA0090A5A814")));
     database.insertMockData(
         new MetricValueIdentifier(expectDate, metricName, station, new Channel("10","LH2")),
-        100.0, ByteBuffer.wrap(DatatypeConverter.parseHexBinary("4260A7277B760B8C56149F363266696E")));
+        100.0, ByteBuffer.wrap(DatatypeConverter.parseHexBinary("6AB51AEACF39C335020E3CCBAE470F09")));
     database.insertMockData(
         new MetricValueIdentifier(expectDate, metricName, station, new Channel("10","LHZ")),
-        100.0, ByteBuffer.wrap(DatatypeConverter.parseHexBinary("33FED87A726469CA192587F6D4B9B969")));
+        100.0, ByteBuffer.wrap(DatatypeConverter.parseHexBinary("1B2B65B7C62BA1734D3F240B4898DF0E")));
     database.insertMockData(
         new MetricValueIdentifier(expectDate, metricName, station, new Channel("10","VH1")),
-        100.0, ByteBuffer.wrap(DatatypeConverter.parseHexBinary("CA706A92F06E4DA1F1D66FCB972AB7D0")));
+        100.0, ByteBuffer.wrap(DatatypeConverter.parseHexBinary("FE549DEC30A74844F0BF4997B8CF4030")));
     database.insertMockData(
         new MetricValueIdentifier(expectDate, metricName, station, new Channel("10","VH2")),
-        100.0, ByteBuffer.wrap(DatatypeConverter.parseHexBinary("4CA44B8C180B95ACEA3C70AA54230575")));
+        100.0, ByteBuffer.wrap(DatatypeConverter.parseHexBinary("5FE160E0E605631BF2DE2E5739BE55E6")));
     database.insertMockData(
         new MetricValueIdentifier(expectDate, metricName, station, new Channel("10","VHZ")),
-        100.0, ByteBuffer.wrap(DatatypeConverter.parseHexBinary("315D9D1E66742BCCBA3429213695C810")));
+        100.0, ByteBuffer.wrap(DatatypeConverter.parseHexBinary("05796A60A6BD2E29BB5D0F7D19703FF0")));
     database.insertMockData(
         new MetricValueIdentifier(expectDate, metricName, station, new Channel("20","LN1")),
-        100.0, ByteBuffer.wrap(DatatypeConverter.parseHexBinary("1FDA3928D007A720B19E6FDAFB527AF7")));
+        100.0, ByteBuffer.wrap(DatatypeConverter.parseHexBinary("D7ACA4459F4614EDFF8B8DB02E5ED8B0")));
     database.insertMockData(
         new MetricValueIdentifier(expectDate, metricName, station, new Channel("20","LN2")),
-        100.0, ByteBuffer.wrap(DatatypeConverter.parseHexBinary("C7D4393D27AA21A5DAA19B0BC1D17101")));
+        100.0, ByteBuffer.wrap(DatatypeConverter.parseHexBinary("0FA2A45068EB926894B4796114DDD346")));
     database.insertMockData(
         new MetricValueIdentifier(expectDate, metricName, station, new Channel("20","LNZ")),
-        100.0, ByteBuffer.wrap(DatatypeConverter.parseHexBinary("D27C4946D7F08F398FD3E66BA1798C19")));
+        100.0, ByteBuffer.wrap(DatatypeConverter.parseHexBinary("1A0AD42B98B13CF4C1C6040174752E5E")));
     database.insertMockData(
         new MetricValueIdentifier(expectDate, metricName, station, new Channel("31","LDO")),
-        100.0, ByteBuffer.wrap(DatatypeConverter.parseHexBinary("255708262E4FB1EF0FCB14DAD56A369E")));
+        100.0, ByteBuffer.wrap(DatatypeConverter.parseHexBinary("605F5FBB2888DA43AE5F2AFB995A4FF3")));
     database.insertMockData(
         new MetricValueIdentifier(expectDate, metricName, station, new Channel("35","LDO")),
-        100.0, ByteBuffer.wrap(DatatypeConverter.parseHexBinary("E9CA1FBA2A990D1035A5CB332D063C18")));
+        100.0, ByteBuffer.wrap(DatatypeConverter.parseHexBinary("B3125AB38F251E6E6FDFEEB0C61062BB")));
     database.insertMockData(
         new MetricValueIdentifier(expectDate, metricName, station, new Channel("50","LDO")),
-        100.0, ByteBuffer.wrap(DatatypeConverter.parseHexBinary("22B1689D0485E92991259C85EFD73A13")));
+        100.0, ByteBuffer.wrap(DatatypeConverter.parseHexBinary("51A283D87D715FF80ACFC96E1A211C53")));
     database.insertMockData(
         new MetricValueIdentifier(expectDate, metricName, station, new Channel("50","LIO")),
-        100.0, ByteBuffer.wrap(DatatypeConverter.parseHexBinary("35DDB60900C489DBE0A793A3513A30EB")));
+        100.0, ByteBuffer.wrap(DatatypeConverter.parseHexBinary("A03DFCA30497FC7131E2BE72C8772C73")));
     database.insertMockData(
         new MetricValueIdentifier(expectDate, metricName, station, new Channel("50","LKO")),
-        100.0, ByteBuffer.wrap(DatatypeConverter.parseHexBinary("4B99938340F37401114732AC20529E07")));
+        100.0, ByteBuffer.wrap(DatatypeConverter.parseHexBinary("DE79D92944A001ABC0021F7DB91F829F")));
     database.insertMockData(
         new MetricValueIdentifier(expectDate, metricName, station, new Channel("50","LRH")),
-        100.0, ByteBuffer.wrap(DatatypeConverter.parseHexBinary("F9A58BE71816472AE237B583E4AC7419")));
+        100.0, ByteBuffer.wrap(DatatypeConverter.parseHexBinary("6C45C14D1C453280337298527DE16881")));
     database.insertMockData(
         new MetricValueIdentifier(expectDate, metricName, station, new Channel("50","LRI")),
-        100.0, ByteBuffer.wrap(DatatypeConverter.parseHexBinary("F9A58BE71816472AE237B583E4AC7419")));
+        100.0, ByteBuffer.wrap(DatatypeConverter.parseHexBinary("6C45C14D1C453280337298527DE16881")));
     database.insertMockData(
         new MetricValueIdentifier(expectDate, metricName, station, new Channel("50","LWD")),
-        100.0, ByteBuffer.wrap(DatatypeConverter.parseHexBinary("165C8D48BEBFDA64E6837C276035A4CD")));
+        100.0, ByteBuffer.wrap(DatatypeConverter.parseHexBinary("4DA677ED57FA26F28DD681F1D0F1D8FB")));
     database.insertMockData(
         new MetricValueIdentifier(expectDate, metricName, station, new Channel("50","LWS")),
-        100.0, ByteBuffer.wrap(DatatypeConverter.parseHexBinary("D5DC83C619B19205249A7F66C5CA7DB6")));
+        100.0, ByteBuffer.wrap(DatatypeConverter.parseHexBinary("403CC96C1DE2E7AFF5DF52B75C87612E")));
     database.insertMockData(
         new MetricValueIdentifier(expectDate, metricName, station, new Channel("60","HDF")),
-        100.0, ByteBuffer.wrap(DatatypeConverter.parseHexBinary("8107BEE8208A3C8671166F4E76369A7C")));
+        100.0, ByteBuffer.wrap(DatatypeConverter.parseHexBinary("38F4E703C7F60C00051EE217121CD266")));
     database.insertMockData(
         new MetricValueIdentifier(expectDate, metricName, station, new Channel("00","VM1")),
-        100.0, ByteBuffer.wrap(DatatypeConverter.parseHexBinary("5CC3259EB1D31B7775C1FA6270820A00")));
+        100.0, ByteBuffer.wrap(DatatypeConverter.parseHexBinary("FD081C437207AA2333807C0811F5062A")));
     database.insertMockData(
         new MetricValueIdentifier(expectDate, metricName, station, new Channel("00","VM2")),
-        100.0, ByteBuffer.wrap(DatatypeConverter.parseHexBinary("22FE293A395EF3A98167DFBCD77DA3EA")));
+        100.0, ByteBuffer.wrap(DatatypeConverter.parseHexBinary("DECC9444654224519F4E88EBF35F0455")));
     database.insertMockData(
         new MetricValueIdentifier(expectDate, metricName, station, new Channel("00","VMZ")),
-        100.0, ByteBuffer.wrap(DatatypeConverter.parseHexBinary("D26C89E8FA1BCFFB182C1FED512C4051")));
+        100.0, ByteBuffer.wrap(DatatypeConverter.parseHexBinary("C9D42B09FBD80E15B90E45593DBB8C1C")));
     database.insertMockData(
         new MetricValueIdentifier(expectDate, metricName, station, new Channel("10","VMU")),
-        100.0, ByteBuffer.wrap(DatatypeConverter.parseHexBinary("23137842457ED5C9AD8A927D62B37F5A")));
+        100.0, ByteBuffer.wrap(DatatypeConverter.parseHexBinary("B35DCD9467666201B4DAB53D05E60BF3")));
     database.insertMockData(
         new MetricValueIdentifier(expectDate, metricName, station, new Channel("10","VMV")),
-        100.0, ByteBuffer.wrap(DatatypeConverter.parseHexBinary("23137842457ED5C9AD8A927D62B37F5A")));
+        100.0, ByteBuffer.wrap(DatatypeConverter.parseHexBinary("B35DCD9467666201B4DAB53D05E60BF3")));
     database.insertMockData(
         new MetricValueIdentifier(expectDate, metricName, station, new Channel("10","VMW")),
-        100.0, ByteBuffer.wrap(DatatypeConverter.parseHexBinary("23137842457ED5C9AD8A927D62B37F5A")));
+        100.0, ByteBuffer.wrap(DatatypeConverter.parseHexBinary("B35DCD9467666201B4DAB53D05E60BF3")));
     database.insertMockData(
         new MetricValueIdentifier(expectDate, metricName, station, new Channel("30","LDO")),
-        100.0, ByteBuffer.wrap(DatatypeConverter.parseHexBinary("6BE526346BB465B0A16DFC05968852E4")));
+        100.0, ByteBuffer.wrap(DatatypeConverter.parseHexBinary("313D633DCE0876CEFB17D9867D9E0C47")));
     database.insertMockData(
         new MetricValueIdentifier(expectDate, metricName, station, new Channel("40","LF1")),
-        100.0, ByteBuffer.wrap(DatatypeConverter.parseHexBinary("53D3891CB62BA202D2DAF0B3B7F36961")));
+        100.0, ByteBuffer.wrap(DatatypeConverter.parseHexBinary("9490F8C830DA9A7F43F0CFD5E668F833")));
     database.insertMockData(
         new MetricValueIdentifier(expectDate, metricName, station, new Channel("40","LF2")),
-        100.0, ByteBuffer.wrap(DatatypeConverter.parseHexBinary("85879B16B7066492C9CAEC37286BB1C0")));
+        100.0, ByteBuffer.wrap(DatatypeConverter.parseHexBinary("42C4EAC231F75CEF58E0D35179F02092")));
     database.insertMockData(
         new MetricValueIdentifier(expectDate, metricName, station, new Channel("40","LFZ")),
-        100.0, ByteBuffer.wrap(DatatypeConverter.parseHexBinary("AFB970A4486FE4FC902AEDF5D60B967A")));
+        100.0, ByteBuffer.wrap(DatatypeConverter.parseHexBinary("68FA0170CE9EDC810100D29387900728")));
 
     Metric metric = new AvailabilityMetric();
     MetricData metricData = ResourceManager.loadANMOMainTestCase();

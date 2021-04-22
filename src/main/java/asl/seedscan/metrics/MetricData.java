@@ -994,10 +994,7 @@ public class MetricData implements Serializable {
      * metadata alone)
      */
 
-    boolean availabilityMetric = false;
-    if (id.getMetricName().equals("AvailabilityMetric")) {
-      availabilityMetric = true;
-    }
+    boolean availabilityMetric = id.getMetricName().equals("AvailabilityMetric");
 
     /* Return null to skip non availability metric. */
     if (!hasChannelArrayData(channelArray) && !availabilityMetric) { // Return
@@ -1051,7 +1048,6 @@ public class MetricData implements Serializable {
     /*
      * If metricReader is not connected, it will always fall through and recompute.
      */
-
     return newDigest;
   }
 

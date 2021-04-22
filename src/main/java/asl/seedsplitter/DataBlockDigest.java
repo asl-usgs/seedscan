@@ -25,11 +25,12 @@ public class DataBlockDigest extends MemberDigest {
   @Override
   protected void addDigestMembers() {
     addToDigest(dataBlock.getInitialInterval());
-    addToDigest(dataBlock.getStartTime());
+    //addToDigest(dataBlock.getStartTime());
     // always go in sorted order by times -- map/set iterators are not thread-consistent
     List<Long> times = new ArrayList<>(dataBlock.getDataMap().keySet());
     sort(times);
-    for (long time: times) {
+    for (long time : times) {
+      addToDigest(time);
       double[] data = dataBlock.getDataMap().get(time);
       for (double point : data) {
         addToDigest(point);

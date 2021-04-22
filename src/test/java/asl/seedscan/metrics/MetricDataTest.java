@@ -18,6 +18,7 @@ import java.nio.ByteBuffer;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
+import static javax.xml.bind.DatatypeConverter.printHexBinary;
 import static org.junit.Assert.*;
 
 public class MetricDataTest {
@@ -80,7 +81,7 @@ public class MetricDataTest {
     expectChannel = new Channel("10", "BH1"); // Precomputed the digest
     database.insertMockDigest(
         new MetricValueIdentifier(expectDate, expectMetricName, expectStation, expectChannel),
-        ByteBuffer.wrap(DatatypeConverter.parseHexBinary("9A4FE3A10FD60F93526F464B0DB9580E")));
+        ByteBuffer.wrap(DatatypeConverter.parseHexBinary("5965A457643242D7479373D3CCCD11C0")));
     expectChannel = new Channel("00", "LH2");
     database.insertMockDigest(
         new MetricValueIdentifier(expectDate, expectMetricName, expectStation, expectChannel),
@@ -90,7 +91,7 @@ public class MetricDataTest {
     expectChannel = new Channel("10", "BH1"); // Precomputed the digest
     database.insertMockDigest(
         new MetricValueIdentifier(expectDate, expectMetricName, expectStation, expectChannel),
-        ByteBuffer.wrap(DatatypeConverter.parseHexBinary("49fdfd9749eb3cc77bd7865c9b7aeac7")));
+        ByteBuffer.wrap(DatatypeConverter.parseHexBinary("5965A457643242D7479373D3CCCD11C0")));
     expectChannel = new Channel("00", "LH2");
     database.insertMockDigest(
         new MetricValueIdentifier(expectDate, expectMetricName, expectStation, expectChannel),
@@ -457,6 +458,9 @@ public class MetricDataTest {
     ByteBuffer digest = metricData
         .valueDigestChanged(channel, new MetricValueIdentifier(date, metricName, station, channel),
             false);
+    if (digest != null) {
+      System.out.println(printHexBinary(digest.array()));
+    }
     //Digest match don't recompute
     assertNull(digest);
   }
