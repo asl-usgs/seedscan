@@ -8,19 +8,18 @@ buildscript {
 
 plugins {
     id 'org.liquibase.gradle' version '1.2.4'
-    id 'org.unbroken-dome.xjc' version '2.0.0'
+    id "com.github.bjornvester.xjc" version "1.5.0"
     id 'java'
     id 'java-library'
     id 'application'
     id 'idea'
-    id 'eclipse'
 }
 
 if (file('database.gradle').exists()) {
     apply from:'database.gradle'
 }
 
-def codeJson = new JsonSlurper().parseText(new File("$projectDir", "code.json").text)
+def codeJson = new JsonSlurper().parseText(project.file("code.json").text)
 // NOTE: codeJson.version is a String[], and any IDE warning here can be safely ignored
 def jsonVersion = codeJson.version[0]
 /* Get last version number from commit counts */
@@ -62,18 +61,17 @@ dependencies {
     implementation ('edu.sc.seis:TauP:2.5.0') {
         exclude group: 'org.slf4j'
     }
-    // compile files('lib/TauP-2.1.0.jar')
 
     testImplementation group: 'org.mockito', name: 'mockito-all', version: '1.10.19'
     testImplementation group: 'junit', name: 'junit', version: '4.+'
 
-    xjcClasspath 'com.sun.xml.bind:jaxb-xjc:2.3+'
 }
 
-xjcGenerate {
-    source = fileTree('src/main/resources/schemas')
-    outputDirectory = file('src/main/java')
+
+xjc {
+    xsdDir.set(layout.projectDirectory.dir("src/main/resources/schemas"))
 }
+
 
 jar {
     /* Adds all dependent libraries*/
@@ -127,7 +125,7 @@ compileJava {
     options.incremental = true
 }
 
-tasks.compileJava.dependsOn('xjcGenerate')
+tasks.compileJava.dependsOn('xjc')
 
 if (file('database.gradle').exists()) {
     liquibase {
@@ -155,4 +153,4 @@ tasks.withType(JavaCompile) {
 }
 
 compileJava.dependsOn(gitSubmodule)
-build.dependsOn gitSubmodule
+build.dependsOn = [gitSubmodule, ':asl-java-utils:jar']
