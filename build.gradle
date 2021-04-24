@@ -153,4 +153,5 @@ tasks.withType(JavaCompile) {
 }
 
 compileJava.dependsOn(gitSubmodule)
+// the xjc tool doesn't play nicely with submodules, so we force its jar to be constructed first
 build.dependsOn = [gitSubmodule, ':asl-java-utils:jar']
