@@ -20,9 +20,9 @@ BEGIN
                 , ','
                 , coalesce(DisplayName, name, 'No name')
                 , ',"'
-                , descriptionshort
+                , REPLACE(descriptionshort, '"', '""')
                 , '","'
-                , descriptionlong
+                , REPLACE(descriptionlong, '"', '""')
                 , '"'
             )
             , E'\n' 
