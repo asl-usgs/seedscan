@@ -19,8 +19,11 @@ BEGIN
                 , pkMetricID
                 , ','
                 , coalesce(DisplayName, name, 'No name')
-
-                
+                , ',"'
+                , descriptionshort
+                , '","'
+                , descriptionlong
+                , '"'
             )
             , E'\n' 
         )
