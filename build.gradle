@@ -121,12 +121,6 @@ javadoc {
     options.memberLevel = JavadocMemberLevel.PRIVATE
 }
 
-compileJava {
-    options.incremental = true
-}
-
-tasks.compileJava.dependsOn('xjc')
-
 if (file('database.gradle').exists()) {
     liquibase {
         activities {
@@ -148,11 +142,12 @@ task gitSubmodule(type: Exec) {
     commandLine 'git', 'submodule', 'update', '--init', '--recursive'
 }
 
-tasks.withType(JavaCompile) {
+tasks.named('compileJava') {
+    options.incremental = true
     options.compilerArgs << "-Xlint:deprecation"
+    dependsOn ('xjc', gitSubmodule, ':asl-java-utils:jar')
 }
 
-compileJava.dependsOn(gitSubmodule)
 // the xjc tool doesn't play nicely with submodules, so we force its jar to be constructed first
 tasks.named('build') {
     dependsOn (gitSubmodule, ':asl-java-utils:jar')
