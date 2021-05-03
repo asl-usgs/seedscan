@@ -198,17 +198,6 @@ public class MetricDataTest {
     assertEquals("IU_ANMO_00_LHZ", channelData.getName());
   }
 
-  /*
-   * TODO: Need a day with a calibration, but won't worry about until
-   * Calibration metric is working.
-   */
-  @Test
-  public final void testHasCalibrationData() throws Exception {
-    assertFalse(data.hasCalibrationData());
-    MetricData metricData = new MetricData(new MetricDatabaseMock(), metadata);
-    assertFalse(metricData.hasCalibrationData());
-  }
-
   @Test
   public final void testGetChannelTimingQualityDataChannel() throws Exception {
     List<Integer> timingQuality;

@@ -316,14 +316,6 @@ public class MetricData implements Serializable {
   }
 
   /**
-   * Returns false; seedscan is not suitable for calibration analysis.
-   */
-  @Deprecated
-  boolean hasCalibrationData() {
-    return false;
-  }
-
-  /**
    * Gets the channel timing quality data.
    *
    * @param channel the channel
