@@ -52,15 +52,25 @@ public class PreprocessingUtils {
      * signs to put channel1 to +N half and channel 2 to +E
      */
 
-    /*
-     * Check if the azimuths are more than 10 degrees off. Log a warning,
-     * but still rotate as if perpendicular.
-     */
+
+    // Check if the azimuths are more than 10 degrees off from perpendicular expectation
+    // Log a warning, but still rotate as if perpendicular.
+    // both azimuths need to be within the closest 180 degrees for this check to be useful
+    while (Math.abs(azimuthX - azimuthY) > 180) {
+      if (azimuthX < azimuthY) {
+        azimuthX += 360;
+      } else {
+        azimuthY += 360;
+      }
+    }
     if ((Math.abs(azimuthX - azimuthY) - 90) > 10) {
       logger.warn(
           "Azimuth difference greater than 10 degrees, still rotating as if perpendicular: AzimuthX: {}  AzimuthY: {}",
           azimuthX, azimuthY);
     }
+    // now that we know they're perpendicular, we can take the mod to get value in range 0 to 360
+    azimuthX = (azimuthX + 360) % 360;
+    azimuthY = (azimuthY + 360) % 360;
 
     double azimuth;
     int sign1 = 1;

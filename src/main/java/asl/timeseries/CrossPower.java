@@ -1,5 +1,7 @@
 package asl.timeseries;
 
+import static asl.utils.NumericUtils.detrend;
+import static asl.utils.NumericUtils.gapAwareDetrend;
 import static asl.utils.timeseries.TimeSeriesUtils.ONE_HZ_INTERVAL;
 
 import asl.metadata.Channel;
@@ -13,9 +15,9 @@ import org.apache.commons.math3.complex.Complex;
 
 public class CrossPower {
 
-  private final double[] powerSpectrum;
+  private double[] powerSpectrum;
   private double[] frequencyArray;
-  private final double spectrumDeltaF;
+  private double spectrumDeltaF;
 
   // constructor
   public CrossPower(double[] powerSpectrum, double df) {
@@ -34,11 +36,20 @@ public class CrossPower {
    */
   public CrossPower(Channel channelX, Channel channelY, MetricData metricData)
       throws MetricPSDException, ChannelMetaException {
-    // normally we would use the detrended padded day data method, but we get the data from the
-    // datablock directly so that data that is at high sample rates (i.e, 100Hz) can run without
-    // producing memory exceptions
-    this(channelX, channelY, metricData, metricData.getChannelData(channelX).getData(),
-        metricData.getChannelData(channelY).getData());
+    // normally we would use the detrended padded full-day data method, but we get the data from
+    // the datablock directly. this way, data that is at high sample rates (i.e, 100Hz)
+    // can run without producing memory exceptions
+    double[] dataX = metricData.getChannelData(channelX).getSampleRate() > 40 ?
+        gapAwareDetrend(metricData.getChannelData(channelX)) :
+        metricData.getDetrendedPaddedDayData(channelX);
+
+    double[] dataY = metricData.getChannelData(channelY).getSampleRate() > 40 ?
+        gapAwareDetrend(metricData.getChannelData(channelY)) :
+        metricData.getDetrendedPaddedDayData(channelY);
+
+    assert(dataX.length == dataY.length);
+
+    doCrossPower(channelX, channelY, metricData, dataX, dataY);
   }
 
   /**
@@ -55,9 +66,13 @@ public class CrossPower {
    * @throws MetricPSDException   the metric psd exception
    */
   public CrossPower(Channel channelX, Channel channelY, MetricData metricData, double[] xData,
-      double[] yData)
-      throws MetricPSDException, ChannelMetaException {
+      double[] yData) throws MetricPSDException, ChannelMetaException {
+      doCrossPower(channelX, channelY, metricData, xData, yData);
+  }
 
+
+  private void doCrossPower(Channel channelX, Channel channelY, MetricData metricData,
+      double[] xData, double[] yData) throws MetricPSDException, ChannelMetaException {
     if (xData == null && yData == null && !channelX.equals(channelY)) {
       throw new MetricPSDException("Data for both channels (" + channelX.toString() +
           ", " + channelY.toString() + ") is null");
@@ -69,19 +84,17 @@ public class CrossPower {
           channelY.toString() + ") was null for some reason");
     }
 
-    double sampleRate = metricData.getChannelData(channelX).getSampleRate();
+    long interval = metricData.getChannelData(channelX).getInterval();
 
-    if (sampleRate != metricData.getChannelData(channelY).getSampleRate()) {
-      throw new MetricPSDException("computePSD(): srateX (=" + sampleRate + ") != srateY (="
+    if (interval != metricData.getChannelData(channelY).getInterval()) {
+      throw new MetricPSDException("computePSD(): srateX (=" + interval + ") != srateY (="
           + metricData.getChannelData(channelY).getSampleRate() + ")\n");
     }
 
-    if (sampleRate == 0) {
+    if (interval == 0) {
       throw new MetricPSDException("Got srate=0");
     }
-
-    FFTResult psdRaw = FFTResult.spectralCalc(xData, yData,
-        (long) (ONE_HZ_INTERVAL / sampleRate));
+    FFTResult psdRaw = FFTResult.spectralCalc(xData, yData, interval);
     Complex[] spectrumRaw = psdRaw.getFFT();
     frequencyArray = psdRaw.getFreqs();
 

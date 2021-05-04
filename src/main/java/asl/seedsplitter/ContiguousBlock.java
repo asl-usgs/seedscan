@@ -19,12 +19,14 @@
 package asl.seedsplitter;
 
 
+import org.jetbrains.annotations.NotNull;
+
 /**
  * @author Joel D. Edwards
  * <p>
  * A simple class containing start and end times for contiguous data blocks.
  */
-public class ContiguousBlock {
+public class ContiguousBlock implements Comparable<ContiguousBlock> {
 
   private final long m_startTime;
   private final long m_endTime;
@@ -77,5 +79,15 @@ public class ContiguousBlock {
    */
   public long getInterval() {
     return m_interval;
+  }
+
+  @Override
+  public int compareTo(@NotNull ContiguousBlock o) {
+    if (this.getStartTime() < o.getStartTime()) {
+      return -1;
+    } else if (this.getEndTime() > o.getEndTime()) {
+      return 1;
+    }
+    return 0;
   }
 }

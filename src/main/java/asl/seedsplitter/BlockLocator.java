@@ -85,11 +85,6 @@ public class BlockLocator {
       throws MetricException {
     Set<ContiguousBlock> contiguousToConsider = new HashSet<>(blockList);
     ArrayList<ContiguousBlock> resultList = new ArrayList<>();
-    DataSet tempData;
-    ContiguousBlock oldBlock;
-    ContiguousBlock newBlock;
-    long startTime;
-    long endTime;
     long interval = dataBlock.getInitialInterval();
     long blockStart = dataBlock.getInitialStartTime();
     long blockEnd = dataBlock.getInitialEndTime();
@@ -123,7 +118,6 @@ public class BlockLocator {
       // 2. If the contiguous block starts or ends during a gap, truncate the block accordingly
       // (we've already eliminated/fixed the blocks that are beyond this datablock's limits)
       // 3. If neither of these things are true, the contiguous block remains unchanged
-      boolean passesAllGaps = true;
       for (Pair<Long, Long> gap : dataBlock.getGapBoundaries()) {
         // a contiguous block may have multiple gaps intersecting it, so we change the contiguous
         // block as we iterate through the gaps, and add the bits before an implicit time cursor

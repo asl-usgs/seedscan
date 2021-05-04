@@ -10,7 +10,11 @@ import asl.timeseries.CrossPower;
 import asl.util.Logging;
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -142,15 +146,15 @@ public class CoherencePBM extends PowerBandMetric {
     double[] Gyy = crossPower.getSpectrum();
     double dfY = crossPower.getSpectrumDeltaF();
 
-    crossPower = getCrossPower(channelX, channelY);
-    double[] Gxy = crossPower.getSpectrum();
-
     if (dfX != dfY) { // Oops - spectra have different frequency sampling!
       throw new MetricException(String
           .format("station=[%s] channelX[%s] channelY=[%s] day=[%s]: "
                   + "dfX != dfY --> Can't continue\n",
               station, channelX, channelY, day));
     }
+
+    crossPower = getCrossPower(channelX, channelY);
+    double[] Gxy = crossPower.getSpectrum();
 
     if (Gxx.length != Gyy.length || Gxx.length != Gxy.length) { // Something's
       // wrong ...
@@ -172,6 +176,18 @@ public class CoherencePBM extends PowerBandMetric {
       gamma[k] = Math.sqrt(gamma[k]);
     }
     gamma[0] = 0;
+
+    if (channelX.getChannel().equals("LHZ")) {
+      String name = station + "-" + channelX;
+      try (PrintWriter out = new PrintWriter(new FileWriter(name + "-comparison.csv"))) {
+        for (int i = 0; i < nf; ++i) {
+          out.write(freq[i] + ", " + gamma[i] + '\n');
+        }
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+
+    }
     // Timeseries.timeoutXY(freq, gamma, "Gamma");
     // Timeseries.timeoutXY(freq, Gxx, "Gxx");
     // Timeseries.timeoutXY(freq, Gyy, "Gyy");

@@ -39,6 +39,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Set;
@@ -46,6 +48,7 @@ import java.util.stream.DoubleStream;
 
 import asl.utils.timeseries.DataBlock;
 import org.apache.commons.math3.complex.Complex;
+import org.apache.commons.math3.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import seed.Blockette320;
@@ -698,8 +701,58 @@ public class MetricData implements Serializable {
               metadata.getDate()));
       return null;
     }
-    double[] segments = getPaddedDayData(channel);
-    return detrend(segments);
+    DataBlock dataBlock = getChannelData(channel);
+    double[] data = getPaddedDayData(channel);
+    // need to know the gap ranges so that we can get the times they occur
+    // this way we don't wind up attempting to detrend them
+    long dayStartTime = Time.calculateEpochMicroSeconds(metadata.getTimestamp()) / 1000;
+    long dayEndTime = dayStartTime + 86400000L; // offset by exactly 1 day in milliseconds
+    List<Pair<Long, Long>> gaps = dataBlock.getGapBoundaries();
+    if (dayStartTime < dataBlock.getInitialStartTime()) {
+      gaps.add(0, new Pair<>(dayStartTime, dataBlock.getInitialStartTime()));
+    }
+    if (dayEndTime > dataBlock.getInitialEndTime()) {
+      gaps.add(0, new Pair<>(dataBlock.getInitialEndTime(), dayEndTime));
+    }
+    long interval = dataBlock.getInterval();
+    Set<Integer> pointsToIgnore = new HashSet<>();
+
+    double sumX = 0.0;
+    double sumY = 0.0;
+    double sumXSqd = 0.0;
+    double sumXY = 0.0;
+    outerLoop:
+    for (int i = 0; i < data.length; ++i) {
+      long timeCursor = dayStartTime + interval * i;
+      for (Pair<Long, Long> gap : gaps) {
+        if (timeCursor >= gap.getFirst() && timeCursor < gap.getSecond()) {
+          pointsToIgnore.add(i);
+          continue outerLoop;
+        }
+      }
+      sumX += i;
+      sumXSqd += (double) i * (double) i;
+      double value = data[i];
+      sumXY += value * i;
+      sumY += value;
+    }
+
+    double del = sumXSqd - (sumX * sumX / data.length);
+
+    double slope = sumXY - (sumX * sumY / data.length);
+    slope /= del;
+
+    double yOffset = (sumXSqd * sumY) - (sumX * sumXY);
+    yOffset /= del * data.length;
+
+    for (int i = 0; i < data.length; ++i) {
+      if (pointsToIgnore.contains(i)) {
+        continue;
+      }
+      data[i] = data[i] - ((slope * i) + yOffset);
+    }
+
+    return data;
   }
 
   /**
@@ -874,7 +927,7 @@ public class MetricData implements Serializable {
     dataLists.add(channelXData);
     dataLists.add(channelYData);
 
-    // TODO: datablocks already merge their contiguous segments, so this can almost certainly be simplified
+
     ArrayList<ContiguousBlock> blocks = BlockLocator.buildBlockList(dataLists);
 
     if (blocks == null || blocks.size() == 0) {
@@ -882,16 +935,18 @@ public class MetricData implements Serializable {
       throw new MetricException(error);
     }
 
+    Collections.sort(blocks);
     ContiguousBlock largestBlock = null;
     ContiguousBlock lastBlock = null;
+
     for (ContiguousBlock block : blocks) {
       if ((largestBlock == null) || (largestBlock.getRange() < block.getRange())) {
         largestBlock = block;
       }
       if (lastBlock != null) {
-        logger.error("Gap: {} data points ({} microseconds)",
+        logger.error("Gap: {} data points ({} milliseconds) on {}",
             ((block.getStartTime() - lastBlock.getEndTime()) / block.getInterval()),
-            (block.getStartTime() - lastBlock.getEndTime()));
+            (block.getStartTime() - lastBlock.getEndTime()), channelX);
       }
       lastBlock = block;
     }

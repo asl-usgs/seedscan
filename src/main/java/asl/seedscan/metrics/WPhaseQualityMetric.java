@@ -2,6 +2,7 @@ package asl.seedscan.metrics;
 
 import static asl.seedscan.event.ArrivalTimeUtils.getPArrivalTime;
 import static asl.utils.FilterUtils.bandFilter;
+import static asl.utils.NumericUtils.detrend;
 
 import asl.metadata.Channel;
 import asl.metadata.ChannelArray;
@@ -286,7 +287,7 @@ public class WPhaseQualityMetric extends Metric {
           CrossPower crossPower;
           try {
             crossPower = new CrossPower(channel, channel, metricData,
-                prescreenCheck, prescreenCheck);
+                detrend(prescreenCheck), detrend(prescreenCheck));
           } catch (MetricPSDException | ChannelMetaException e) {
             logger.error("Unable to create CrossPower for channel {}-{}", getStation(), channel, e);
             channelsWithMetricResults.get(channelKey).addInvalidCase();
