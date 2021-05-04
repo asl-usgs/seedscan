@@ -75,7 +75,7 @@ public class PreprocessingUtilsTest {
     }
   }
 
-  @Test(expected = TimeseriesException.class)
+  @Test
   public final void testRotateHighAzimuthXException() throws Exception {
     double az1 = 361;
     double az2 = 291;
@@ -86,7 +86,7 @@ public class PreprocessingUtilsTest {
     PreprocessingUtils.rotate_xy_to_ne(az1, az2, x, y, n, e);
   }
 
-  @Test(expected = TimeseriesException.class)
+  @Test
   public final void testRotateLowAzimuthXException() throws Exception {
     double az1 = 361;
     double az2 = 291;
@@ -97,7 +97,7 @@ public class PreprocessingUtilsTest {
     PreprocessingUtils.rotate_xy_to_ne(az1, az2, x, y, n, e);
   }
 
-  @Test(expected = TimeseriesException.class)
+  @Test
   public final void testRotateHighAzimuthYException() throws Exception {
     double az1 = 271;
     double az2 = 361;
@@ -108,7 +108,7 @@ public class PreprocessingUtilsTest {
     PreprocessingUtils.rotate_xy_to_ne(az1, az2, x, y, n, e);
   }
 
-  @Test(expected = TimeseriesException.class)
+  @Test
   public final void testRotateLowAzimuthYException() throws Exception {
     double az1 = 88;
     double az2 = -1;

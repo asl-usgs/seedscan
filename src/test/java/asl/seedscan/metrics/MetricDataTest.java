@@ -447,9 +447,6 @@ public class MetricDataTest {
     ByteBuffer digest = metricData
         .valueDigestChanged(channel, new MetricValueIdentifier(date, metricName, station, channel),
             false);
-    if (digest != null) {
-      System.out.println(printHexBinary(digest.array()));
-    }
     //Digest match don't recompute
     assertNull(digest);
   }

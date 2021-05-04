@@ -10,6 +10,7 @@ import asl.metadata.Channel;
 import asl.metadata.Station;
 import asl.seedscan.event.EventLoader;
 import asl.testutils.ResourceManager;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.stream.DoubleStream;
 import org.junit.Assert;
@@ -62,7 +63,7 @@ public class MetricDataEventTest {
     double resultSum = DoubleStream.of(results).sum();
     int resultCount = results.length;
     assertEquals(25200, resultCount);
-    assertEquals(1165370757, (int) resultSum);
+    assertEquals(1165370757L, (int) resultSum);
     assertEquals(42808, (int) resultMin);
     assertEquals(49598, (int) resultMax);
   }
