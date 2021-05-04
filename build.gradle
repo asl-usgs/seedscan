@@ -156,3 +156,4 @@ tasks.named('compileJava') {
 tasks.named('build') {
     dependsOn (gitSubmodule, ':asl-java-utils:jar')
 }
+
