@@ -48,7 +48,12 @@
     </addColumn>
   </changeSet>
   <changeSet author="dwitte" id="add_netsta_view">
-     <comment>Removed Materialized View netstaview</comment>
+     <comment>This created Materialized View netstaview which we removed but need placeholder</comment>
      <empty/>
+  </changeSet>
+  <changeSet  author="dwitte"  id="drop_netsta_view">
+      <sql stripComments="true">
+          DROP MATERIALIZED VIEW IF EXISTS public.netstaview;
+      </sql>
   </changeSet>
 </databaseChangeLog>
