@@ -47,17 +47,12 @@
       <column name="descriptionlong" type="TEXT"/>
     </addColumn>
   </changeSet>
-  <changeSet author="dwitte" id="add_netsta_view">
+  <changeSet author="dwitte" id="add_metricdata_date_channelid_index">
      <sql stripComments="true">
-         CREATE MATERIALIZED VIEW public.netstaview AS
-         SELECT DISTINCT gp.name AS network, st.name AS station, MIN(md.date) AS mindate, MAX(md.date) AS maxdate FROM public."tblGroupType" gpt
-         INNER JOIN public."tblGroup" gp ON gp."fkGroupTypeID"=gpt."pkGroupTypeID"
-         INNER JOIN public.tblstation st ON st.fknetworkid=gp.pkgroupid
-         INNER JOIN public.tblsensor sn ON sn.fkstationid=st.pkstationid
-         INNER JOIN public.tblchannel ch ON ch.fksensorid=sn.pksensorid
-         INNER JOIN public.tblmetricdata md ON md.fkchannelid=ch.pkchannelid
-         WHERE gpt.name='Network Code'
-         GROUP BY gp.name, st.name;
+         CREATE INDEX tblmetricdata_date_fkchannelid
+         ON public.tblmetricdata USING btree
+         (date DESC NULLS LAST, fkchannelid ASC NULLS LAST)
+         TABLESPACE pg_default;
      </sql>
   </changeSet>
 </databaseChangeLog>
