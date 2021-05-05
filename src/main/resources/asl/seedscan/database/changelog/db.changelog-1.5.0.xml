@@ -47,7 +47,7 @@
       <column name="descriptionlong" type="TEXT"/>
     </addColumn>
   </changeSet>
-  <changeSet author="dwitte" id="add_netsta_view">
+  <changeSet author="dwitte" id="add_netsta_view" runOnChange="true">
      <comment>This created Materialized View netstaview which we removed but need placeholder</comment>
      <empty/>
   </changeSet>
