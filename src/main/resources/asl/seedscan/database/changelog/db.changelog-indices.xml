@@ -103,7 +103,7 @@
         <indexExists schemaName="public" indexName="tblmetricdata_date_fkchannelid_idx"/>
       </not>
     </preConditions>
-    <createIndex clustered="true" indexName="tblmetricdata_date_fkchannelid_idx"
+    <createIndex clustered="false" indexName="tblmetricdata_date_fkchannelid_idx"
       tableName="tblmetricdata">
       <column name="date"/>
       <column name="fkchannelid"/>
