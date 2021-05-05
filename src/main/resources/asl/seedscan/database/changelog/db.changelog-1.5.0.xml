@@ -47,12 +47,8 @@
       <column name="descriptionlong" type="TEXT"/>
     </addColumn>
   </changeSet>
-  <changeSet author="dwitte" id="add_metricdata_date_channelid_index">
-     <sql stripComments="true">
-         CREATE INDEX tblmetricdata_date_fkchannelid
-         ON public.tblmetricdata USING btree
-         (date DESC NULLS LAST, fkchannelid ASC NULLS LAST)
-         TABLESPACE pg_default;
-     </sql>
+  <changeSet author="dwitte" id="add_netsta_view">
+     <comment>Removed Materialized View netstaview</comment>
+     <empty/>
   </changeSet>
 </databaseChangeLog>
