@@ -176,7 +176,8 @@ public class ALNMDeviationMetric extends PowerBandMetric {
     return "This metric computes the PSD of the data for a channel. For the specified period band "
         + "(i.e., 0.5-1s), it computes the difference between the PSD and the accelerometer "
         + "low-noise model (ALNM). This is a basic difference, so values can be negative, if "
-        + "points are below the ALNM. ALNM is taken from Cauzzi and Clinton (2013).";
+        + "points are below the ALNM. ALNM is taken from Cauzzi and Clinton (2013), available "
+        + "at https://journals.sagepub.com/doi/full/10.1193/1.4000107";
   }
 
   /**
