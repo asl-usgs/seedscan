@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 /**
  * ALNMDeviationMetric - Compute Difference (over specified range of periods = powerband) between
  * the power spectral density (psd) of a channel and the ALNM.
+ * ALNM is derived from Cauzzi and Clinton (2013).
  */
 public class ALNMDeviationMetric extends PowerBandMetric {
 
@@ -167,7 +168,7 @@ public class ALNMDeviationMetric extends PowerBandMetric {
 
   @Override
   public String getSimpleDescription() {
-    return "Gets the ALNM deviation over the specified band";
+    return "Gets the ALNM (Cauzzi and Clinton, 2013) deviation over the specified band";
   }
 
   @Override
@@ -175,7 +176,7 @@ public class ALNMDeviationMetric extends PowerBandMetric {
     return "This metric computes the PSD of the data for a channel. For the specified period band "
         + "(i.e., 0.5-1s), it computes the difference between the PSD and the accelerometer "
         + "low-noise model (ALNM). This is a basic difference, so values can be negative, if "
-        + "points are below the ALNM.";
+        + "points are below the ALNM. ALNM is taken from Cauzzi and Clinton (2013).";
   }
 
   /**
