@@ -10,7 +10,7 @@ DOI for published paper: https://doi.org/10.1016/j.cageo.2014.12.006
 ### Requirements
 ###### Software
 Java 1.8  
-Gradle 2.5  
+Gradle 7  
 Postgresql 9.x  
 rdseed (see https://ds.iris.edu/ds/nodes/dmc/software/downloads/rdseed/)  
 
@@ -169,7 +169,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 ###### Compilation
    The current test resources will be required to build, these are contained in a separate git repository. These are contained within a git submodule in src/test/resources. This may require updating periodically. See https://github.com/usgs/seedscan-testdata for the data.  
     
-   To compile, execute `gradle build`. This will download required dependencies, compile, and test the source code against current unit tests.
+   To compile, execute `gradle standardBuild`. This will download required dependencies, compile, and test the source code against current unit tests.
     
 ###### Basic Execution  
    To simply compile and execute seedscan run `gradle run` in the seedscan folder.
