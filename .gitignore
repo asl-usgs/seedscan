@@ -26,3 +26,6 @@ seedscan.lock
 *.swp
 
 !/samples/*
+
+# Ignore Gradle project-specific cache directory
+.gradle
