@@ -302,7 +302,7 @@ public class StationDeviationMetric extends PowerBandMetric {
     }
 
     // This uses the following lines to get the old format for station models
-    // which had percent as the first value and powers (mean) as second value
+    // which had period as the first value and powers (mean) as second value
     // Temp linkedlist(s) to read in unknown number of (x,y) pairs with constant-time inserts:
     List<Double> tmpPers = new LinkedList<>();
     List<Double> tmpPows = new LinkedList<>();
@@ -326,7 +326,7 @@ public class StationDeviationMetric extends PowerBandMetric {
 
       do {
         args = line.trim().split(",\\s+");
-        // hard-wired for new format has only 5 columns (percent, mean, median, 10th, 90th)
+        // hard-wired for new format has only 5 columns (period, mean, median, 10th, 90th)
         if (args.length == 5) {
           try {
             tmpPers.add(Double.valueOf(args[0].trim()));
