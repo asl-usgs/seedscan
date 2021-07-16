@@ -57,6 +57,7 @@ def publish_messages(networks=None, select_dates=None, metrics=None,
     for select_date, network, metric in product(select_dates, networks,
                                                 metrics):
         date_string = select_date.strftime("%Y-%m-%d")
+        iso_date = select_date.isoformat()
         output = call_dqa(network=network, metric=metric, begin=date_string,
                           end=date_string, format='csv')
 
@@ -73,11 +74,13 @@ def publish_messages(networks=None, select_dates=None, metrics=None,
                                  value_serializer=lambda v: json.dumps(v)
                                  .encode('utf-8'))
 
-        # note that CSV class works in such a way that the iterator is the only reasonable way to
-        # access the data once converted into it -- fortunately the first entry can still easily be
+        # note that CSV class works in such a way that the iterator is the
+        # only reasonable way to access the data once converted into it --
+        # fortunately the first entry can still easily be
         # checked to determine if there's really any content to iterator over
         for record in data:
-            # this will happen if DQA doesn't have data for a given day/metric, not an empty list:
+            # this will happen if DQA doesn't have data for a given day/metric,
+            # not an empty list:
             if str(record[0]).startswith("Error"):
                 if is_test:
                     print("Nothing available for", select_date, network, metric)
@@ -85,12 +88,16 @@ def publish_messages(networks=None, select_dates=None, metrics=None,
 
             # now we get the fields and jsonify them for publication
             # value order is how they come out of the call_dqa method
-            (r_date, network, station, location, channel, metric, value) = record
+            (r_date, network, station, location, channel, metric, value) \
+                = record
             if is_test:
-                print(r_date, network, station, location, channel, metric, value)
+                print(r_date, network, station, location, channel, metric,
+                      value)
 
-            # get the topic name derived from the metric and how we're running the code
-            # this should also validate the name to make sure it has no disallowed characters
+            # get the topic name derived from the metric and
+            # how we're running the code
+            # this should also validate the name to make sure it has
+            # no disallowed characters
             topic_name = topic_fix(metric, is_test)
 
             # json format description:
@@ -98,12 +105,13 @@ def publish_messages(networks=None, select_dates=None, metrics=None,
             # /blob/master/format-docs/StationInfo.md
             # we have some custom formats added here to disambiguate metric
             # and to give the date of data this metric was evaluated upon
-            message = {"Type": "StationInfo", "Site": {"Network": network,
-                                                       "Station": station,
-                                                       "Location": location,
-                                                       "Channel": channel},
-                       "MetricValue": value, "StartDate": date_string, "Enable": "true",
-                       "Metric": metric}
+            message = {"Type": "StationInfo",
+                       "Site": {
+                           "Network": network, "Station": station,
+                           "Location": location, "Channel": channel},
+                       "Metrics": {
+                           "Name": metric, "Value": value,
+                           "DataStartDate": date_string}}
             # next step is to actually send this message
             producer.send(topic_name, message)
         # make sure all messages are properly committed to the server
