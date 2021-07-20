@@ -32,6 +32,11 @@ public class DifferencePBM extends PowerBandMetric {
   }
 
   @Override
+  public String getUnitDescription() {
+    return "mean dev. rel. 1 (m/s^2)^2/Hz";
+  }
+
+  @Override
   public String getBaseName() {
     return "DifferencePBM";
   }

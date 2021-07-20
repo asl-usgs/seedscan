@@ -25,6 +25,11 @@ public class GapCountMetric extends Metric {
     return "GapCountMetric";
   }
 
+  @Override
+  public String getUnitDescription() {
+    return "gaps";
+  }
+
   public void process() {
     logger.info("-Enter- [ Station {} ] [ Day {} ]", getStation(), getDay());
 

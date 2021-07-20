@@ -80,6 +80,11 @@ public class WPhaseQualityMetric extends Metric {
   }
 
   @Override
+  public String getUnitDescription() {
+    return "proportion passed";
+  }
+
+  @Override
   public void process() {
     logger.info("-Enter- [ Station {} ] [ Day {} ]", getStation(), getDay());
 

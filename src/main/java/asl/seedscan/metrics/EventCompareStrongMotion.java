@@ -53,6 +53,11 @@ public class EventCompareStrongMotion extends Metric {
   }
 
   @Override
+  public String getUnitDescription() {
+    return "correlation";
+  }
+
+  @Override
   public void process() {
     logger.info("-Enter- [ Station {} ] [ Day {} ]", getStation(), getDay());
     eventCMTs = getEventTable();

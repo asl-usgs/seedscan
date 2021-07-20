@@ -22,6 +22,11 @@ public class MinimumTimingMetric extends Metric {
     return "MinimumTimingMetric";
   }
 
+  @Override
+  public String getUnitDescription() {
+    return "quality value";
+  }
+
   public void process() {
     logger.info("-Enter- [ Station {} ] [ Day {} ]", getStation(), getDay());
 

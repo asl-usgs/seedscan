@@ -35,6 +35,11 @@ public class InfrasoundMetric extends Metric {
   }
 
   @Override
+  public String getUnitDescription() {
+    return "pressure ((Pa)^2/Hz)";
+  }
+
+  @Override
   public void process() {
     logger.info("-Enter- [ Station {} ] [ Day {} ]", this.getStation(),
         this.getDay());

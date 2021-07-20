@@ -27,6 +27,11 @@ public class DeadChannelMetric extends PowerBandMetric {
   }
 
   @Override
+  public String getUnitDescription() {
+    return "0 = dead";
+  }
+
+  @Override
   public String getBaseName() {
     return "DeadChannelMetric";
   }

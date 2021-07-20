@@ -40,6 +40,11 @@ public class ALNMDeviationMetric extends PowerBandMetric {
     return 1;
   }
 
+  @Override
+  public String getUnitDescription() {
+    return "deviation rel. 1 (m/s^2)^2/Hz";
+  }
+
   /*
    * (non-Javadoc)
    *

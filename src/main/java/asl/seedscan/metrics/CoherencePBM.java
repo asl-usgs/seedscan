@@ -30,6 +30,11 @@ public class CoherencePBM extends PowerBandMetric {
   }
 
   @Override
+  public String getUnitDescription() {
+    return "coherence";
+  }
+
+  @Override
   public String getBaseName() {
     return "CoherencePBM";
   }

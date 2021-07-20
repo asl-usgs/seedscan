@@ -37,6 +37,11 @@ public class AvailabilityMetric extends Metric {
     return "AvailabilityMetric";
   }
 
+  @Override
+  public String getUnitDescription() {
+    return "% avail.";
+  }
+
   public void process() {
     logger.info("-Enter- [ Station {} ] [ Day {} ]", getStation(), getDay());
 

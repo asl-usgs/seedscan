@@ -48,6 +48,11 @@ public class PressureMetric extends Metric {
   }
 
   @Override
+  public String getUnitDescription() {
+    return "pressure (atm)";
+  }
+
+  @Override
   public void process() {
     logger.info("-Enter- [ Station {} ] [ Day {} ]", this.getStation(),
         this.getDay());

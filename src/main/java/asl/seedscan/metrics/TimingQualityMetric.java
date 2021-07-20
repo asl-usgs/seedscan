@@ -39,6 +39,11 @@ public class TimingQualityMetric extends Metric {
     return "TimingQualityMetric";
   }
 
+  @Override
+  public String getUnitDescription() {
+    return "timing quality";
+  }
+
   public void process() {
     logger.info("-Enter- [ Station {} ] [ Day {} ]", getStation(), getDay());
 

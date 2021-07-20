@@ -84,6 +84,11 @@ public class EventCompareSynthetic extends Metric {
     return "EventCompareSynthetic";
   }
 
+  @Override
+  public String getUnitDescription() {
+    return "power scale";
+  }
+
   /**
    * @see asl.seedscan.metrics.Metric#process()
    */
@@ -236,7 +241,7 @@ public class EventCompareSynthetic extends Metric {
     return "This metric compares compare MINEOS synthetic normal mode seismograms to rotated N, E, "
         + "and vertical data in the 100 to 400s period band.  Data is compared in an 8000s window "
         + "starting at the moment tensor time of the event.  The synthetics are corrected with a "
-        + "ource-time function using a half-triangle.  The difference between the synthetics and "
+        + "source-time function using a half-triangle.  The difference between the synthetics and "
         + "the data is given by the normalized scale factor of sum x(t)*y(t)/"
         + "(sum(x(t))*sum(y(t))), where x(t) is the data and y(t) is the synthetic seismogram.  "
         + "We restrict results to cases where the correlation is greater than 0.85. "

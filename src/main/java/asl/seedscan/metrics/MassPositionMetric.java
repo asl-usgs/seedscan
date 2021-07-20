@@ -116,6 +116,11 @@ public class MassPositionMetric extends Metric {
     return "MassPositionMetric";
   }
 
+  @Override
+  public String getUnitDescription() {
+    return "displacement %";
+  }
+
   /**
    * @see asl.seedscan.metrics.Metric#getVersion()
    */

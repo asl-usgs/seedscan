@@ -60,6 +60,11 @@ public class PulseDetectionCountMetric extends PulseDetectionMetric {
   }
 
   @Override
+  public String getUnitDescription() {
+    return "num. pulses";
+  }
+
+  @Override
   public void process() {
     logger.info("-Enter- [ Station {} ] [ Day {} ]", getStation(), getDay());
     // first iterate over the channels

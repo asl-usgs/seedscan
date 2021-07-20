@@ -87,6 +87,11 @@ public class EventComparePWaveOrientation extends Metric {
   }
 
   @Override
+  public String getUnitDescription() {
+    return "degrees";
+  }
+
+  @Override
   public void process() {
     logger.info("-Enter- [ Station {} ] [ Day {} ]", getStation(), getDay());
 

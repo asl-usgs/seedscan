@@ -83,6 +83,11 @@ public class VacuumMonitorMetric extends Metric {
     return "VacuumMonitorMetric";
   }
 
+  @Override
+  public String getUnitDescription() {
+    return "pressure (kPa)";
+  }
+
   /**
    * @see asl.seedscan.metrics.Metric#getVersion()
    */

@@ -120,6 +120,7 @@ public class SeedScan {
       //Add any missing metrics or metric descriptions to database.
       List<MetricWrapper> metrics = Global.getMetrics();
 
+      // TODO: enable adding the metric.getUnitDescription() to this
       for (MetricWrapper metricWrapper : metrics) {
         Metric metric = metricWrapper.getNewInstance();
         database.insertMetric(

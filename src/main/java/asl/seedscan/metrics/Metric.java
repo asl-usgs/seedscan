@@ -121,6 +121,12 @@ public abstract class Metric {
   public abstract String getName();
 
   /**
+   * Get the unit description for the published values.
+   * @return unit description (e.g., "degrees rotation" or "pressure RMS (atm)")
+   */
+  public abstract String getUnitDescription();
+
+  /**
    * Process.
    */
   public abstract void process();
