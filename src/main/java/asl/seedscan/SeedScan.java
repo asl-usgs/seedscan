@@ -126,7 +126,8 @@ public class SeedScan {
         database.insertMetric(
             metric.getName(),
             metric.getSimpleDescription(),
-            metric.getLongDescription());
+            metric.getLongDescription(),
+            metric.getUnitDescription());
 
       }
 

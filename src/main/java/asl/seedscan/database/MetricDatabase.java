@@ -385,20 +385,22 @@ public class MetricDatabase {
    * @param longDescription Long form description
    * @throws SQLException If insertion fails
    */
-  public void insertMetric(String metricName, String simpleDescription, String longDescription)
-      throws SQLException {
+  public void insertMetric(String metricName, String simpleDescription, String longDescription,
+      String unitDescription) throws SQLException {
 
     try (Connection connection = dataSource
         .getConnection(); PreparedStatement statement = connection.prepareStatement("INSERT INTO "
-        + "public.tblmetric(name, fkcomputetypeid, descriptionshort, descriptionlong) "
+        + "public.tblmetric(name, fkcomputetypeid, descriptionshort, descriptionlong, unittype) "
         + "VALUES (?, 1, ?, ?) "
         + "ON CONFLICT (name) DO "
-        + "UPDATE SET descriptionshort=EXCLUDED.descriptionshort, descriptionlong=EXCLUDED.descriptionlong")) {
+        + "UPDATE SET descriptionshort=EXCLUDED.descriptionshort, "
+        + "descriptionlong=EXCLUDED.descriptionlong, unittype=EXCLUDED.unittype")) {
 
       int i = 1;
       statement.setObject(i++, metricName);
       statement.setString(i++, simpleDescription);
       statement.setString(i++, longDescription);
+      statement.setString(i++, unitDescription);
 
       if (statement.executeUpdate() != 1) {
         throw new SQLException("Failed to insert metric information into database");
