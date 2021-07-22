@@ -268,8 +268,13 @@ public class EventLoader {
     // File filter to catch dir names like "C201204112255A" and "C122301F"
     FilenameFilter eventFilter = (dir, name) -> {
       File file = new File(dir + "/" + name);
+      // while it is quite unlikely that we will run into a circumstance where the fallback name
+      // matches in data from 2005 or later, we do a check to make sure that it is using the
+      // short format in order to prevent any weird corner cases --
+      // as an example, 2012 04 20 would be 120420 in the short format which could match
+      // 201212042012, the long date for 2012 12 04.
       return (name.contains(yyyymmdd) && file.isDirectory()) ||
-          (name.contains(mmddyy) && file.isDirectory());
+          (name.contains(mmddyy) && name.length() < 9 && file.isDirectory());
     };
 
     // Check that yearDir exists and is a Directory:
