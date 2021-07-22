@@ -271,8 +271,8 @@ public class EventLoader {
       // while it is quite unlikely that we will run into a circumstance where the fallback name
       // matches in data from 2005 or later, we do a check to make sure that it is using the
       // short format in order to prevent any weird corner cases --
-      // as an example, 2012 04 20 would be 120420 in the short format which could match
-      // 201212042012, the long date for 2012 12 04.
+      // as an example, 2012 04 20 would be 042012 in the short format which could match
+      // 201201042012 (among others), if the event occurred at 20:12.
       return (name.contains(yyyymmdd) && file.isDirectory()) ||
           (name.contains(mmddyy) && name.length() < 9 && file.isDirectory());
     };

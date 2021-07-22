@@ -2,12 +2,16 @@ package asl.seedscan.event;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import asl.metadata.Station;
 import asl.testutils.ResourceManager;
+import java.io.File;
+import java.io.FilenameFilter;
 import java.time.LocalDate;
 import java.util.Hashtable;
+import java.util.Objects;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -50,6 +54,30 @@ public class EventLoaderTest {
     assertEquals(timeseries.getNumPtsRead(), 3999);
     timeseries = eventSynthetics.get("ANMO.XX.LXZ.modes.sac");
     assertEquals(timeseries.getNumPtsRead(),8000);
+  }
+
+  @Test
+  public final void testGetDaySyntheticsOldName_preventCollision() {
+    int year = 2012;
+    LocalDate date = LocalDate.of(year, 4, 20);
+    Station station = new Station("IU", "ANMO");
+
+    // ensure that there is in fact an existing path "C201201042012fake"
+    File yearDir = new File(EventLoader.getEventsDirectory() + "/" + year);
+    FilenameFilter eventFilter = (dir, name) -> {
+      File file = new File(dir + "/" + name);
+      return(name.contains("042012") && file.isDirectory());
+    };
+    File[] data = yearDir.listFiles(eventFilter);
+    assertNotNull(data);
+    assertEquals(1, data.length);
+    assertEquals("C201201042012fake", data[0].getName());
+
+    eventLoader.getDayEvents(date); // TODO: This shouldn't be required.
+    Hashtable<String, Hashtable<String, SacTimeSeries>> synthetics = eventLoader
+        .getDaySynthetics(date, station);
+    // synthetics should NOT contain "C201201042012fake", and there is no other data to load
+    assertNull(synthetics);
   }
 
   @Test
