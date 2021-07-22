@@ -47,7 +47,8 @@ public class Channel {
     // Allow locations = {"00", "10", "20", ..., "99" and "--"}
     Pattern pattern = Pattern.compile("^[0-9][0-9]$");
     Matcher matcher = pattern.matcher(location);
-    return (matcher.matches() || location.equals("--"));
+    // HR is used for some older US locations, referring to high-res instruments
+    return (matcher.matches() || location.equals("--") || location.equals("HR"));
 
   }
 

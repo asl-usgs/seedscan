@@ -114,6 +114,10 @@ public class EventLoader {
     return date.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
   }
 
+  private String makeOlderFilename(LocalDate date) {
+    return date.format(DateTimeFormatter.ofPattern("MMddyy"));
+  }
+
   /**
    * Gets the day synthetics. This method is dependent on getDayEvents() being called first. If not
    * will always return null.
@@ -229,9 +233,13 @@ public class EventLoader {
     }
 
     // System.out.format("== EventLoader.getDayEvents: key=[%s] NOT FOUND
-    // --> Try to load it\n",
-    // key);
-    Hashtable<String, EventCMT> dayCMTs = loadDayCMTs(key);
+    // --> Try to load it\n", key);
+
+    // we'll use the modern folder format to store synthetic data
+    // but data before 2004 or so uses a different format for its filenames
+    // i.e., instead of CyyyyMMdd~ it's CMMddyy~, so we need to look for that too
+    final String fallbackName = makeOlderFilename(timestamp);
+    Hashtable<String, EventCMT> dayCMTs = loadDayCMTs(key, fallbackName);
 
     if (dayCMTs != null) {
       cmtTree.put(key, dayCMTs);
@@ -246,7 +254,7 @@ public class EventLoader {
    * @param yyyymmdd a date in string format
    * @return the day events formatted as Hashtable<"C201510260909A", EventCMT>
    */
-  private Hashtable<String, EventCMT> loadDayCMTs(final String yyyymmdd) {
+  private Hashtable<String, EventCMT> loadDayCMTs(final String yyyymmdd, final String mmddyy) {
 
     Hashtable<String, EventCMT> dayCMTs = null;
 
@@ -257,10 +265,11 @@ public class EventLoader {
     File yearDir = new File(eventsDirectory + "/" + yyyy); // e.g.,
     // ../xs0/events/2012
 
-    // File filter to catch dir names like "C201204112255A"
+    // File filter to catch dir names like "C201204112255A" and "C122301F"
     FilenameFilter eventFilter = (dir, name) -> {
       File file = new File(dir + "/" + name);
-      return name.contains(yyyymmdd) && file.isDirectory();
+      return (name.contains(yyyymmdd) && file.isDirectory()) ||
+          (name.contains(mmddyy) && file.isDirectory());
     };
 
     // Check that yearDir exists and is a Directory:
@@ -315,14 +324,14 @@ public class EventLoader {
 
               try {
                 String idString = args[0];
-                int year = Integer.valueOf(args[1].trim());
-                int dayOfYear = Integer.valueOf(args[2].trim());
-                int hh = Integer.valueOf(args[3].trim());
-                int mm = Integer.valueOf(args[4].trim());
-                double xsec = Double.valueOf(args[5].trim());
-                double lat = Double.valueOf(args[6].trim());
-                double lon = Double.valueOf(args[7].trim());
-                double dep = Double.valueOf(args[8].trim());
+                int year = Integer.parseInt(args[1].trim());
+                int dayOfYear = Integer.parseInt(args[2].trim());
+                int hh = Integer.parseInt(args[3].trim());
+                int mm = Integer.parseInt(args[4].trim());
+                double xsec = Double.parseDouble(args[5].trim());
+                double lat = Double.parseDouble(args[6].trim());
+                double lon = Double.parseDouble(args[7].trim());
+                double dep = Double.parseDouble(args[8].trim());
 
                 int sec = (int) xsec;
                 double foo = 1000 * (xsec - sec);

@@ -72,18 +72,13 @@ public class ChannelKey extends Key implements Comparable<ChannelKey>, Serializa
 		 */
 
     // Set Default location codes:
-    if (location == null || location.equals("--") || location.equals("")) {
+    if (location == null || location.equals("")) {
       logger.debug(
-          "metadata name=[{}] location=[{}] was changed to [00]",
+          "metadata name=[{}] location=[{}] was changed to [--]",
           name, location);
-      location = "00";
+      location = "--";
     }
-    if (location.equals("HR")) {
-      logger.debug(
-          "metadata name=[{}] location=[{}] was changed to [10]",
-          name, location);
-      location = "10";
-    }
+
 
     if (location.length() != 2) {
       throw new ChannelKeyException(String

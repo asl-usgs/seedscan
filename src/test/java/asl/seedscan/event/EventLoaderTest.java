@@ -36,7 +36,24 @@ public class EventLoaderTest {
   }
 
   @Test
-  public final void testGetDaySynthetics() throws Exception {
+  public final void testGetDaySyntheticsOldName() {
+    LocalDate date = LocalDate.of(2001, 1, 1);
+    Station station = new Station("IU", "ANMO");
+
+    eventLoader.getDayEvents(date); // TODO: This shouldn't be required.
+    Hashtable<String, Hashtable<String, SacTimeSeries>> synthetics = eventLoader
+        .getDaySynthetics(date, station);
+    assertNotNull(synthetics);
+    Hashtable<String, SacTimeSeries> eventSynthetics = synthetics.get("C010101B");
+
+    SacTimeSeries timeseries = eventSynthetics.get("ANMO.XX.LXZ.modes.sac.proc");
+    assertEquals(timeseries.getNumPtsRead(), 3999);
+    timeseries = eventSynthetics.get("ANMO.XX.LXZ.modes.sac");
+    assertEquals(timeseries.getNumPtsRead(),8000);
+  }
+
+  @Test
+  public final void testGetDaySynthetics() {
     LocalDate date = LocalDate.of(2015, 10, 26);
     Station station = new Station("IU", "NWAO");
 
